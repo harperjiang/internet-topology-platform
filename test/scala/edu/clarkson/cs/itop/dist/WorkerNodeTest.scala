@@ -21,6 +21,7 @@ class WorkerNodeTest {
 
   @Test
   def testHeartbeat = {
+    djt.getStorage().get("heartbeatDest").clear();
     Thread.sleep(5000);
     assertEquals(3, djt.getStorage().get("heartbeatDest").size());
 

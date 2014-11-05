@@ -1,0 +1,53 @@
+package edu.clarkson.cs.itop.parser;
+
+import java_cup.runtime.*;
+import java.util.List;
+import java.util.ArrayList;
+import scala.Tuple2;
+
+import edu.clarkson.cs.itop.model.*;
+
+/* Preliminaries to set up and use the scanner.  */
+init with {:               :};
+scan with {: return getScanner().next_token(); :};
+
+/* Terminals (tokens returned by the scanner). */
+terminal            COLON;
+terminal 			NODE,LINK,NODELINK;
+terminal String     IP,NID,LID;
+
+/* Non terminals */
+non terminal Object        record;
+non terminal Link		   link;
+non terminal Node		   node;
+non terminal NodeLink	   nodelink;
+non terminal List<String>  ipList;
+non terminal List<Tuple2<String,String>> nodeRefList;
+non terminal Tuple2<String,String>	   nodeRef;
+/* Precedences */
+
+
+start with record;
+
+/* The grammar */
+record			::= node:n {: RESULT = n; :}
+				|	link:l {: RESULT = l; :}
+				|	nodelink:nl {: RESULT = nl; :};
+				
+node 			::= NODE NID:id COLON ipList:il {: RESULT = new Node(id, il); :};
+
+link			::= LINK LID:id COLON nodeRefList:nrl {: RESULT = new Link(id, nrl); :}; 
+
+nodelink		::= NODELINK NID:nid COLON LID:lid {: RESULT = new NodeLink(nid, "", lid); :}
+				|	NODELINK NID:nid COLON IP:ip COLON LID:lid {: RESULT = new NodeLink(nid, ip, lid); :};
+
+ipList			::= IP:il1 {: RESULT = new ArrayList<String>(); RESULT.add(il1); :}
+				|   ipList:il IP:il1 {: RESULT = il; RESULT.add(il1); :};
+				
+nodeRefList		::= nodeRef:nr {: RESULT = new ArrayList<Tuple2<String,String>>(); RESULT.add(nr); :}
+				|	nodeRefList:nrl nodeRef:nr {: RESULT = nrl; nrl.add(nr); :};
+				
+nodeRef			::= NID:id COLON IP:ip {: RESULT = new Tuple2<String,String>(id,ip); :}
+				|	NID:id	{: RESULT = new Tuple2<String,String>(id, ""); :};				
+				
+				

@@ -8,14 +8,14 @@
 	<import resource="jms.xml" />
 
 
-	<bean id="masterNode" class="edu.clarkson.cs.itop.dist.MasterNode">
+	<bean id="masterNode" class="edu.clarkson.cs.itop.core.dist.MasterNode">
 		<property name="maxMachineId" value="10" />
 		<property name="abnormalInterval" value="2000" />
 		<property name="downInterval" value="5000" />
 		<property name="stableCount" value="60" />
 	</bean>
 
-	<bean id="masterUnit" class="edu.clarkson.cs.itop.MasterUnit">
+	<bean id="masterUnit" class="edu.clarkson.cs.itop.core.MasterUnit">
 		<property name="node" ref="masterNode" />
 	</bean>
 

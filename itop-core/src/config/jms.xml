@@ -15,7 +15,7 @@
 	</bean>
 
 	<bean id="gsonTranslator"
-		class="edu.clarkson.cs.itop.dist.message.GsonFactoryBean" />
+		class="edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean" />
 
 	<!-- Spring JMS Template -->
 	<bean id="bfDestinationResolver"
@@ -36,16 +36,16 @@
 	<!-- Destinations -->
 	<bean id="heartbeatDest" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg index="0"
-			value="clientlib.caida.queue.heartbeat" />
+			value="itop.queue.heartbeat" />
 	</bean>
 
 	<bean id="workRequestDest" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg index="0"
-			value="clientlib.caida.queue.workRequest" />
+			value="itop.caida.queue.workRequest" />
 	</bean>
 
 	<bean id="workResponseDest" class="org.apache.activemq.command.ActiveMQQueue">
 		<constructor-arg index="0"
-			value="clientlib.caida.queue.workResponse" />
+			value="itop.caida.queue.workResponse" />
 	</bean>
 </beans>

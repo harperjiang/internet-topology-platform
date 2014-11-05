@@ -168,6 +168,4 @@
 		<artifactId>itop</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>edu.clarkson.cs</groupId>
-	<version>0.0.1-SNAPSHOT</version>
 </project>

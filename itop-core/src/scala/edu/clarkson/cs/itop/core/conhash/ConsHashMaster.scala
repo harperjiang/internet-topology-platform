@@ -7,4 +7,12 @@ class ConsHashMaster {
   def onHeartbeat(hb: Heartbeat) = {
 
   }
+
+  def sendStoreRemove() = {
+
+  }
+
+  def sendStoreAdd() = {
+
+  }
 }

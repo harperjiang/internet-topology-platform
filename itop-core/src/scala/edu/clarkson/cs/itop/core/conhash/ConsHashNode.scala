@@ -7,8 +7,6 @@ import java.util.concurrent.TimeUnit
 import scala.collection.JavaConversions._
 import edu.clarkson.cs.itop.core.conhash.message.CopyRequest
 import edu.clarkson.cs.itop.core.conhash.message.QueryResponse
-import edu.clarkson.cs.itop.core.conhash.message.StoreAddRequest
-import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveRequest
 import edu.clarkson.cs.itop.core.conhash.message.Heartbeat
 import edu.clarkson.cs.scala.common.message.Sender
 import edu.clarkson.cs.itop.core.conhash.message.QueryRequest
@@ -17,6 +15,8 @@ import org.springframework.beans.factory.InitializingBean
 import scala.collection.mutable.ArrayBuffer
 import edu.clarkson.cs.itop.core.conhash.message.CopyResponse
 import java.util.HashSet
+import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveMessage
+import edu.clarkson.cs.itop.core.conhash.message.StoreAddMessage
 
 class ConsHashNode extends Sender with InitializingBean {
 
@@ -72,6 +72,7 @@ class ConsHashNode extends Sender with InitializingBean {
         counterMap.put(s, c);
       });
     }
+    // TODO When non-consistency is discovered, correct it
     return candidate;
   }
 
@@ -132,12 +133,12 @@ class ConsHashNode extends Sender with InitializingBean {
     store.put(request.location, request.key, request.value);
   }
 
-  def onStoreAdded(message: StoreAddRequest) = {
+  def onStoreAdded(message: StoreAddMessage) = {
     var locations = dist.idDist(message.storeId);
     circle.insert(locations, message.storeId);
   }
 
-  def onStoreRemoved(message: StoreRemoveRequest) = {
+  def onStoreRemoved(message: StoreRemoveMessage) = {
     var locs = circle.remove(message.storeId);
     locs.foreach(f => {
       var loc = copyLocks.remove(f);

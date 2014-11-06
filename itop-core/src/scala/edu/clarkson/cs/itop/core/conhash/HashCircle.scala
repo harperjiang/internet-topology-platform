@@ -1,6 +1,8 @@
 package edu.clarkson.cs.itop.core.conhash
 
 import scala.collection.mutable.ArrayBuffer
+import java.util.TreeMap
+import java.util.HashMap
 
 trait HashCircle {
 
@@ -15,107 +17,51 @@ trait HashCircle {
   def find(location: BigDecimal, size: Int): Iterable[(String, BigDecimal)];
 }
 
-class LinkedHashCircle extends HashCircle {
+class TreeMapHashCircle extends HashCircle {
 
-  var entry: LinkedNode = new LinkedNode;
-  entry.next = entry;
-  entry.previous = entry;
-  entry.value = null;
-  entry.location = new BigDecimal(java.math.BigDecimal.ZERO);
+  private val storage = new TreeMap[BigDecimal, String];
+
+  private val backref = new HashMap[String, Iterable[BigDecimal]];
 
   def insert(locations: Iterable[BigDecimal], ref: String): Unit = {
-    locations.foreach(loc => {
-      var newNode = new LinkedNode;
-      newNode.location = loc;
-      newNode.value = ref;
-
-      var start = entry;
-      while (start != null) {
-        if (start.location == newNode.location) {
-          throw new IllegalArgumentException("Duplicate Entry");
-        }
-        if (start.location < newNode.location &&
-          (start.next.location > newNode.location || start.next == entry)) {
-          start.next.previous = newNode;
-          newNode.next = start.next;
-          start.next = newNode;
-          newNode.previous = start;
-          start = null;
-        }
-        start = start.next;
-      }
-    });
+    if (backref.containsKey(ref))
+      return ;
+    locations.foreach(storage.put(_, ref));
+    backref.put(ref, locations);
   }
 
   def remove(ref: String): Iterable[(String, BigDecimal)] = {
-    var buffer = new ArrayBuffer[(String, BigDecimal)];
-    var start = entry.next;
-    while (start != null) {
-      if (start == entry) {
-        start = null;
-      } else {
-        if (start.value == ref) {
-          start.previous.next = start.next;
-          start.next.previous = start.previous;
-          buffer += ((ref, start.location));
-        }
-        start = start.next;
-      }
-    }
-    return buffer;
+    if (!backref.containsKey(ref))
+      return Iterable.empty[(String, BigDecimal)];
+    return backref.remove(ref).map(entry => {
+      storage.remove(entry);
+      (ref, entry)
+    });
   }
 
   def before(location: BigDecimal): (String, BigDecimal) = {
-    var nb = nodeBefore(location);
-    if (null == nb)
-      return null;
-    return (nb.value, nb.location);
+    var lowerEntry = storage.lowerEntry(location);
+    if (lowerEntry == null)
+      lowerEntry = storage.lastEntry();
+    return (lowerEntry.getValue(), lowerEntry.getKey());
   }
 
   def after(location: BigDecimal): (String, BigDecimal) = {
-    var nb = nodeBefore(location);
-    if (null == nb)
-      return null;
-    var node = ignoreentry(nb.next);
-    return (node.value, node.location);
+    var higherEntry = storage.higherEntry(location);
+    if (higherEntry == null)
+      higherEntry = storage.firstEntry();
+    return (higherEntry.getValue, higherEntry.getKey);
   }
 
   def find(location: BigDecimal, size: Int): Iterable[(String, BigDecimal)] = {
-    var nb = nodeBefore(location);
-    var result = new ArrayBuffer[(String, BigDecimal)]();
+    var result = new ArrayBuffer[(String, BigDecimal)];
+    var loc = location;
     for (i <- 1 to size) {
-      nb = ignoreentry(nb.next);
-      result += ((nb.value, nb.location));
+      var next = after(loc);
+      loc = next._2;
+      result += next;
     }
     return result;
   }
 
-  private def ignoreentry(node: LinkedNode): LinkedNode = {
-    if (node == entry) return entry.next;
-    return node;
-  }
-
-  private def nodeBefore(loc: BigDecimal): LinkedNode = {
-    if (entry.next == entry) {
-      return null;
-    }
-    if (loc < entry.next.location)
-      return entry.previous;
-    var start = entry.next
-    while (start != entry) {
-      if (start.location < loc && (start.next.location > loc || start.next == entry)) {
-        return start;
-      }
-      start = start.next;
-    }
-    return null;
-  }
-}
-
-class LinkedNode {
-  var previous: LinkedNode = null;
-  var next: LinkedNode = null;
-
-  var location: BigDecimal = null;
-  var value = "";
 }

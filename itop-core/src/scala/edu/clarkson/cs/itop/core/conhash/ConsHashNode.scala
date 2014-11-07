@@ -147,7 +147,10 @@ class ConsHashNode extends Sender with InitializingBean {
       if (loc != null) {
         // If there's ongoing copy command involved, restart it
         var newloc = circle.before(f._2);
-        copy(newloc, loc);
+        newloc match {
+          case Some(a) => copy(a, loc);
+          case _ =>
+        }
       }
     })
   }

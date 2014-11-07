@@ -1,4 +1,4 @@
-package edu.clarkson.cs.common.message
+package edu.clarkson.cs.scala.common.message
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -10,9 +10,6 @@ import org.junit.Test
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-
-import edu.clarkson.cs.scala.common.message.KVStore
-import edu.clarkson.cs.scala.common.message.KVStoreSD
 
 class KVStoreTest {
 

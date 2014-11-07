@@ -1,4 +1,4 @@
-package edu.clarkson.cs.common.message
+package edu.clarkson.cs.scala.common.message
 
 import org.apache.activemq.command.ActiveMQTextMessage
 import org.junit.Test
@@ -8,7 +8,6 @@ import org.springframework.test.context.ContextConfiguration
 import com.google.gson.Gson
 import javax.annotation.Resource
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import edu.clarkson.cs.scala.common.message.JsonMessageConverter;
 import edu.clarkson.cs.itop.core.dist.message.Heartbeat
 
 @RunWith(classOf[SpringJUnit4ClassRunner])

@@ -3,6 +3,7 @@ package edu.clarkson.cs.itop.core.conhash
 import scala.collection.mutable.ArrayBuffer
 import java.util.TreeMap
 import java.util.HashMap
+import scala.collection.JavaConversions._
 
 trait HashCircle {
 
@@ -15,6 +16,8 @@ trait HashCircle {
   def after(location: BigDecimal): (String, BigDecimal);
 
   def find(location: BigDecimal, size: Int): Iterable[(String, BigDecimal)];
+
+  def toList: java.util.List[String];
 }
 
 class TreeMapHashCircle extends HashCircle {
@@ -64,4 +67,7 @@ class TreeMapHashCircle extends HashCircle {
     return result;
   }
 
+  def toList: java.util.List[String] = {
+    storage.values().toList
+  }
 }

@@ -8,6 +8,7 @@ import edu.clarkson.cs.itop.core.conhash.message.StoreAddMessage
 import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
 
 class ConsHashMaster extends Sender with InitializingBean {
 
@@ -15,7 +16,7 @@ class ConsHashMaster extends Sender with InitializingBean {
 
   var monitorInterval = 1000l;
 
-  var stores = new ConcurrentHashMap[String, (Long, Boolean)];
+  var stores = new ConcurrentHashMap[String, Long];
 
   private val logger = LoggerFactory.getLogger(getClass());
 
@@ -25,13 +26,17 @@ class ConsHashMaster extends Sender with InitializingBean {
 
   def checkDeath() = {
     var now = System.currentTimeMillis();
+    var deathCandidates = new ArrayBuffer[String];
     stores.foreach(entry => {
-      entry.synchronized {
-        if (entry._2 + interval < now) {
-          // Death found
-        }
+      if (entry._2 + interval < now) {
+        // Death candidates found
+        deathCandidates += entry._1;
       }
     });
+    deathCandidates.foreach(key => {
+      stores.remove(key);
+      sendStoreRemove(key);
+    })
   }
 
   def onHeartbeat(hb: Heartbeat) = {

@@ -17,6 +17,8 @@ import edu.clarkson.cs.itop.core.conhash.message.CopyResponse
 import java.util.HashSet
 import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveMessage
 import edu.clarkson.cs.itop.core.conhash.message.StoreAddMessage
+import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
+import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
 
 class ConsHashNode extends Sender with InitializingBean {
 
@@ -172,5 +174,26 @@ class ConsHashNode extends Sender with InitializingBean {
   def onCopyResponse(resp: CopyResponse) = {
     store.getAll(resp.toLocation).putAll(resp.content);
     copyLocks.remove((resp.fromNode, resp.fromLocation));
+  }
+
+  private var syncLock: Semaphore = new Semaphore(0);
+
+  def requestCircleSync() = {
+    syncLock.release();
+    send("ch.sync", (new SyncCircleRequest(), null));
+  }
+
+  def onSyncCircleRequest(req: SyncCircleRequest) = {
+    var resp = new SyncCircleResponse();
+    resp.circle = circle.toList;
+    send("ch.syncResp", (resp, null));
+  }
+
+  def onSyncCircleResponse(resp: SyncCircleResponse) = {
+    if (syncLock.tryAcquire()) {
+      resp.circle.foreach(id => {
+        circle.insert(dist.idDist(id), id);
+      });
+    }
   }
 }

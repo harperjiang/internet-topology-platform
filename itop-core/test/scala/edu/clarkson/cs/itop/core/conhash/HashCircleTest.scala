@@ -1,6 +1,7 @@
 package edu.clarkson.cs.itop.core.conhash
 
 import scala.BigDecimal
+import scala.collection.JavaConversions._
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -23,6 +24,9 @@ class TreeMapHashCircleTest {
     circle1.insert(List(BigDecimal(2), BigDecimal(3), BigDecimal(12)), "node2");
     circle1.insert(List(BigDecimal(0.5), BigDecimal(3.7), BigDecimal(21)), "node3");
     circle1.insert(List(BigDecimal(3.75), BigDecimal(2.68), BigDecimal(1.31)), "node4");
+
+    circle2 = new TreeMapHashCircle();
+    circle2.insert(List(BigDecimal(4), BigDecimal(35)), "node1")
   }
 
   @Test
@@ -67,21 +71,47 @@ class TreeMapHashCircleTest {
 
   @Test
   def testAfter = {
-    assertEquals(None, emptyCircle.afterOrOn(BigDecimal(5)));
+    assertEquals(None, emptyCircle.after(BigDecimal(5)));
 
-    assertEquals(Some("node3", BigDecimal(21)), circle1.afterOrOn(BigDecimal(0.0001)));
-    assertEquals(Some("node2", BigDecimal(2)), circle1.afterOrOn(BigDecimal(2.5)));
-    assertEquals(Some("node1", BigDecimal(4)), circle1.afterOrOn(BigDecimal(4.5324)));
-    assertEquals(Some("node3", BigDecimal(21)), circle1.afterOrOn(BigDecimal(52.23423)));
+    assertEquals(Some("node3", BigDecimal(0.5)), circle1.after(BigDecimal(0.0001)));
+    assertEquals(Some("node4", BigDecimal(2.68)), circle1.after(BigDecimal(2.5)));
+    assertEquals(Some("node1", BigDecimal(9)), circle1.after(BigDecimal(4.5324)));
+    assertEquals(Some("node3", BigDecimal(0.5)), circle1.after(BigDecimal(52.23423)));
   }
 
   @Test
   def testFind = {
+    assertTrue(emptyCircle.find(BigDecimal(5), 3).isEmpty);
 
+    var fromcircle1 = circle1.find(BigDecimal(3.242), 4);
+
+    assertEquals(4, fromcircle1.size);
+    assertTrue(fromcircle1.exists(_ == ("node3", BigDecimal(3.7))));
+    assertTrue(fromcircle1.exists(_ == ("node4", BigDecimal(3.75))));
+    assertTrue(fromcircle1.exists(_ == ("node1", BigDecimal(4))));
+    assertTrue(fromcircle1.exists(_ == ("node1", BigDecimal(9))));
+
+    var fromcircle2 = circle2.find(BigDecimal(3.242), 4);
+
+    assertEquals(2, fromcircle2.size);
+    assertTrue(fromcircle2.exists(_ == ("node1", BigDecimal(4))));
+    assertTrue(fromcircle2.exists(_ == ("node1", BigDecimal(35))));
   }
 
   @Test
   def testToList = {
-
+    assertTrue(emptyCircle.content.isEmpty());
+    var fc1 = circle1.content
+    var fc2 = circle2.content
+    
+    assertEquals(4,fc1.size())
+    assertEquals(1,fc2.size());
+    
+    assertTrue(fc1.exists(_=="node1"))
+    assertTrue(fc1.exists(_=="node2"))
+    assertTrue(fc1.exists(_=="node3"))
+    assertTrue(fc1.exists(_=="node4"))
+  
+    assertTrue(fc2.exists(_=="node1"))
   }
 }

@@ -1,7 +1,10 @@
 package edu.clarkson.cs.itop.core.conhash.message
 
-class StoreAddMessage {
+trait StoreMessage {
   var storeId = "";
+}
+
+class StoreAddMessage extends StoreMessage {
 
   def this(sid: String) = {
     this();
@@ -9,8 +12,7 @@ class StoreAddMessage {
   }
 }
 
-class StoreRemoveMessage {
-  var storeId = "";
+class StoreRemoveMessage extends StoreMessage {
 
   def this(sid: String) = {
     this();

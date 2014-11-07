@@ -4,5 +4,5 @@ class SyncCircleRequest {
 }
 
 class SyncCircleResponse {
-  var circle: java.util.List[String] = null;
+  var circle: java.util.Set[String] = null;
 }

@@ -9,16 +9,20 @@ import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.util.concurrent.locks.ReentrantLock
 
 class ConsHashMaster extends Sender with InitializingBean {
 
-  var interval = 10000l;
+  var interval = 5000l;
 
   var monitorInterval = 1000l;
 
-  var stores = new ConcurrentHashMap[String, Long];
+  private val stores = new ConcurrentHashMap[String, Long];
 
   private val logger = LoggerFactory.getLogger(getClass());
+
+  private val lock = new ReentrantLock();
 
   def afterPropertiesSet(): Unit = {
     new MonitorThread().start;
@@ -33,28 +37,38 @@ class ConsHashMaster extends Sender with InitializingBean {
         deathCandidates += entry._1;
       }
     });
-    deathCandidates.foreach(key => {
-      stores.remove(key);
-      sendStoreRemove(key);
-    })
+    if (!deathCandidates.isEmpty) {
+      lock.lock();
+      deathCandidates.foreach(key => {
+        if (stores.get(key) + interval < now) {
+          stores.remove(key);
+          sendStoreRemove(key);
+        }
+      });
+      lock.unlock();
+    }
   }
 
   def onHeartbeat(hb: Heartbeat) = {
-    if (!stores.contains(hb.storeId)) {
+    if (!stores.containsKey(hb.storeId)) {
       // Neophyte found
-      sendStoreAdd(hb.storeId);
-      // We don't put any lock here cause it doesn't matter 
-      // even if the store add message is sent multiple times.
+      lock.lock();
+      if (!stores.containsKey(hb.storeId)) {
+        stores.put(hb.storeId, System.currentTimeMillis());
+        sendStoreAdd(hb.storeId);
+      }
+      lock.unlock();
+    } else {
+      stores.put(hb.storeId, System.currentTimeMillis());
     }
-    stores.put(hb.storeId, System.currentTimeMillis());
   }
 
   def sendStoreRemove(storeId: String) = {
-    send("ch.storeRemove", (new StoreRemoveMessage(storeId), null))
+    send("ch.store", (new StoreRemoveMessage(storeId), null))
   }
 
   def sendStoreAdd(storeId: String) = {
-    send("ch.storeAdd", (new StoreAddMessage(storeId), null))
+    send("ch.store", (new StoreAddMessage(storeId), null))
   }
 
   class MonitorThread extends Thread {
@@ -64,12 +78,14 @@ class ConsHashMaster extends Sender with InitializingBean {
     }
 
     override def run(): Unit = {
-      try {
-        checkDeath();
-        Thread.sleep(monitorInterval);
-      } catch {
-        case e: Exception => {
-          logger.error("Exception in monitorThread", e);
+      while (true) {
+        try {
+          checkDeath();
+          Thread.sleep(monitorInterval);
+        } catch {
+          case e: Exception => {
+            logger.error("Exception in monitorThread", e);
+          }
         }
       }
     }

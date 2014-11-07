@@ -19,12 +19,13 @@ import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveMessage
 import edu.clarkson.cs.itop.core.conhash.message.StoreAddMessage
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
+import edu.clarkson.cs.itop.core.conhash.message.StoreMessage
 
 class ConsHashNode extends Sender with InitializingBean {
 
   var id = "";
 
-  var dist: Distribution = null;
+  var function: HashFunction = null;
 
   var circle: HashCircle = null;
 
@@ -38,10 +39,10 @@ class ConsHashNode extends Sender with InitializingBean {
 
   private var buffer = new ConcurrentHashMap[String, java.util.List[String]]();
 
-  private var store: HashStore = null;
+  private var store = new HashStore;
 
   def afterPropertiesSet(): Unit = {
-    var locs = dist.idDist(id);
+    var locs = function.idDist(id);
     store = new HashStore(locs);
   }
 
@@ -49,7 +50,7 @@ class ConsHashNode extends Sender with InitializingBean {
    * Interface for consistent hashing
    */
   def get(key: String): String = {
-    var keyHash = dist.keyHash(key);
+    var keyHash = function.keyHash(key);
     var locations = circle.find(keyHash, candidateCount);
     var sessionKey = UUID.randomUUID().toString();
     var semaphore = new Semaphore(0);
@@ -79,7 +80,7 @@ class ConsHashNode extends Sender with InitializingBean {
   }
 
   def put(key: String, value: String): Unit = {
-    var keyHash = dist.keyHash(key);
+    var keyHash = function.keyHash(key);
     var locations = circle.find(keyHash, candidateCount);
     locations.foreach { sendSet(_, key, value) };
   }
@@ -135,24 +136,27 @@ class ConsHashNode extends Sender with InitializingBean {
     store.put(request.location, request.key, request.value);
   }
 
-  def onStoreAdded(message: StoreAddMessage) = {
-    var locations = dist.idDist(message.storeId);
-    circle.insert(locations, message.storeId);
-  }
-
-  def onStoreRemoved(message: StoreRemoveMessage) = {
-    var locs = circle.remove(message.storeId);
-    locs.foreach(f => {
-      var loc = copyLocks.remove(f);
-      if (loc != null) {
-        // If there's ongoing copy command involved, restart it
-        var newloc = circle.before(f._2);
-        newloc match {
-          case Some(a) => copy(a, loc);
-          case _ =>
-        }
+  def onStoreChanged(message: StoreMessage) = {
+    message match {
+      case e: StoreAddMessage => {
+        var locations = function.idDist(e.storeId);
+        circle.insert(locations, e.storeId);
       }
-    })
+      case e: StoreRemoveMessage => {
+        var locs = circle.remove(e.storeId);
+        locs.foreach(f => {
+          var loc = copyLocks.remove(f);
+          if (loc != null) {
+            // If there's ongoing copy command involved, restart it
+            var newloc = circle.before(f._2);
+            newloc match {
+              case Some(a) => copy(a, loc);
+              case _ =>
+            }
+          }
+        })
+      }
+    }
   }
 
   def copy(from: (String, BigDecimal), to: BigDecimal) = {
@@ -188,14 +192,14 @@ class ConsHashNode extends Sender with InitializingBean {
 
   def onSyncCircleRequest(req: SyncCircleRequest) = {
     var resp = new SyncCircleResponse();
-    resp.circle = circle.toList;
+    resp.circle = circle.content;
     send("ch.syncResp", (resp, null));
   }
 
   def onSyncCircleResponse(resp: SyncCircleResponse) = {
     if (syncLock.tryAcquire()) {
       resp.circle.foreach(id => {
-        circle.insert(dist.idDist(id), id);
+        circle.insert(function.idDist(id), id);
       });
     }
   }

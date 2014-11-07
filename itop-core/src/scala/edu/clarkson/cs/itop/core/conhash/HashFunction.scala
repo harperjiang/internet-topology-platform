@@ -1,15 +1,16 @@
 package edu.clarkson.cs.itop.core.conhash
 
+import scala.BigDecimal
 import scala.collection.mutable.ArrayBuffer
 
-trait Distribution {
+trait HashFunction {
 
   def keyHash: (String) => BigDecimal;
 
   def idDist: (String) => Iterable[BigDecimal];
 }
 
-class DefaultDistribution extends Distribution {
+class DefaultHashFunction extends HashFunction {
 
   private val MAX = BigDecimal(Integer.MAX_VALUE);
 

@@ -14,11 +14,11 @@ trait HashCircle {
 
   def before(location: BigDecimal): Option[(String, BigDecimal)];
 
-  def afterOrOn(location: BigDecimal): Option[(String, BigDecimal)];
+  def after(location: BigDecimal): Option[(String, BigDecimal)];
 
   def find(location: BigDecimal, size: Int): Iterable[(String, BigDecimal)];
 
-  def toList: java.util.List[String];
+  def content: java.util.Set[String];
 }
 
 class TreeMapHashCircle extends HashCircle {
@@ -58,11 +58,11 @@ class TreeMapHashCircle extends HashCircle {
     return Some(lowerEntry.getValue(), lowerEntry.getKey());
   }
 
-  def afterOrOn(location: BigDecimal): Option[(String, BigDecimal)] = {
+  def after(location: BigDecimal): Option[(String, BigDecimal)] = {
     if (storage.isEmpty()) {
       return None;
     }
-    var higherEntry = storage.ceilingEntry(location);
+    var higherEntry = storage.higherEntry(location);
     if (higherEntry == null)
       higherEntry = storage.firstEntry();
     return Some(higherEntry.getValue, higherEntry.getKey);
@@ -75,19 +75,26 @@ class TreeMapHashCircle extends HashCircle {
     var result = new scala.collection.mutable.HashSet[(String, BigDecimal)];
     var loc = location;
     for (i <- 1 to size) {
-      var next = afterOrOn(loc).getOrElse(return result);
-      loc = next._2;
-      var oldsize = result.size;
-      result += next;
-      if (result.size == oldsize)
-        // Not increasing, this means no more
-        return result;
+      var next = after(loc);
+      next match {
+        case Some(a) => {
+          loc = a._2;
+          var oldsize = result.size;
+          result += a;
+          if (result.size == oldsize)
+            // Not increasing, this means no more
+            return result;
+        }
+        case _ => {
+          return result;
+        }
+      }
     }
     return result;
   }
 
-  def toList: java.util.List[String] = {
-    storage.values().toList
+  def content: java.util.Set[String] = {
+    storage.values().toSet[String]
   }
 }
 

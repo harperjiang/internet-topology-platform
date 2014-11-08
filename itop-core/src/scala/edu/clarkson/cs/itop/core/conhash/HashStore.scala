@@ -15,14 +15,21 @@ class HashStore {
   }
 
   def get(location: BigDecimal, key: String): String = {
+    if (!store.containsKey(location))
+      throw new IllegalArgumentException("Nonexist location");
     return store.get(location).get(key);
+
   }
 
   def getAll(location: BigDecimal): java.util.Map[String, String] = {
+    if (!store.containsKey(location))
+      throw new IllegalArgumentException("Nonexist location");
     return store.get(location);
   }
 
   def put(location: BigDecimal, key: String, value: String) = {
+    if (!store.containsKey(location))
+      throw new IllegalArgumentException("Nonexist location");
     store.get(location).put(key, value);
   }
 }

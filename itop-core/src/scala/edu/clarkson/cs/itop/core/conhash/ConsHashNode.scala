@@ -20,6 +20,7 @@ import edu.clarkson.cs.itop.core.conhash.message.StoreAddMessage
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
 import edu.clarkson.cs.itop.core.conhash.message.StoreMessage
+import org.slf4j.LoggerFactory
 
 class ConsHashNode extends Sender with InitializingBean {
 
@@ -31,7 +32,11 @@ class ConsHashNode extends Sender with InitializingBean {
 
   var candidateCount = 3;
 
-  var timeout = 1000;
+  var heartbeatInterval = 1000l;
+
+  var timeout = 1000l;
+
+  private val logger = LoggerFactory.getLogger(getClass());
 
   private var locks = new ConcurrentHashMap[String, Semaphore]();
 
@@ -39,11 +44,12 @@ class ConsHashNode extends Sender with InitializingBean {
 
   private var buffer = new ConcurrentHashMap[String, java.util.List[String]]();
 
-  private var store = new HashStore;
+  private var store: HashStore = null;
 
   def afterPropertiesSet(): Unit = {
     var locs = function.idDist(id);
     store = new HashStore(locs);
+    new HeartbeatThread().start();
   }
 
   /**
@@ -68,7 +74,8 @@ class ConsHashNode extends Sender with InitializingBean {
     var candidate = "";
     var max = 0;
     if (results != null) {
-      results.foreach(s => {
+      // Null result will be ignored
+      results.filter(_ != null).foreach(s => {
         var c = counterMap.getOrDefault(s, 1);
         c += 1;
         if (c > max) { max = c; candidate = s; }
@@ -88,15 +95,15 @@ class ConsHashNode extends Sender with InitializingBean {
   /**
    * Message Communications
    */
-  def sendHeartbeat = {
-    var hb = new Heartbeat;
+  private def sendHeartbeat = {
+    var hb = new Heartbeat(id, System.currentTimeMillis());
     send("ch.heartbeat", (hb, null));
   }
 
-  def sendQuery(ref: (String, BigDecimal), key: String, sessionKey: String): Unit = {
+  private def sendQuery(ref: (String, BigDecimal), key: String, sessionKey: String): Unit = {
     if (ref._1 == id) {
-      // Local query
-      onQueryResult(new QueryResponse(store.get(ref._2, key), sessionKey));
+      // Local query, fake a result
+      onQueryResult(new QueryResponse(id, store.get(ref._2, key), sessionKey));
       return ;
     }
 
@@ -106,7 +113,7 @@ class ConsHashNode extends Sender with InitializingBean {
 
   def onQuery(request: QueryRequest) = {
     var result = store.get(request.location, request.key);
-    var queryResp = new QueryResponse(result, request.sessionKey);
+    var queryResp = new QueryResponse(id, result, request.sessionKey);
     send("ch.queryResp", (queryResp, null));
   }
 
@@ -120,19 +127,19 @@ class ConsHashNode extends Sender with InitializingBean {
       lock.release();
   }
 
-  def sendSet(ref: (String, BigDecimal), key: String, value: String): Unit = {
+  private def sendSet(ref: (String, BigDecimal), key: String, value: String): Unit = {
     if (ref._1 == id) {
       // Local set
       store.put(ref._2, key, value);
       return ;
     }
     var request = new SetRequest(ref._1, ref._2, key, value);
-    send("ch.set", (request, null));
+    send("ch.set", (request, m => { m.setStringProperty("node_id", ref._1) }));
   }
 
   def onSet(request: SetRequest): Unit = {
     if (request.nodeid != id)
-      return ;
+      throw new IllegalArgumentException("Not for this node");
     store.put(request.location, request.key, request.value);
   }
 
@@ -159,7 +166,7 @@ class ConsHashNode extends Sender with InitializingBean {
     }
   }
 
-  def copy(from: (String, BigDecimal), to: BigDecimal) = {
+  private def copy(from: (String, BigDecimal), to: BigDecimal) = {
     copyLocks.put(from, to);
     var copyRequest = new CopyRequest();
     copyRequest.fromLocation = from._2;
@@ -187,7 +194,7 @@ class ConsHashNode extends Sender with InitializingBean {
 
   def requestCircleSync() = {
     syncLock.release();
-    send("ch.sync", (new SyncCircleRequest(), null));
+    send("ch.sync", (new SyncCircleRequest(id), null));
   }
 
   def onSyncCircleRequest(req: SyncCircleRequest) = {
@@ -201,6 +208,25 @@ class ConsHashNode extends Sender with InitializingBean {
       resp.circle.foreach(id => {
         circle.insert(function.idDist(id), id);
       });
+    }
+  }
+
+  class HeartbeatThread extends Thread {
+
+    setName("ConsHashNode-Heartbeat");
+    setDaemon(true);
+
+    override def run = {
+      while (true) {
+        try {
+          sendHeartbeat;
+          Thread.sleep(heartbeatInterval);
+        } catch {
+          case e: Exception => {
+            logger.error("Exception in heartbeat thread", e);
+          }
+        }
+      }
     }
   }
 }

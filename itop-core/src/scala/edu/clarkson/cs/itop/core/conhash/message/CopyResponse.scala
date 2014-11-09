@@ -7,5 +7,12 @@ class CopyResponse {
   var fromLocation: BigDecimal = null;
   var fromNode = "";
 
-  var content: java.util.Map[String, String] = null;
+  var content: java.util.Map[String, String] = new HashMap[String, String];
+
+  def this(fn: String, fl: BigDecimal, tl: BigDecimal) = {
+    this();
+    fromNode = fn;
+    fromLocation = fl;
+    toLocation = tl;
+  }
 }

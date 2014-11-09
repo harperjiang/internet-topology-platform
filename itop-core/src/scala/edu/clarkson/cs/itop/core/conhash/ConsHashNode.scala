@@ -4,23 +4,28 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
-import scala.collection.JavaConversions._
-import edu.clarkson.cs.itop.core.conhash.message.CopyRequest
-import edu.clarkson.cs.itop.core.conhash.message.QueryResponse
-import edu.clarkson.cs.itop.core.conhash.message.Heartbeat
-import edu.clarkson.cs.scala.common.message.Sender
-import edu.clarkson.cs.itop.core.conhash.message.QueryRequest
-import edu.clarkson.cs.itop.core.conhash.message.SetRequest
-import org.springframework.beans.factory.InitializingBean
+
+import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConversions.asScalaSet
+import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.JavaConversions.mutableMapAsJavaMap
 import scala.collection.mutable.ArrayBuffer
+
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.InitializingBean
+
+import edu.clarkson.cs.itop.core.conhash.message.CopyRequest
 import edu.clarkson.cs.itop.core.conhash.message.CopyResponse
-import java.util.HashSet
-import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveMessage
+import edu.clarkson.cs.itop.core.conhash.message.Heartbeat
+import edu.clarkson.cs.itop.core.conhash.message.QueryRequest
+import edu.clarkson.cs.itop.core.conhash.message.QueryResponse
+import edu.clarkson.cs.itop.core.conhash.message.SetRequest
 import edu.clarkson.cs.itop.core.conhash.message.StoreAddMessage
+import edu.clarkson.cs.itop.core.conhash.message.StoreMessage
+import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveMessage
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
-import edu.clarkson.cs.itop.core.conhash.message.StoreMessage
-import org.slf4j.LoggerFactory
+import edu.clarkson.cs.scala.common.message.Sender
 
 class ConsHashNode extends Sender with InitializingBean {
 
@@ -34,6 +39,8 @@ class ConsHashNode extends Sender with InitializingBean {
 
   var heartbeatInterval = 1000l;
 
+  var copyTimeout = 10000l;
+
   var timeout = 1000l;
 
   private val logger = LoggerFactory.getLogger(getClass());
@@ -42,14 +49,13 @@ class ConsHashNode extends Sender with InitializingBean {
 
   private var copyLocks = new ConcurrentHashMap[(String, BigDecimal), BigDecimal]();
 
-  private var buffer = new ConcurrentHashMap[String, java.util.List[String]]();
+  private var buffer = new ConcurrentHashMap[String, java.util.List[(String, String, BigDecimal)]]();
 
   private var store: HashStore = null;
 
   def afterPropertiesSet(): Unit = {
     var locs = function.idDist(id);
     store = new HashStore(locs);
-    new HeartbeatThread().start();
   }
 
   /**
@@ -61,29 +67,44 @@ class ConsHashNode extends Sender with InitializingBean {
     var sessionKey = UUID.randomUUID().toString();
     var semaphore = new Semaphore(0);
     locks.put(sessionKey, semaphore);
-    buffer.put(sessionKey, new ArrayBuffer[String]());
+    buffer.put(sessionKey, new ArrayBuffer[(String, String, BigDecimal)]());
     locations.foreach { sendQuery(_, key, sessionKey) };
     semaphore.tryAcquire(candidateCount, timeout, TimeUnit.MILLISECONDS);
-    return summarize(sessionKey);
+    return summarize(key, sessionKey);
   }
 
-  private def summarize(sessionKey: String): String = {
+  private def summarize(key: String, sessionKey: String): String = {
     locks.remove(sessionKey);
     var results = buffer.remove(sessionKey);
-    var counterMap = new java.util.HashMap[String, Int]();
-    var candidate = "";
-    var max = 0;
-    if (results != null) {
-      // Null result will be ignored
-      results.filter(_ != null).foreach(s => {
-        var c = counterMap.getOrDefault(s, 1);
-        c += 1;
-        if (c > max) { max = c; candidate = s; }
-        counterMap.put(s, c);
-      });
+    var counterMap = scala.collection.mutable.Map[String, Int]();
+    if (results == null) {
+      return null;
     }
-    // TODO When non-consistency is discovered, correct it
-    return candidate;
+    // Null result will be ignored
+    var lookformax = new Function0[String] {
+      def apply(): String = {
+        var candidate: String = null;
+        var max = 0;
+        results.foreach(s => {
+          var c = counterMap.getOrDefault(s._1, 0);
+          c += 1;
+          if (c > max) { max = c; candidate = s._1; }
+          counterMap.put(s._1, c);
+          if (c > results.size() / 2)
+            return s._1;
+        });
+        return candidate;
+      };
+    }
+    var result = lookformax();
+
+    // When non-consistency is discovered, correct it
+    results.foreach(s => {
+      if (s._1 != result) {
+        sendSet((s._2, s._3), key, result);
+      }
+    });
+    return result;
   }
 
   def put(key: String, value: String): Unit = {
@@ -103,7 +124,7 @@ class ConsHashNode extends Sender with InitializingBean {
   private def sendQuery(ref: (String, BigDecimal), key: String, sessionKey: String): Unit = {
     if (ref._1 == id) {
       // Local query, fake a result
-      onQueryResult(new QueryResponse(id, store.get(ref._2, key), sessionKey));
+      onQueryResult(new QueryResponse(id, ref._2, store.get(ref._2, key), sessionKey));
       return ;
     }
 
@@ -113,14 +134,14 @@ class ConsHashNode extends Sender with InitializingBean {
 
   def onQuery(request: QueryRequest) = {
     var result = store.get(request.location, request.key);
-    var queryResp = new QueryResponse(id, result, request.sessionKey);
+    var queryResp = new QueryResponse(id, request.location, result, request.sessionKey);
     send("ch.queryResp", (queryResp, null));
   }
 
   def onQueryResult(resp: QueryResponse) = {
     var results = buffer.get(resp.sessionKey);
     if (results != null) {
-      results += resp.result;
+      results += ((resp.result, resp.nodeid, resp.fromloc));
     }
     var lock = locks.get(resp.sessionKey);
     if (lock != null)
@@ -157,7 +178,7 @@ class ConsHashNode extends Sender with InitializingBean {
             // If there's ongoing copy command involved, restart it
             var newloc = circle.before(f._2);
             newloc match {
-              case Some(a) => copy(a, loc);
+              case Some(a) => sendCopy(a, loc);
               case _ =>
             }
           }
@@ -166,7 +187,28 @@ class ConsHashNode extends Sender with InitializingBean {
     }
   }
 
-  private def copy(from: (String, BigDecimal), to: BigDecimal) = {
+  private val copyCounter = new Semaphore(0);
+
+  private def makeCopy: Int = {
+    var locs = function.idDist(id);
+    var counter = 0;
+    locs.foreach(loc => {
+      var copyfrom = circle.before(loc)
+        .getOrElse(throw new IllegalArgumentException("Empty circle"));
+      for (i <- 1 to candidateCount - 1) {
+        if (copyfrom._1 != id) {
+          // Not local
+          counter += 1;
+          sendCopy(copyfrom, loc);
+        }
+        copyfrom = circle.before(copyfrom._2)
+          .getOrElse(throw new IllegalArgumentException("Empty circle"));
+      }
+    });
+    return counter;
+  }
+
+  private def sendCopy(from: (String, BigDecimal), to: BigDecimal) = {
     copyLocks.put(from, to);
     var copyRequest = new CopyRequest();
     copyRequest.fromLocation = from._2;
@@ -188,11 +230,15 @@ class ConsHashNode extends Sender with InitializingBean {
   def onCopyResponse(resp: CopyResponse) = {
     store.getAll(resp.toLocation).putAll(resp.content);
     copyLocks.remove((resp.fromNode, resp.fromLocation));
+    copyCounter.release();
   }
 
   private var syncLock: Semaphore = new Semaphore(0);
 
-  def requestCircleSync() = {
+  private var syncDoneLock: Semaphore = new Semaphore(0);
+
+  private def requestCircleSync() = {
+    syncLock.drainPermits();
     syncLock.release();
     send("ch.sync", (new SyncCircleRequest(id), null));
   }
@@ -208,7 +254,33 @@ class ConsHashNode extends Sender with InitializingBean {
       resp.circle.foreach(id => {
         circle.insert(function.idDist(id), id);
       });
+      syncDoneLock.release();
     }
+  }
+
+  /**
+   * Newly started node.
+   */
+  def start = {
+    new HeartbeatThread().start();
+  }
+
+  /**
+   * Every newly joined node should invoke this
+   */
+  def join = {
+    requestCircleSync();
+    // When sync is done, copy data from other nodes
+    if (!syncDoneLock.tryAcquire(timeout, TimeUnit.MILLISECONDS))
+      throw new RuntimeException("Failed to sync circle");
+    // For each id, check and copy from locations before it
+    var size = makeCopy;
+    if (!copyCounter.tryAcquire(size, copyTimeout, TimeUnit.MILLISECONDS)) {
+      throw new RuntimeException("Failed to copy data, timeout");
+    }
+    // Add self id locally, remote will be handled when heartbeat sent
+    circle.insert(function.idDist(id), id);
+    new HeartbeatThread().start();
   }
 
   class HeartbeatThread extends Thread {

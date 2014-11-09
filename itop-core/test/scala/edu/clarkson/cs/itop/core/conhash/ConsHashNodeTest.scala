@@ -2,15 +2,12 @@ package edu.clarkson.cs.itop.core.conhash
 
 import scala.BigDecimal
 import scala.collection.JavaConversions.setAsJavaSet
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
-
 import com.google.gson.Gson
-
 import edu.clarkson.cs.common.test.message.DummyJmsTemplate
 import edu.clarkson.cs.itop.core.conhash.message.Heartbeat
 import edu.clarkson.cs.itop.core.conhash.message.QueryRequest
@@ -22,6 +19,7 @@ import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
 import edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean
 import edu.clarkson.cs.scala.common.message.JsonMessageConverter
+import edu.clarkson.cs.itop.core.conhash.message.CopyResponse
 
 class ConsHashNodeTest {
 
@@ -47,17 +45,6 @@ class ConsHashNodeTest {
   }
 
   @Test
-  def testHeartbeat = {
-    Thread.sleep(4000l);
-    assertTrue(jmsTemplate.getStorage.get("ch.heartbeat").size >= 4);
-
-    var heartbeat = messageConverter
-      .fromMessage(jmsTemplate.getStorage.get("ch.heartbeat").poll())
-      .asInstanceOf[Heartbeat];
-    assertEquals("node1", heartbeat.storeId);
-  }
-
-  @Test
   def testSimpleGet = {
     node.put("key1", "minority");
     assertEquals("minority", node.get("key1"));
@@ -74,12 +61,13 @@ class ConsHashNodeTest {
         var query = messageConverter.fromMessage(
           jmsTemplate.getStorage.get("ch.query").poll())
           .asInstanceOf[QueryRequest];
-        node.onQueryResult(new QueryResponse("node2", "majority", query.sessionKey));
-        node.onQueryResult(new QueryResponse("node3", "majority", query.sessionKey));
+        node.onQueryResult(new QueryResponse("node2", BigDecimal(8), "majority", query.sessionKey));
+        node.onQueryResult(new QueryResponse("node3", BigDecimal(2), "majority", query.sessionKey));
       }
     }.start();
     assertEquals("majority", node.get("key1"));
-
+    // local result should have been corrected
+    assertEquals("majority", node.get("key1"));
   }
 
   @Test
@@ -122,8 +110,8 @@ class ConsHashNodeTest {
     node.onSet(new SetRequest("node1", BigDecimal(1), "key3", "value3"));
 
     assertEquals("value3", node.get("key3"));
-    assertEquals("", node.get("key1"));
-    assertEquals("", node.get("key2"));
+    assertEquals(null, node.get("key1"));
+    assertEquals(null, node.get("key2"));
   }
 
   @Test
@@ -156,25 +144,79 @@ class ConsHashNodeTest {
   }
 
   @Test
-  def testRequestCircleSync = {
-    node.requestCircleSync();
+  def testJoin = {
+    try {
+      node.join
+      fail();
+    } catch {
+      case e: RuntimeException => {}
+    }
     assertEquals(1, jmsTemplate.getStorage.get("ch.sync").size());
-
     var msg = messageConverter
       .fromMessage(jmsTemplate.getStorage.get("ch.sync").poll)
       .asInstanceOf[SyncCircleRequest];
-
     assertEquals("node1", msg.id);
+
+    new Thread() {
+      override def run = {
+        Thread.sleep(200l);
+        node.onSyncCircleResponse(new SyncCircleResponse(Set[String]("node2", "node3")));
+        node.onCopyResponse(new CopyResponse("node3", BigDecimal(2), BigDecimal(4)));
+        node.onCopyResponse(new CopyResponse("node2", BigDecimal(3), BigDecimal(4)));
+
+        node.onCopyResponse(new CopyResponse("node2", BigDecimal(9), BigDecimal(1)));
+        node.onCopyResponse(new CopyResponse("node2", BigDecimal(8), BigDecimal(1)));
+
+        node.onCopyResponse(new CopyResponse("node3", BigDecimal(5), BigDecimal(7)));
+        //        node.onCopyResponse(new CopyResponse("node3", BigDecimal(6), BigDecimal(7)));
+      }
+    }.start();
+    try {
+      node.join
+    } catch {
+      case e: RuntimeException => {}
+    }
+    new Thread() {
+      override def run = {
+        Thread.sleep(200l);
+        node.onSyncCircleResponse(new SyncCircleResponse(Set[String]("node2", "node3")));
+        node.onCopyResponse(new CopyResponse("node3", BigDecimal(2), BigDecimal(4)));
+        node.onCopyResponse(new CopyResponse("node2", BigDecimal(3), BigDecimal(4)));
+
+        node.onCopyResponse(new CopyResponse("node2", BigDecimal(9), BigDecimal(1)));
+        node.onCopyResponse(new CopyResponse("node2", BigDecimal(8), BigDecimal(1)));
+
+        node.onCopyResponse(new CopyResponse("node3", BigDecimal(5), BigDecimal(7)));
+        node.onCopyResponse(new CopyResponse("node3", BigDecimal(6), BigDecimal(7)));
+      }
+    }.start();
+    node.join
+
+    assertTrue(circle.buffer.contains("node1"));
+  }
+
+  @Test
+  def testHeartbeat = {
+    node.start
+    Thread.sleep(4000l);
+    assertTrue(jmsTemplate.getStorage.get("ch.heartbeat").size >= 4);
+
+    var heartbeat = messageConverter
+      .fromMessage(jmsTemplate.getStorage.get("ch.heartbeat").poll())
+      .asInstanceOf[Heartbeat];
+    assertEquals("node1", heartbeat.storeId);
   }
 
   @Test
   def testOnSyncCircle = {
     assertTrue(!circle.buffer.contains("node2"));
     assertTrue(!circle.buffer.contains("node3"));
-    node.requestCircleSync();
-    node.onSyncCircleResponse(new SyncCircleResponse(Set[String]("node2", "node3")));
-    assertTrue(circle.buffer.contains("node2"));
-    assertTrue(circle.buffer.contains("node3"));
+    var resp = new SyncCircleResponse();
+    resp.circle = Set[String]("node2", "node3");
+    node.onSyncCircleResponse(resp);
+    // Lock not set, this will not take effect
+    assertTrue(!circle.buffer.contains("node2"));
+    assertTrue(!circle.buffer.contains("node3"));
   }
 
   @Test
@@ -188,10 +230,6 @@ class ConsHashNodeTest {
     assertTrue(msg.circle.contains("c"));
   }
 
-  @Test
-  def testOnCopy = {
-
-  }
 }
 
 class DummyCircle extends HashCircle {
@@ -207,11 +245,35 @@ class DummyCircle extends HashCircle {
   }
 
   def before(location: BigDecimal): Option[(String, BigDecimal)] = {
-    return None;
+    // 1 2 3 4 5 6 7 8 9
+    // 1 3 2 1 3 3 1 2 2
+    return location match {
+      case s if s == BigDecimal(1) => { Some("node2", BigDecimal(9)) }
+      case s if s == BigDecimal(2) => { Some("node1", BigDecimal(1)) }
+      case s if s == BigDecimal(3) => { Some("node3", BigDecimal(2)) }
+      case s if s == BigDecimal(4) => { Some("node2", BigDecimal(3)) }
+      case s if s == BigDecimal(5) => { Some("node1", BigDecimal(4)) }
+      case s if s == BigDecimal(6) => { Some("node3", BigDecimal(5)) }
+      case s if s == BigDecimal(7) => { Some("node3", BigDecimal(6)) }
+      case s if s == BigDecimal(8) => { Some("node1", BigDecimal(7)) }
+      case s if s == BigDecimal(9) => { Some("node2", BigDecimal(8)) }
+      case _ => { None }
+    }
   }
 
   def after(location: BigDecimal): Option[(String, BigDecimal)] = {
-    return None;
+    return location match {
+      case s if s == BigDecimal(1) => { Some("node3", BigDecimal(2)) }
+      case s if s == BigDecimal(2) => { Some("node2", BigDecimal(3)) }
+      case s if s == BigDecimal(3) => { Some("node1", BigDecimal(4)) }
+      case s if s == BigDecimal(4) => { Some("node3", BigDecimal(5)) }
+      case s if s == BigDecimal(5) => { Some("node3", BigDecimal(6)) }
+      case s if s == BigDecimal(6) => { Some("node1", BigDecimal(7)) }
+      case s if s == BigDecimal(7) => { Some("node2", BigDecimal(8)) }
+      case s if s == BigDecimal(8) => { Some("node2", BigDecimal(9)) }
+      case s if s == BigDecimal(9) => { Some("node1", BigDecimal(1)) }
+      case _ => { None }
+    }
   }
 
   def find(location: BigDecimal, size: Int): Iterable[(String, BigDecimal)] = {

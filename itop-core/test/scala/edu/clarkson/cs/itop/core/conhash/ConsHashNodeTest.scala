@@ -2,13 +2,17 @@ package edu.clarkson.cs.itop.core.conhash
 
 import scala.BigDecimal
 import scala.collection.JavaConversions.setAsJavaSet
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+
 import com.google.gson.Gson
+
 import edu.clarkson.cs.common.test.message.DummyJmsTemplate
+import edu.clarkson.cs.itop.core.conhash.message.CopyResponse
 import edu.clarkson.cs.itop.core.conhash.message.Heartbeat
 import edu.clarkson.cs.itop.core.conhash.message.QueryRequest
 import edu.clarkson.cs.itop.core.conhash.message.QueryResponse
@@ -19,7 +23,6 @@ import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
 import edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean
 import edu.clarkson.cs.scala.common.message.JsonMessageConverter
-import edu.clarkson.cs.itop.core.conhash.message.CopyResponse
 
 class ConsHashNodeTest {
 
@@ -230,6 +233,16 @@ class ConsHashNodeTest {
     assertTrue(msg.circle.contains("c"));
   }
 
+  @Test
+  def testLoad = {
+    node.dataFile = "testdata/keyvalue";
+    node.afterPropertiesSet();
+
+    assertEquals("value001", node.get("key1"))
+    assertEquals("value002", node.get("key2"))
+    assertEquals("value003", node.get("key3"))
+    assertEquals("value004", node.get("key4"))
+  }
 }
 
 class DummyCircle extends HashCircle {
@@ -277,7 +290,11 @@ class DummyCircle extends HashCircle {
   }
 
   def find(location: BigDecimal, size: Int): Iterable[(String, BigDecimal)] = {
-    return List(("node1", BigDecimal(1)), ("node2", BigDecimal(2)), ("node3", BigDecimal(3)));
+    location match {
+      case s if s == BigDecimal(0.4) => List(("node1", BigDecimal(1)), ("node2", BigDecimal(2)), ("node3", BigDecimal(3)));
+      case s if s == BigDecimal(3.9) => List(("node1", BigDecimal(4)), ("node2", BigDecimal(2)), ("node3", BigDecimal(3)));
+      case _ => List(("node1", BigDecimal(1)), ("node2", BigDecimal(2)), ("node3", BigDecimal(3)));
+    }
   }
 
   def content: java.util.Set[String] = {
@@ -286,8 +303,14 @@ class DummyCircle extends HashCircle {
 }
 
 class DummyHashFunction extends HashFunction {
-  def keyHash: (String) => BigDecimal = {
-    return m => BigDecimal(0.5);
+  def keyHash: (String) => BigDecimal = m => {
+    m match {
+      case "key1" => BigDecimal(0.5);
+      case "key2" => BigDecimal(3.9);
+      case "key3" => BigDecimal(0.5);
+      case "key4" => BigDecimal(3.9);
+      case _ => BigDecimal(0.5);
+    }
   }
 
   def idDist: (String) => Iterable[BigDecimal] = {

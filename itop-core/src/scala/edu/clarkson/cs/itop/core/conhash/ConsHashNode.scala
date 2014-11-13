@@ -4,16 +4,13 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.JavaConversions.asScalaSet
 import scala.collection.JavaConversions.bufferAsJavaList
 import scala.collection.JavaConversions.mutableMapAsJavaMap
 import scala.collection.mutable.ArrayBuffer
-
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
-
 import edu.clarkson.cs.itop.core.conhash.message.CopyRequest
 import edu.clarkson.cs.itop.core.conhash.message.CopyResponse
 import edu.clarkson.cs.itop.core.conhash.message.Heartbeat
@@ -26,6 +23,7 @@ import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveMessage
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
 import edu.clarkson.cs.scala.common.message.Sender
+import scala.io.Source
 
 class ConsHashNode extends Sender with InitializingBean {
 
@@ -43,6 +41,8 @@ class ConsHashNode extends Sender with InitializingBean {
 
   var timeout = 1000l;
 
+  var dataFile = "";
+
   private val logger = LoggerFactory.getLogger(getClass());
 
   private var locks = new ConcurrentHashMap[String, Semaphore]();
@@ -56,6 +56,8 @@ class ConsHashNode extends Sender with InitializingBean {
   def afterPropertiesSet(): Unit = {
     var locs = function.idDist(id);
     store = new HashStore(locs);
+    if (!dataFile.isEmpty())
+      load;
   }
 
   /**
@@ -281,6 +283,26 @@ class ConsHashNode extends Sender with InitializingBean {
     // Add self id locally, remote will be handled when heartbeat sent
     circle.insert(function.idDist(id), id);
     new HeartbeatThread().start();
+  }
+
+  /**
+   * If data file is ready, load that into datastore.
+   * The file should be in the following format and we trust the data file provider.
+   * <location> <key> <value>
+   */
+  def load() {
+    Source.fromFile(dataFile).getLines().filter(!_.startsWith("#")).foreach { line =>
+      {
+        try {
+          var parts = line.split("\\s");
+          store.put(BigDecimal(parts(0).toInt), parts(1), parts(2));
+        } catch {
+          case e: NumberFormatException => {
+            logger.error("Number format error in data file", line);
+          }
+        }
+      }
+    };
   }
 
   class HeartbeatThread extends Thread {

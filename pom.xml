@@ -9,5 +9,6 @@
   <modules>
   	<module>itop-core</module>
     <module>itop-web</module>
+    <module>itop-tool</module>
   </modules>
 </project>

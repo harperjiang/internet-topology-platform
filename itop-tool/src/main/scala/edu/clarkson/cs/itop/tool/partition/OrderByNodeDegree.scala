@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.core.tool.partition
+package edu.clarkson.cs.itop.tool.partition
 
 import edu.clarkson.cs.itop.core.model.NodeLink
 import edu.clarkson.cs.itop.core.mapreduce.Sorting

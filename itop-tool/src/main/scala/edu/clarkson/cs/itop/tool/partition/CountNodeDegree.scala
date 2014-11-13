@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.core.tool.partition
+package edu.clarkson.cs.itop.tool.partition
 
 import scala.io.Source
 import java.io.FileOutputStream

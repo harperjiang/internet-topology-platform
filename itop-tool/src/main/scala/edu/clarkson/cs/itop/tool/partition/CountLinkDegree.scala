@@ -13,15 +13,15 @@ import edu.clarkson.cs.itop.core.model.Link
 import edu.clarkson.cs.itop.core.parser.Parser
 
 object CountLinkDegree extends App {
-var conf = new Configuration();
-    var job = Job.getInstance(conf, "Count Link Degree");
-    job.setJarByClass(CountLinkDegree.getClass);
-    job.setMapperClass(classOf[CountLinkMapper]);
-    job.setOutputKeyClass(classOf[Text]);
-    job.setOutputValueClass(classOf[IntWritable]);
-    FileInputFormat.addInputPath(job, new Path(args(0)));
-    FileOutputFormat.setOutputPath(job, new Path(args(1)));
-    job.waitForCompletion(true);
+  var conf = new Configuration();
+  var job = Job.getInstance(conf, "Count Link Degree");
+  job.setJarByClass(CountLinkDegree.getClass);
+  job.setMapperClass(classOf[CountLinkMapper]);
+  job.setOutputKeyClass(classOf[Text]);
+  job.setOutputValueClass(classOf[IntWritable]);
+  FileInputFormat.addInputPath(job, new Path(args(0)));
+  FileOutputFormat.setOutputPath(job, new Path(args(1)));
+  job.waitForCompletion(true);
 }
 
 class CountLinkMapper extends Mapper[Object, Text, Text, IntWritable] {

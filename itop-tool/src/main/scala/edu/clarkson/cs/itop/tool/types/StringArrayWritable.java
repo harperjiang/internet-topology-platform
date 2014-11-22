@@ -3,8 +3,10 @@ package edu.clarkson.cs.itop.tool.types;
 import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
-public class StringArrayWritable extends ArrayWritable {
+public class StringArrayWritable extends ArrayWritable implements
+		WritableComparable<StringArrayWritable> {
 
 	public StringArrayWritable() {
 		super(Text.class);
@@ -17,4 +19,21 @@ public class StringArrayWritable extends ArrayWritable {
 			strs[i] = new Text(data[i]);
 		set(strs);
 	}
+
+	@Override
+	public int compareTo(StringArrayWritable o) {
+		Writable[] mine = get();
+		Writable[] yours = o.get();
+		if (mine.length != yours.length)
+			throw new IllegalArgumentException();
+		for (int i = 0; i < mine.length; i++) {
+			Text m = (Text) mine[i];
+			Text y = (Text) yours[i];
+			int res = m.compareTo(y);
+			if (res != 0)
+				return res;
+		}
+		return 0;
+	}
+
 }

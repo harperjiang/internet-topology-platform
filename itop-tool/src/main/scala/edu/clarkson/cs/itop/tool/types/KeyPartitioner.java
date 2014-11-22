@@ -1,0 +1,14 @@
+package edu.clarkson.cs.itop.tool.types;
+
+import org.apache.hadoop.mapreduce.Partitioner;
+
+public class KeyPartitioner extends
+		Partitioner<StringArrayWritable, StringArrayWritable> {
+	@Override
+	public int getPartition(StringArrayWritable key, StringArrayWritable value,
+			int numPartitions) {
+		if (numPartitions == 0)
+			return 0;
+		return key.get()[0].toString().hashCode() % numPartitions;
+	}
+}

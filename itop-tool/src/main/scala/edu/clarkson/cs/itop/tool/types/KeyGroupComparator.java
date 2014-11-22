@@ -4,9 +4,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
-public class TableNameGroupComparator extends WritableComparator {
+public class KeyGroupComparator extends WritableComparator {
 
-	public TableNameGroupComparator() {
+	public KeyGroupComparator() {
 		super(StringArrayWritable.class, true);
 	}
 

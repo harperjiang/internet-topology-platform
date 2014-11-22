@@ -4,7 +4,7 @@ import scala.io.Source
 import java.io.FileOutputStream
 import java.io.PrintWriter
 import edu.clarkson.cs.itop.core.model.NodeLink
-import edu.clarkson.cs.itop.core.tool.Config
+import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.core.parser.Parser
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.io.Text
@@ -28,10 +28,8 @@ object CountNodeDegree extends App {
   job.setMapOutputValueClass(classOf[IntWritable]);
   job.setOutputKeyClass(classOf[IntWritable]);
   job.setOutputValueClass(classOf[IntWritable]);
-  //  FileInputFormat.addInputPath(job, new Path(args(0)));
-  //  FileOutputFormat.setOutputPath(job, new Path(args(1)));
-  FileInputFormat.addInputPath(job, new Path("/home/harper/caida_data/topo-data.caida.org/ITDK/ITDK-2014-04/kapar-midar-iff.links"));
-  FileOutputFormat.setOutputPath(job, new Path("/home/harper/caida_data/topo-data.caida.org/ITDK/ITDK-2014-04/output/node_degree"));
+  FileInputFormat.addInputPath(job, new Path(Config.file("links")));
+  FileOutputFormat.setOutputPath(job, new Path(Config.file("output/node_degree")));
   job.waitForCompletion(true);
 }
 

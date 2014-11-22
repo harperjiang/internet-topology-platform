@@ -2,6 +2,7 @@ package edu.clarkson.cs.itop.core.tool
 
 import scala.util.Random
 import edu.clarkson.cs.itop.core.index.IndexSet
+import edu.clarkson.cs.itop.tool.Config
 
 object LoadIndexPerformance extends App {
 

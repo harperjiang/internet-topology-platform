@@ -14,6 +14,8 @@ import edu.clarkson.cs.itop.tool.partition.cluster.InitClusterReducer
 import edu.clarkson.cs.itop.tool.partition.cluster.InitClusterReducer2
 import edu.clarkson.cs.itop.tool.partition.cluster.NodeToLinkMapper
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
+import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 
 object ClusteredPartition extends App {
 
@@ -36,11 +38,12 @@ object ClusteredPartition extends App {
     icjob1.setJarByClass(ClusteredPartition.getClass);
     icjob1.setMapperClass(classOf[InitClusterMapper]);
     icjob1.setReducerClass(classOf[InitClusterReducer]);
-    icjob1.setMapOutputKeyClass(classOf[IntWritable]);
+    icjob1.setMapOutputKeyClass(classOf[StringArrayWritable]);
     icjob1.setMapOutputValueClass(classOf[StringArrayWritable]);
     icjob1.setOutputKeyClass(classOf[IntWritable]);
     icjob1.setOutputValueClass(classOf[Text]);
-//    icjob1.setGroupingComparatorClass(classOf[TableNameGroupComparator]);
+    icjob1.setPartitionerClass(classOf[KeyPartitioner]);
+    icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     FileInputFormat.addInputPath(icjob1, new Path(Config.file("output/node_link")));
     FileInputFormat.addInputPath(icjob1, new Path(Config.file("output/node_degree")));
     FileOutputFormat.setOutputPath(icjob1, new Path(Config.file("output/init_cluster_1")));

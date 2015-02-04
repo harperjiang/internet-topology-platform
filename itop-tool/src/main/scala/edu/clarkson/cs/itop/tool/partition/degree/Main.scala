@@ -30,7 +30,7 @@ object Main extends App {
     nlmjob.setOutputKeyClass(classOf[IntWritable]);
     nlmjob.setOutputValueClass(classOf[IntWritable]);
     FileInputFormat.addInputPath(nlmjob, new Path(Config.file("links")));
-    FileOutputFormat.setOutputPath(nlmjob, new Path(Config.file("output/node_link")));
+    FileOutputFormat.setOutputPath(nlmjob, new Path(Config.file("node_link")));
     nlmjob.waitForCompletion(true);
 
     conf = new Configuration();
@@ -44,9 +44,9 @@ object Main extends App {
     icjob1.setOutputValueClass(classOf[Text]);
     icjob1.setPartitionerClass(classOf[KeyPartitioner]);
     icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(icjob1, new Path(Config.file("output/node_link")));
-    FileInputFormat.addInputPath(icjob1, new Path(Config.file("output/node_degree")));
-    FileOutputFormat.setOutputPath(icjob1, new Path(Config.file("output/init_cluster_1")));
+    FileInputFormat.addInputPath(icjob1, new Path(Config.file("node_link")));
+    FileInputFormat.addInputPath(icjob1, new Path(Config.file("node_degree")));
+    FileOutputFormat.setOutputPath(icjob1, new Path(Config.file("degree/link_degree")));
     icjob1.waitForCompletion(true);
 
     conf = new Configuration();
@@ -56,8 +56,8 @@ object Main extends App {
     icjob2.setReducerClass(classOf[MaxDegreeReducer]);
     icjob2.setOutputKeyClass(classOf[IntWritable]);
     icjob2.setOutputValueClass(classOf[Text]);
-    FileInputFormat.addInputPath(icjob2, new Path(Config.file("output/init_cluster_1")))
-    FileOutputFormat.setOutputPath(icjob2, new Path(Config.file("output/init_cluster_result")));
+    FileInputFormat.addInputPath(icjob2, new Path(Config.file("degree/link_degree")))
+    FileOutputFormat.setOutputPath(icjob2, new Path(Config.file("degree/max_degree")));
     icjob2.waitForCompletion(true);
   }
 

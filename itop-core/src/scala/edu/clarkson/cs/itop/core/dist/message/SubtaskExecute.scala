@@ -1,8 +1,6 @@
 package edu.clarkson.cs.itop.core.dist.message
 
 import scala.beans.BeanProperty
-import edu.clarkson.cs.itop.core.mapreduce.Task
-import edu.clarkson.cs.itop.core.mapreduce.Task
 import edu.clarkson.cs.itop.core.task.Task
 
 class SubtaskExecute {

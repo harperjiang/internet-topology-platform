@@ -10,7 +10,7 @@
 	</parent>
 	<artifactId>itop-web</artifactId>
 	<packaging>war</packaging>
-	<name>itop-web Maven Webapp</name>
+	<name>itop-web</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
 		<dependency>
@@ -39,6 +39,13 @@
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webXml>src\main\web\WEB-INF\web.xml</webXml>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -1,7 +1,6 @@
-package edu.clarkson.cs.itop.tool.partition
+package edu.clarkson.cs.itop.tool.partition.random
 
 import java.security.MessageDigest
-
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.IntWritable
@@ -10,9 +9,9 @@ import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.core.model.Node
 import edu.clarkson.cs.itop.core.parser.Parser
+import org.apache.hadoop.io.IntWritable
 
 object RandomPartition extends App {
   var conf = new Configuration();

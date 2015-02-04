@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.count
+package edu.clarkson.cs.itop.tool.common
 
 import scala.io.Source
 import java.io.FileOutputStream

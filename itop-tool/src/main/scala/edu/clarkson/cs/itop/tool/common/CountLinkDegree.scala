@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.count
+package edu.clarkson.cs.itop.tool.common
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
@@ -14,6 +14,7 @@ import edu.clarkson.cs.itop.core.parser.Parser
 
 object CountLinkDegree extends App {
   var conf = new Configuration();
+  
   var job = Job.getInstance(conf, "Count Link Degree");
   job.setJarByClass(CountLinkDegree.getClass);
   job.setMapperClass(classOf[CountLinkMapper]);
@@ -21,8 +22,8 @@ object CountLinkDegree extends App {
   job.setOutputValueClass(classOf[IntWritable]);
   //  FileInputFormat.addInputPath(job, new Path(args(0)));
   //  FileOutputFormat.setOutputPath(job, new Path(args(1)));
-  FileInputFormat.addInputPath(job, new Path("/home/harper/caida_data/topo-data.caida.org/ITDK/ITDK-2014-04/kapar-midar-iff.links"));
-  FileOutputFormat.setOutputPath(job, new Path("/home/harper/caida_data/topo-data.caida.org/ITDK/ITDK-2014-04/output/link_degree"));
+  FileInputFormat.addInputPath(job, new Path("/itop/ITDK/201404/kapar-midar-iff.links"));
+  FileOutputFormat.setOutputPath(job, new Path("/itop/ITDK/201404/link_degree"));
   job.waitForCompletion(true);
 }
 

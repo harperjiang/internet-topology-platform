@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.Reducer
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import edu.clarkson.cs.itop.tool.Config
-import edu.clarkson.cs.itop.tool.partition.cluster.NodeToLinkMapper
+import edu.clarkson.cs.itop.tool.partition.degree.NodeToLinkMapper
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 import edu.clarkson.cs.itop.tool.Utils
 import org.apache.hadoop.mapreduce.lib.input.FileSplit

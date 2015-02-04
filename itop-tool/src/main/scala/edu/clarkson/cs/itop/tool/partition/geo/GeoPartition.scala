@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition
+package edu.clarkson.cs.itop.tool.partition.geo
 
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.io.Text
@@ -8,6 +8,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+import org.apache.hadoop.io.IntWritable
 
 object GeoPartition extends App {
   var conf = new Configuration();

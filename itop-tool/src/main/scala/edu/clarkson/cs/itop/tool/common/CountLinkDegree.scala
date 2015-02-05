@@ -8,9 +8,9 @@ import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.core.model.Link
 import edu.clarkson.cs.itop.core.parser.Parser
+import edu.clarkson.cs.itop.tool.Config
 
 object CountLinkDegree extends App {
   var conf = new Configuration();
@@ -20,10 +20,8 @@ object CountLinkDegree extends App {
   job.setMapperClass(classOf[CountLinkMapper]);
   job.setOutputKeyClass(classOf[Text]);
   job.setOutputValueClass(classOf[IntWritable]);
-  //  FileInputFormat.addInputPath(job, new Path(args(0)));
-  //  FileOutputFormat.setOutputPath(job, new Path(args(1)));
-  FileInputFormat.addInputPath(job, new Path("/itop/ITDK/201404/kapar-midar-iff.links"));
-  FileOutputFormat.setOutputPath(job, new Path("/itop/ITDK/201404/link_degree"));
+  FileInputFormat.addInputPath(job, new Path(Config.file("kapar-midar-iff.links")));
+  FileOutputFormat.setOutputPath(job, new Path(Config.file("common/link_degree")));
   job.waitForCompletion(true);
 }
 

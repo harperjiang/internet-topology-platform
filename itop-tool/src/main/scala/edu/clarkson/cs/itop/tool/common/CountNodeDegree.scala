@@ -17,22 +17,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import edu.clarkson.cs.itop.core.model.Link
 
-object CountNodeDegree extends App {
-
-  var conf = new Configuration();
-  var job = Job.getInstance(conf, "Count Node Degree");
-  job.setJarByClass(CountNodeDegree.getClass);
-  job.setMapperClass(classOf[CountNodeMapper]);
-  job.setReducerClass(classOf[CountNodeReducer]);
-  job.setMapOutputKeyClass(classOf[IntWritable]);
-  job.setMapOutputValueClass(classOf[IntWritable]);
-  job.setOutputKeyClass(classOf[IntWritable]);
-  job.setOutputValueClass(classOf[IntWritable]);
-  FileInputFormat.addInputPath(job, new Path(Config.file("links")));
-  FileOutputFormat.setOutputPath(job, new Path(Config.file("output/node_degree")));
-  job.waitForCompletion(true);
-}
-
 class CountNodeMapper extends Mapper[Object, Text, IntWritable, IntWritable] {
   var parser = new Parser();
   var one = new IntWritable(1);

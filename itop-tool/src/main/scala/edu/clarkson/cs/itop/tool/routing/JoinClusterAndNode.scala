@@ -1,23 +1,22 @@
-package edu.clarkson.cs.itop.tool.partition.cluster
+package edu.clarkson.cs.itop.tool.routing
 
-import scala.collection.JavaConversions.iterableAsScalaIterable
 import org.apache.hadoop.io.ArrayWritable
 import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.mapreduce.Reducer
 import org.apache.hadoop.mapreduce.lib.input.FileSplit
-import java.util.HashSet
 import edu.clarkson.cs.itop.tool.Utils
+import scala.collection.JavaConversions._
 
 /**
  * Input:
  *          link_id, node_id
- *          link_id, cluster_id, degree
+ *          link_id, cluster_id
  * Output:
  *          node_id, link_id, cluster_id
  */
-class LinkWithClusterIdMapper extends Mapper[Object, Text, IntWritable, ArrayWritable] {
+class JoinClusterAndNodeMapper extends Mapper[Object, Text, IntWritable, ArrayWritable] {
   override def map(key: Object, value: Text, context: Mapper[Object, Text, IntWritable, ArrayWritable]#Context) = {
     var data = value.toString().split("\\s");
     Utils.fileName(context.getInputSplit.asInstanceOf[FileSplit]) match {
@@ -31,7 +30,7 @@ class LinkWithClusterIdMapper extends Mapper[Object, Text, IntWritable, ArrayWri
   }
 }
 
-class LinkWithClusterIdReducer extends Reducer[IntWritable, ArrayWritable, IntWritable, Text] {
+class JoinClusterAndNodeReducer extends Reducer[IntWritable, ArrayWritable, IntWritable, Text] {
   override def reduce(key: IntWritable, values: java.lang.Iterable[ArrayWritable],
     context: Reducer[IntWritable, ArrayWritable, IntWritable, Text]#Context) = {
     var nodes = new scala.collection.mutable.HashSet[Int]();

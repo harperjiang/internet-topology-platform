@@ -10,6 +10,11 @@ import scala.collection.JavaConversions._
  * Input:   node_id line_id degree
  * Output:  line_id node_id degree
  */
+
+/**
+ * Input:   node_id line_id degree
+ * Output:  line_id node_id degree
+ */
 class MaxDegreeMapper extends Mapper[Object, Text, IntWritable, Text] {
   override def map(key: Object, value: Text, context: Mapper[Object, Text, IntWritable, Text]#Context) = {
     var data = value.toString().split("\\s");

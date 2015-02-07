@@ -1,12 +1,11 @@
 package edu.clarkson.cs.itop.tool.partition.degree
 
 import org.apache.hadoop.io.IntWritable
-import org.apache.hadoop.mapreduce.Reducer
-import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.io.Text
-import edu.clarkson.cs.itop.core.parser.Parser
-import edu.clarkson.cs.itop.core.model.Link
+import org.apache.hadoop.mapreduce.Mapper
+import org.apache.hadoop.mapreduce.Reducer
 import org.apache.hadoop.mapreduce.lib.input.FileSplit
+
 import edu.clarkson.cs.itop.tool.Utils
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 
@@ -22,7 +21,6 @@ import edu.clarkson.cs.itop.tool.types.StringArrayWritable
  *  Output:  node_id node_id   (Include nodes that is on n+1 step of the node)
  */
 
-
 /**
  *  Input: node_id node_id (links at step n)
  *  Input: node_id node_id (adjacent nodes)
@@ -31,15 +29,17 @@ import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 class NodeExpandMapper extends Mapper[Object, Text, StringArrayWritable, IntWritable] {
 
   override def map(key: Object, value: Text, context: Mapper[Object, Text, StringArrayWritable, IntWritable]#Context): Unit = {
-     var fileName = Utils.fileName(context.getInputSplit.asInstanceOf[FileSplit])
-     fileName match {
-       case "adj_node" => { // Original version
-           
-       }
-       case s if s.startsWith("node_expand_") => { // Expanded version
-           
-       }
-     }
+    var fileName = Utils.fileName(context.getInputSplit.asInstanceOf[FileSplit])
+    var values = value.toString().split("\\s")
+    fileName match {
+      case "adj_node" => { // Original version    
+          context.write(new StringArrayWritable(Array(values(0),"adj_node")), new IntWritable(values(1).toInt));
+          context.write(new StringArrayWritable(Array(values(1),"adj_node")), new IntWritable(values(0).toInt));
+      }
+      case s if s.startsWith("node_expand_") => { // Expanded version
+          context.write(new StringArrayWritable(Array(values(1),"node_expand")), new IntWritable(values(0).toInt));
+      }
+    }
   }
 }
 
@@ -58,7 +58,7 @@ class NodeExpandReducer extends Reducer[StringArrayWritable, IntWritable, IntWri
 class RetroFilterMapper extends Mapper[Object, Text, IntWritable, IntWritable] {
 
   override def map(key: Object, value: Text, context: Mapper[Object, Text, IntWritable, IntWritable]#Context): Unit = {
-     
+
   }
 }
 

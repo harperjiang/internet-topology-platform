@@ -24,8 +24,6 @@ public class StringArrayWritable extends ArrayWritable implements
 	public int compareTo(StringArrayWritable o) {
 		Writable[] mine = get();
 		Writable[] yours = o.get();
-		if (mine.length != yours.length)
-			throw new IllegalArgumentException();
 		for (int i = 0; i < mine.length; i++) {
 			Text m = (Text) mine[i];
 			Text y = (Text) yours[i];

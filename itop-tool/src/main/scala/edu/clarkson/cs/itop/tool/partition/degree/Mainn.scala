@@ -9,7 +9,6 @@ import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.Param
 import edu.clarkson.cs.itop.tool.common.DistinctMapper
@@ -17,6 +16,8 @@ import edu.clarkson.cs.itop.tool.common.DistinctReducer
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import edu.clarkson.cs.itop.tool.common.MergeMapper
+import org.apache.hadoop.io.NullWritable
 
 object Mainn extends App {
 
@@ -52,6 +53,18 @@ object Mainn extends App {
       epjob.waitForCompletion(true);
     }
 
+    var mergejob = Job.getInstance(conf, "Degree n - Merge node expansion");
+    mergejob.setJarByClass(Mainn.getClass);
+    mergejob.setMapperClass(classOf[MergeMapper]);
+    mergejob.setOutputKeyClass(classOf[Text]);
+    mergejob.setNumReduceTasks(0);
+    mergejob.setOutputValueClass(classOf[NullWritable]);
+    for (i <- 1 to Param.degree_n - 1) {
+      FileInputFormat.addInputPath(mergejob, new Path(Config.file("degreen/node_expand_%d".format(i))));
+    }
+    FileOutputFormat.setOutputPath(mergejob, new Path(Config.file("degreen/node_expand_merge")));
+    mergejob.waitForCompletion(true);
+
     var dstnctjob = Job.getInstance(conf, "Degree n - Distinct");
     dstnctjob.setJarByClass(Mainn.getClass);
     dstnctjob.setMapperClass(classOf[DistinctMapper]);
@@ -60,7 +73,7 @@ object Mainn extends App {
     dstnctjob.setMapOutputValueClass(classOf[Text]);
     dstnctjob.setOutputKeyClass(classOf[IntWritable]);
     dstnctjob.setOutputValueClass(classOf[IntWritable]);
-    FileInputFormat.addInputPath(dstnctjob, new Path(Config.file("degreen/node_expand_%d".format(Param.degree_n))));
+    FileInputFormat.addInputPath(dstnctjob, new Path(Config.file("degreen/node_expand_merge")));
     FileOutputFormat.setOutputPath(dstnctjob, new Path(Config.file("degreen/node_expand")));
     dstnctjob.waitForCompletion(true);
 

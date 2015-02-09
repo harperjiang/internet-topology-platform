@@ -14,8 +14,8 @@ object Prepare extends App {
   var conf = new Configuration();
   var job = Job.getInstance(conf, "Count Node Degree");
   job.setJarByClass(Prepare.getClass);
-  job.setMapperClass(classOf[CountNodeMapper]);
-  job.setReducerClass(classOf[CountNodeReducer]);
+  job.setMapperClass(classOf[NodeDegreeMapper]);
+  job.setReducerClass(classOf[NodeDegreeReducer]);
   job.setMapOutputKeyClass(classOf[IntWritable]);
   job.setMapOutputValueClass(classOf[IntWritable]);
   job.setOutputKeyClass(classOf[IntWritable]);

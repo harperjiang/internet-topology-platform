@@ -31,7 +31,7 @@ class NodeExpandMapper extends Mapper[Object, Text, StringArrayWritable, StringA
 
   override def map(key: Object, value: Text, context: Mapper[Object, Text, StringArrayWritable, StringArrayWritable]#Context): Unit = {
     var fileName = Utils.fileName(context.getInputSplit.asInstanceOf[FileSplit])
-    var values = value.toString().split("\\s")
+    var values = value.toString().split("\\s+")
     fileName match {
       case "adj_node" => { // Original version    
         context.write(new StringArrayWritable(Array(values(0), "adj_node")), new StringArrayWritable(Array("adj_node", values(1))));

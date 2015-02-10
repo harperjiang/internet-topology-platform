@@ -7,7 +7,7 @@ import edu.clarkson.cs.itop.core.parser.Parser
 import edu.clarkson.cs.itop.core.model.Link
 
 /**
- * This mapper convert link to : node_id link_id
+ * This mapper convert link to : link_id node_id
  */
 class NodeToLinkMapper extends Mapper[Object, Text, IntWritable, IntWritable] {
 

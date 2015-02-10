@@ -36,14 +36,14 @@ object FileCompare {
     if (new File(input1).isFile()) {
       lines1 = Source.fromFile(input1).getLines();
     } else {
-      lines1 = new File(input1).listFiles().filter(_.isFile).filter { f => !(f.getName.startsWith("_")) }
+      lines1 = new File(input1).listFiles().filter(_.isFile).filter { f => !(f.getName.equals("_SUCCESS") || f.getName.startsWith(".")) }
         .toIterator.flatMap(Source fromFile _ getLines)
     }
     if (new File(input2).isFile()) {
       lines2 = Source.fromFile(input2).getLines();
     } else {
       lines2 = new File(input2).listFiles().filter(_.isFile)
-        .filter { f => !(f.getName.equals("_SUCCESS")) }.toIterator.flatMap(Source fromFile _ getLines)
+        .filter { f => !(f.getName.equals("_SUCCESS") || f.getName.startsWith(".")) }.toIterator.flatMap(Source fromFile _ getLines)
     }
     var data1 = Map[String, Set[String]]();
 

@@ -8,24 +8,27 @@ import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.common.CounterMapper
 import edu.clarkson.cs.itop.tool.common.CounterParam
 import edu.clarkson.cs.itop.tool.common.CounterReducer
+import org.apache.hadoop.io.NullWritable
+import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import edu.clarkson.cs.itop.tool.types.KeyPartitioner
+import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 
 object Main extends App {
 
   var conf = new Configuration();
-  
+
   FileSystem.get(conf).delete(new Path(Config.file("geo")), true);
-  
+
   var job = Job.getInstance(conf, "Node Geo");
   job.setJarByClass(Main.getClass);
   job.setMapperClass(classOf[NodeGeoMapper]);
   job.setOutputKeyClass(classOf[IntWritable]);
   job.setOutputValueClass(classOf[Text]);
-    job.setNumReduceTasks(0);
+  job.setNumReduceTasks(0);
   FileInputFormat.addInputPath(job, new Path(Config.file("kapar-midar-iff.nodes.geo")))
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/node_geo")))
   job.waitForCompletion(true);
@@ -41,4 +44,32 @@ object Main extends App {
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/geo_count")))
   job.waitForCompletion(true);
 
+  job = Job.getInstance(conf, "Geo Partition");
+  job.setJarByClass(Main.getClass);
+  job.setMapperClass(classOf[GeoPartitionMapper]);
+  job.setReducerClass(classOf[GeoPartitionReducer]);
+  job.setMapOutputKeyClass(classOf[StringArrayWritable]);
+  job.setMapOutputValueClass(classOf[NullWritable]);
+  job.setOutputKeyClass(classOf[Text]);
+  job.setOutputValueClass(classOf[IntWritable]);
+  job.setNumReduceTasks(1);
+  job.setGroupingComparatorClass(classOf[GeoPartitionGroupComparator]);
+  FileInputFormat.addInputPath(job, new Path(Config.file("geo/geo_count")));
+  FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/geo_partition")));
+  job.waitForCompletion(true);
+
+  job = Job.getInstance(conf, "Node Partition");
+  job.setJarByClass(Main.getClass);
+  job.setMapperClass(classOf[NodeGeoJoinMapper]);
+  job.setReducerClass(classOf[NodeGeoJoinReducer]);
+  job.setMapOutputKeyClass(classOf[StringArrayWritable]);
+  job.setMapOutputValueClass(classOf[StringArrayWritable]);
+  job.setOutputKeyClass(classOf[Text]);
+  job.setOutputValueClass(classOf[Text]);
+  job.setPartitionerClass(classOf[KeyPartitioner]);
+  job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+  FileInputFormat.addInputPath(job, new Path(Config.file("geo/geo_partition")));
+  FileInputFormat.addInputPath(job, new Path(Config.file("geo/node_geo")));
+  FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/node_partition")));
+  job.waitForCompletion(true);
 }

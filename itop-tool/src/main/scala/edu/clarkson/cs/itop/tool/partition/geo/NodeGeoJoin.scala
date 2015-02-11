@@ -9,6 +9,7 @@ class NodeGeoJoinMapper extends SingleKeyJoinMapper("node_geo", "geo_partition",
 
 }
 
-class NodeGeoJoinReducer extends JoinReducer(null, (key: Text, left: Array[Writable], right: Array[Writable]) => {
-  (new Text(left(0).toString), new Text(right(1).toString));
-}) {}
+class NodeGeoJoinReducer extends JoinReducer(null,
+  (key: Text, left: Array[Writable], right: Array[Writable]) => {
+    (new Text(left(0).toString), new Text(right(1).toString));
+  }) {}

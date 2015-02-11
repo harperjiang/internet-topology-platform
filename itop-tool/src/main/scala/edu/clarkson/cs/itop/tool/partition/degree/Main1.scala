@@ -19,16 +19,7 @@ object Main1 extends App {
 
   def runJob = {
     var conf = new Configuration();
-    var nlmjob = Job.getInstance(conf, "Degree I1 - Node Link Mapping");
-    nlmjob.setJarByClass(Main1.getClass);
-    nlmjob.setMapperClass(classOf[NodeToLinkMapper]);
-    nlmjob.setOutputKeyClass(classOf[IntWritable]);
-    nlmjob.setOutputValueClass(classOf[IntWritable]);
-    FileInputFormat.addInputPath(nlmjob, new Path(Config.file("kapar-midar-iff.links")));
-    FileOutputFormat.setOutputPath(nlmjob, new Path(Config.file("degree/node_link")));
-    nlmjob.waitForCompletion(true);
-
-    conf = new Configuration();
+    
     var icjob1 = Job.getInstance(conf, "Degree I1 - Join Link Degree");
     icjob1.setJarByClass(Main1.getClass);
     icjob1.setMapperClass(classOf[JoinLinkDegreeMapper]);
@@ -39,12 +30,11 @@ object Main1 extends App {
     icjob1.setOutputValueClass(classOf[Text]);
     icjob1.setPartitionerClass(classOf[KeyPartitioner]);
     icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(icjob1, new Path(Config.file("degree/node_link")));
+    FileInputFormat.addInputPath(icjob1, new Path(Config.file("common/node_link")));
     FileInputFormat.addInputPath(icjob1, new Path(Config.file("common/node_degree")));
     FileOutputFormat.setOutputPath(icjob1, new Path(Config.file("degree/link_degree")));
     icjob1.waitForCompletion(true);
 
-    conf = new Configuration();
     var icjob2 = Job.getInstance(conf, "Degree I1 - Max Degree");
     icjob2.setJarByClass(Main1.getClass);
     icjob2.setMapperClass(classOf[MaxDegreeMapper]);
@@ -55,7 +45,6 @@ object Main1 extends App {
     FileOutputFormat.setOutputPath(icjob2, new Path(Config.file("degree/max_degree")));
     icjob2.waitForCompletion(true);
     
-    conf = new Configuration();
     var pljob = Job.getInstance(conf, "Degree I1 - Partition");
     pljob.setJarByClass(Main1.getClass);
     pljob.setMapperClass(classOf[PartitionLinkMapper]);

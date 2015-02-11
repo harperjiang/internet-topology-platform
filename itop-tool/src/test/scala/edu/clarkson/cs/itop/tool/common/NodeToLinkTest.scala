@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition.degree
+package edu.clarkson.cs.itop.tool.common
 
 import edu.clarkson.cs.itop.tool.FileCompare
 import org.apache.hadoop.fs.Path
@@ -10,8 +10,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.junit.Test
 import org.junit.Assert._
 import edu.clarkson.cs.itop.tool.common.Prepare
-import edu.clarkson.cs.itop.tool.common.NodeDegreeReducer
-import edu.clarkson.cs.itop.tool.common.NodeDegreeMapper
+import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.io.IntWritable
 
 class NodeToLinkTest {

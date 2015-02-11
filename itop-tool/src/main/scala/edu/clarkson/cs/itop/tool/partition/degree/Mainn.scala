@@ -25,14 +25,6 @@ object Mainn extends App {
 
   def runJob = {
     var conf = new Configuration();
-    var nlmjob = Job.getInstance(conf, "Degree n - Node Link Mapping");
-    nlmjob.setJarByClass(Mainn.getClass);
-    nlmjob.setMapperClass(classOf[NodeToLinkMapper]);
-    nlmjob.setOutputKeyClass(classOf[IntWritable]);
-    nlmjob.setOutputValueClass(classOf[IntWritable]);
-    FileInputFormat.addInputPath(nlmjob, new Path(Config.file("kapar-midar-iff.links")));
-    FileOutputFormat.setOutputPath(nlmjob, new Path(Config.file("degreen/node_link")));
-    nlmjob.waitForCompletion(true);
 
     FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/adj_node")), FileSystem.get(conf), new Path(Config.file("degreen/node_expand_1")), false, true, conf);
 

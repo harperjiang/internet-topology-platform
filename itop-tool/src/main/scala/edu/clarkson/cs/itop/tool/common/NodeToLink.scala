@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition.degree
+package edu.clarkson.cs.itop.tool.common
 
 import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.mapreduce.Mapper

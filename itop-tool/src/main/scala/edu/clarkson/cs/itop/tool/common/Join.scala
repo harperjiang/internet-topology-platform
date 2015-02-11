@@ -32,7 +32,7 @@ class SingleKeyJoinMapper(left: String, right: String, leftJoinIndex: Int, right
         values ++= parts
         context.write(new StringArrayWritable(Array(parts(leftKeyIndex).toString(), "0")), new StringArrayWritable(values))
       }
-      case s if s == rightTableName => {
+      case s2 if s2 == rightTableName => {
         var values = Array("1");
         values ++= parts
         context.write(new StringArrayWritable(Array(parts(rightKeyIndex).toString(), "1")), new StringArrayWritable(values))
@@ -67,7 +67,7 @@ class JoinReducer(filter: (Text, Array[Writable], Array[Writable]) => Boolean,
                 context.write(singlekey, new Text((sub ++ rsub).map { _.toString }.mkString("\t")))
               } else {
                 var pair = formatter(singlekey, sub, rsub);
-                context.write(pair._1, pair._1)
+                context.write(pair._1, pair._2)
               }
             }
           })

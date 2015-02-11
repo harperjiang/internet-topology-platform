@@ -26,6 +26,8 @@ object Mainn extends App {
   def runJob = {
     var conf = new Configuration();
 
+    FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
+
     FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/adj_node")), FileSystem.get(conf), new Path(Config.file("degreen/node_expand_1")), false, true, conf);
 
     for (i <- 1 to Param.degree_n - 1) {
@@ -84,7 +86,7 @@ object Mainn extends App {
     FileOutputFormat.setOutputPath(icjob1, new Path(Config.file("degreen/link_degree")));
     icjob1.waitForCompletion(true);
 
-    var icjob2 = Job.getInstance(conf, "Max Degree");
+    var icjob2 = Job.getInstance(conf, "Degree n - Max Degree");
     icjob2.setJarByClass(Mainn.getClass);
     icjob2.setMapperClass(classOf[MaxDegreeMapper]);
     icjob2.setReducerClass(classOf[MaxDegreeReducer]);
@@ -93,6 +95,15 @@ object Mainn extends App {
     FileInputFormat.addInputPath(icjob2, new Path(Config.file("degreen/link_degree")))
     FileOutputFormat.setOutputPath(icjob2, new Path(Config.file("degreen/max_degree")));
     icjob2.waitForCompletion(true);
+
+    var pljob = Job.getInstance(conf, "Degree n - Partition");
+    pljob.setJarByClass(Main1.getClass);
+    pljob.setMapperClass(classOf[PartitionLinkMapper]);
+    pljob.setOutputKeyClass(classOf[IntWritable]);
+    pljob.setOutputValueClass(classOf[IntWritable]);
+    FileInputFormat.addInputPath(pljob, new Path(Config.file("degree/max_degree")))
+    FileOutputFormat.setOutputPath(pljob, new Path(Config.file("degree/link_partition")));
+    pljob.waitForCompletion(true);
   }
 
 }

@@ -7,11 +7,11 @@ import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import org.apache.hadoop.fs.FileSystem
 
 object Main1 extends App {
 
@@ -19,8 +19,10 @@ object Main1 extends App {
 
   def runJob = {
     var conf = new Configuration();
-    
-    var icjob1 = Job.getInstance(conf, "Degree I1 - Join Link Degree");
+
+    FileSystem.get(conf).delete(new Path(Config.file("degree")), true);
+
+    var icjob1 = Job.getInstance(conf, "Degree 1 - Join Link Degree");
     icjob1.setJarByClass(Main1.getClass);
     icjob1.setMapperClass(classOf[JoinLinkDegreeMapper]);
     icjob1.setReducerClass(classOf[JoinLinkDegreeReducer]);
@@ -35,7 +37,7 @@ object Main1 extends App {
     FileOutputFormat.setOutputPath(icjob1, new Path(Config.file("degree/link_degree")));
     icjob1.waitForCompletion(true);
 
-    var icjob2 = Job.getInstance(conf, "Degree I1 - Max Degree");
+    var icjob2 = Job.getInstance(conf, "Degree 1 - Max Degree");
     icjob2.setJarByClass(Main1.getClass);
     icjob2.setMapperClass(classOf[MaxDegreeMapper]);
     icjob2.setReducerClass(classOf[MaxDegreeReducer]);
@@ -44,8 +46,8 @@ object Main1 extends App {
     FileInputFormat.addInputPath(icjob2, new Path(Config.file("degree/link_degree")))
     FileOutputFormat.setOutputPath(icjob2, new Path(Config.file("degree/max_degree")));
     icjob2.waitForCompletion(true);
-    
-    var pljob = Job.getInstance(conf, "Degree I1 - Partition");
+
+    var pljob = Job.getInstance(conf, "Degree 1 - Partition");
     pljob.setJarByClass(Main1.getClass);
     pljob.setMapperClass(classOf[PartitionLinkMapper]);
     pljob.setOutputKeyClass(classOf[IntWritable]);

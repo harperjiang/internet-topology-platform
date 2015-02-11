@@ -6,14 +6,17 @@ import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.types.IntArrayWritable
+import org.apache.hadoop.fs.FileSystem
 
 object Prepare extends App {
 
   var conf = new Configuration();
+
+  FileSystem.get(conf).delete(new Path(Config.file("common")), true);
+
   var job = Job.getInstance(conf, "Count Node Degree");
   job.setJarByClass(Prepare.getClass);
   job.setMapperClass(classOf[NodeDegreeMapper]);

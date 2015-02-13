@@ -15,7 +15,7 @@ import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 
-class NodeMachineTest {
+class NodePartitionJoinTest {
 
   @Test
   def test: Unit = {
@@ -23,22 +23,22 @@ class NodeMachineTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/routing_node_machine/output"), true);
+    fs.delete(new Path("testdata/routing_node_partition_join/output"), true);
 
-    var job = Job.getInstance(conf, "Routing Node Machine");
-    job.setMapperClass(classOf[NodeMachineMapper]);
-    job.setReducerClass(classOf[NodeMachineReducer]);
+    var job = Job.getInstance(conf, "Routing Node Partition Join");
+    job.setMapperClass(classOf[NodePartitionJoinMapper]);
+    job.setReducerClass(classOf[NodePartitionJoinReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
     job.setMapOutputValueClass(classOf[StringArrayWritable]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/routing_node_machine/node_link"))
-    FileInputFormat.addInputPath(job, new Path("testdata/routing_node_machine/link_partition"))
-    FileOutputFormat.setOutputPath(job, new Path("testdata/routing_node_machine/output"))
+    FileInputFormat.addInputPath(job, new Path("testdata/routing_node_partition_join/node_link"))
+    FileInputFormat.addInputPath(job, new Path("testdata/routing_node_partition_join/link_partition"))
+    FileOutputFormat.setOutputPath(job, new Path("testdata/routing_node_partition_join/output"))
     job.waitForCompletion(true);
     
-    assertTrue(FileCompare.compareContent("testdata/routing_node_machine/result", "testdata/routing_node_machine/output/part-r-00000"))
+    assertTrue(FileCompare.compareContent("testdata/routing_node_partition_join/result", "testdata/routing_node_partition_join/output/part-r-00000"))
   }
 }

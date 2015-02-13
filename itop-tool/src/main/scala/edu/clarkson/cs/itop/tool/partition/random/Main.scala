@@ -17,10 +17,7 @@ object Main extends App {
   var job = Job.getInstance(conf, "Random Partition");
   job.setJarByClass(Main.getClass);
   job.setMapperClass(classOf[RandomPartitionMapper]);
-  job.setMapOutputKeyClass(classOf[IntWritable]);
-  job.setMapOutputValueClass(classOf[IntWritable]);
-  job.setOutputKeyClass(classOf[IntWritable]);
-  job.setOutputValueClass(classOf[IntWritable]);
+  job.setNumReduceTasks(0);
   FileInputFormat.addInputPath(job, new Path(Config.file("kapar-midar-iff.links")));
   FileOutputFormat.setOutputPath(job, new Path(Config.file("random/link_partition")));
   job.submit();

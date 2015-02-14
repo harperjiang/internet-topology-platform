@@ -7,7 +7,7 @@ import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 import scala.collection.JavaConversions._
 import org.apache.hadoop.io.Writable
 import java.util.Arrays
-import edu.clarkson.cs.itop.tool.common.JoinReducer
+import edu.clarkson.cs.itop.tool.common.RightOuterJoinReducer
 
 /**
  * Input: node_partition (node_id,partition_id)
@@ -19,8 +19,12 @@ class LinkPartitionJoinMapper extends SingleKeyJoinMapper("node_partition", "nod
 
 }
 
-class LinkPartitionJoinReducer extends JoinReducer(null,
+class LinkPartitionJoinReducer extends RightOuterJoinReducer(null,
   (key: Text, left: Array[Writable], right: Array[Writable]) => {
-    (new Text(right(0).toString()), new Text(left(1).toString()))
+    if (left != null) {
+      (new Text(right(0).toString()), new Text(left(1).toString()))
+    } else {
+      (new Text(right(0).toString()), new Text("-1"))
+    }
   }) {
 }

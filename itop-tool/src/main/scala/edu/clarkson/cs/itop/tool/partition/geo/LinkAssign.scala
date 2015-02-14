@@ -5,10 +5,13 @@ import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.io.Text
 import scala.collection.JavaConversions._
+import edu.clarkson.cs.itop.tool.Param
 
 /**
  * Input: link_id, partition_id
  * Output: link_id, partition_id (choose the majority partition)
+ *
+ * Partition id = -1 means unknown. If a link has only unknown partition, it will be randomly distributed to some partitions
  */
 
 class LinkAssignMapper extends Mapper[Object, Text, IntWritable, IntWritable] {
@@ -28,14 +31,22 @@ class LinkAssignReducer extends Reducer[IntWritable, IntWritable, IntWritable, I
       }
       counter += { value.get -> (counter.get(value.get).get + 1) }
     })
-    var bigCount = 0;
-    var bigPartition = -1;
-    counter.foreach(entry => {
-      if (entry._2 > bigCount) {
-        bigCount = entry._2;
-        bigPartition = entry._1;
-      }
-    })
-    context.write(key, new IntWritable(bigPartition))
+
+    if (counter.size == 1 && counter.contains(-1)) {
+      // Random Distribution
+      context.write(key, new IntWritable(Math.abs(key.hashCode()) % Param.partition_count));
+    } else {
+      counter.remove(-1);
+      var bigCount = 0;
+      var bigPartition = -1;
+
+      counter.foreach(entry => {
+        if (entry._2 > bigCount) {
+          bigCount = entry._2;
+          bigPartition = entry._1;
+        }
+      })
+      context.write(key, new IntWritable(bigPartition))
+    }
   }
 }

@@ -1,15 +1,16 @@
-package edu.clarkson.cs.itop.tool.common
+package edu.clarkson.cs.itop.tool.prepare
 
 import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.types.IntArrayWritable
-import org.apache.hadoop.fs.FileSystem
 
 object Prepare extends App {
 

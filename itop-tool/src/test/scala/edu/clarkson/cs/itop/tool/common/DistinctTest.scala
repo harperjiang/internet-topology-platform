@@ -1,18 +1,17 @@
 package edu.clarkson.cs.itop.tool.common
 
-import edu.clarkson.cs.itop.tool.FileCompare
-import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
+import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Assert._
-import edu.clarkson.cs.itop.tool.types.IntArrayWritable
-import org.apache.hadoop.io.IntWritable
+
+import edu.clarkson.cs.itop.tool.FileCompare
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import org.apache.hadoop.io.Text
 
 class DistinctTest {
   @Test
@@ -24,7 +23,7 @@ class DistinctTest {
     fs.delete(new Path("testdata/distinct/output"), true);
 
     var job = Job.getInstance(conf, "Distinct Data");
-    job.setJarByClass(Prepare.getClass);
+    job.setJarByClass(classOf[DistinctTest]);
     job.setMapperClass(classOf[DistinctMapper]);
     job.setReducerClass(classOf[DistinctReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);

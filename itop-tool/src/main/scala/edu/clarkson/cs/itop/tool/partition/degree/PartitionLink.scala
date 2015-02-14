@@ -13,15 +13,10 @@ import edu.clarkson.cs.itop.tool.Param
 
 class PartitionLinkMapper extends Mapper[Object, Text, IntWritable, IntWritable] {
 
-
-  
   override def map(key: Object, value: Text, context: Mapper[Object, Text, IntWritable, IntWritable]#Context) = {
     var data = value.toString().split("\\s");
-
     var node_id = data(1).toInt;
-
-    var partition_id = node_id % Param.partition_count;
-
+    var partition_id = Math.abs(node_id.hashCode()) % Param.partition_count;
     context.write(new IntWritable(data(0).toInt), new IntWritable(partition_id));
   }
 }

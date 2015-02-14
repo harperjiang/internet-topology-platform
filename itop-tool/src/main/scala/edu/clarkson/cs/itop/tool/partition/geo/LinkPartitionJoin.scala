@@ -9,12 +9,18 @@ import org.apache.hadoop.io.Writable
 import java.util.Arrays
 import edu.clarkson.cs.itop.tool.common.JoinReducer
 
-class LinkPartitionJoinMapper extends SingleKeyJoinMapper("node_link", "node_partition", 1, 0) {
+/**
+ * Input: node_partition (node_id,partition_id)
+ * Input: node_link (link_id, node_id)
+ * Output: link_id partition_id
+ */
+
+class LinkPartitionJoinMapper extends SingleKeyJoinMapper("node_partition", "node_link", 0, 1) {
 
 }
 
-class LinkPartitionJoinReducer extends JoinReducer(null, 
-    (key: Text, left: Array[Writable], right: Array[Writable]) => {
-      (new Text(left(0).toString()),new Text(right(1).toString()))
-    }) {
+class LinkPartitionJoinReducer extends JoinReducer(null,
+  (key: Text, left: Array[Writable], right: Array[Writable]) => {
+    (new Text(right(0).toString()), new Text(left(1).toString()))
+  }) {
 }

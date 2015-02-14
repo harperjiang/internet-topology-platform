@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.common
+package edu.clarkson.cs.itop.tool.prepare
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path

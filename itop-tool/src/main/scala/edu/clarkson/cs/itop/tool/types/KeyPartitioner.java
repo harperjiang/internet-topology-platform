@@ -9,6 +9,6 @@ public class KeyPartitioner extends
 			int numPartitions) {
 		if (numPartitions == 0)
 			return 0;
-		return key.get()[0].toString().hashCode() % numPartitions;
+		return Math.abs(key.get()[0].toString().hashCode() % numPartitions);
 	}
 }

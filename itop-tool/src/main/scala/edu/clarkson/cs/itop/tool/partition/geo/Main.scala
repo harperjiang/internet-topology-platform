@@ -73,7 +73,9 @@ object Main extends App {
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/node_partition")));
   job.waitForCompletion(true);
 
+
   job = Job.getInstance(conf, "Link Partition Join");
+  job.setJarByClass(Main.getClass)
   job.setMapperClass(classOf[LinkPartitionJoinMapper]);
   job.setReducerClass(classOf[LinkPartitionJoinReducer]);
   job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -82,14 +84,17 @@ object Main extends App {
   job.setOutputValueClass(classOf[Text]);
   job.setPartitionerClass(classOf[KeyPartitioner]);
   job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+  job.setNumReduceTasks(5);
   FileInputFormat.addInputPath(job, new Path(Config.file("common/node_link")))
   FileInputFormat.addInputPath(job, new Path(Config.file("geo/node_partition")))
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/link_partition_join")))
   job.waitForCompletion(true);
+ 
   //  
   // assign links to majority partitions of nodes around it, break the tie randomly
 
   job = Job.getInstance(conf, "Link Assign");
+  job.setJarByClass(Main.getClass)
   job.setMapperClass(classOf[LinkAssignMapper]);
   job.setReducerClass(classOf[LinkAssignReducer]);
   job.setMapOutputKeyClass(classOf[IntWritable]);

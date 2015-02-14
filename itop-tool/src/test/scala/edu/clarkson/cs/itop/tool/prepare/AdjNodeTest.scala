@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.common
+package edu.clarkson.cs.itop.tool.prepare
 
 import org.junit.Test
 import org.junit.Assert._

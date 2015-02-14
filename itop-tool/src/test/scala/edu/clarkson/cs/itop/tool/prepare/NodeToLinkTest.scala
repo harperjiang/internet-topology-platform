@@ -1,17 +1,16 @@
-package edu.clarkson.cs.itop.tool.common
+package edu.clarkson.cs.itop.tool.prepare
 
-import edu.clarkson.cs.itop.tool.FileCompare
-import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
+import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Assert._
-import edu.clarkson.cs.itop.tool.common.Prepare
-import org.apache.hadoop.io.IntWritable
-import org.apache.hadoop.io.IntWritable
+
+import edu.clarkson.cs.itop.tool.FileCompare
 
 class NodeToLinkTest {
   @Test

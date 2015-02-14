@@ -12,6 +12,9 @@ import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 
 /**
  * Should go together with EnhancedKeyGrouper and sort with 2nd key
+ * 
+ * Input: geo_count (geo_code, count)
+ * Output: geo_partition (geo_code, partition)
  */
 
 class GeoPartitionMapper extends Mapper[Object, Text, StringArrayWritable, NullWritable] {

@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.common
+package edu.clarkson.cs.itop.tool.prepare
 
 import edu.clarkson.cs.itop.tool.FileCompare
 import org.apache.hadoop.fs.Path

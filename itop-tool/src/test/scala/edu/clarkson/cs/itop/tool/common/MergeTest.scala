@@ -1,17 +1,17 @@
 package edu.clarkson.cs.itop.tool.common
 
-import edu.clarkson.cs.itop.tool.FileCompare
-import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
+import org.apache.hadoop.io.NullWritable
+import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Assert._
-import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import org.apache.hadoop.io.Text
-import org.apache.hadoop.io.NullWritable
+
+import edu.clarkson.cs.itop.tool.FileCompare
 
 class MergeTest {
   @Test
@@ -23,7 +23,7 @@ class MergeTest {
     fs.delete(new Path("testdata/merge/output"), true);
 
     var job = Job.getInstance(conf, "Merge Data");
-    job.setJarByClass(Prepare.getClass);
+    job.setJarByClass(classOf[MergeTest]);
     job.setNumReduceTasks(0)
     job.setMapperClass(classOf[MergeMapper]);
     job.setMapOutputKeyClass(classOf[Text]);

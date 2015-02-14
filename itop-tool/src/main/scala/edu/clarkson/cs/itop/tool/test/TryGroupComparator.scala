@@ -1,22 +1,22 @@
 package edu.clarkson.cs.itop.tool.partition
 
+import scala.collection.JavaConversions.iterableAsScalaIterable
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
-import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.mapreduce.Reducer
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-import edu.clarkson.cs.itop.tool.Config
-import edu.clarkson.cs.itop.tool.partition.degree.NodeToLinkMapper
-import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import edu.clarkson.cs.itop.tool.Utils
 import org.apache.hadoop.mapreduce.lib.input.FileSplit
-import edu.clarkson.cs.itop.tool.types.KeyPartitioner
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+
+import edu.clarkson.cs.itop.tool.Config
+import edu.clarkson.cs.itop.tool.Utils
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
-import scala.collection.JavaConversions._
+import edu.clarkson.cs.itop.tool.types.KeyPartitioner
+import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 object TryGroupComparator extends App {
 
   var conf = new Configuration();

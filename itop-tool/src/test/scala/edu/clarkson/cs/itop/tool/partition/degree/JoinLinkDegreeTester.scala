@@ -24,7 +24,7 @@ class JoinLinkDegreeTester {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/join_link/output"), true);
+    fs.delete(new Path("testdata/degree/join_link/output"), true);
 
     var icjob1 = Job.getInstance(conf, "Join Link Degree");
     icjob1.setJarByClass(Main1.getClass);
@@ -36,12 +36,12 @@ class JoinLinkDegreeTester {
     icjob1.setOutputValueClass(classOf[Text]);
     icjob1.setPartitionerClass(classOf[KeyPartitioner]);
     icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join_link/node_link"));
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join_link/node_degree"));
-    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/join_link/output"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/degree/join_link/node_link"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/degree/join_link/node_degree"));
+    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/degree/join_link/output"));
     icjob1.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/join_link/result", "testdata/join_link/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/degree/join_link/result", "testdata/degree/join_link/output/part-r-00000"))
 
   }
 }

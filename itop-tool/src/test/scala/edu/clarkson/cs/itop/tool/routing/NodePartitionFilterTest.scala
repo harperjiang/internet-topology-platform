@@ -23,7 +23,7 @@ class NodePartitionFilterTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/routing_node_partition_filter/output"), true);
+    fs.delete(new Path("testdata/routing/node_partition_filter/output"), true);
 
     var job = Job.getInstance(conf, "Routing Node Partition Filter")
     job.setMapperClass(classOf[NodePartitionFilterMapper])
@@ -32,10 +32,10 @@ class NodePartitionFilterTest {
     job.setMapOutputValueClass(classOf[IntWritable])
     job.setOutputKeyClass(classOf[IntWritable])
     job.setOutputValueClass(classOf[Text])
-    FileInputFormat.addInputPath(job, new Path("testdata/routing_node_partition_filter/input"))
-    FileOutputFormat.setOutputPath(job, new Path("testdata/routing_node_partition_filter/output"))
+    FileInputFormat.addInputPath(job, new Path("testdata/routing/node_partition_filter/input"))
+    FileOutputFormat.setOutputPath(job, new Path("testdata/routing/node_partition_filter/output"))
     job.waitForCompletion(true);
     
-    assertTrue(FileCompare.compareContent("testdata/routing_node_partition_filter/result", "testdata/routing_node_partition_filter/output/part-r-00000"))
+    assertTrue(FileCompare.compareContent("testdata/routing/node_partition_filter/result", "testdata/routing/node_partition_filter/output/part-r-00000"))
   }
 }

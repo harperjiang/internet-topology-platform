@@ -24,7 +24,7 @@ class NodeGeoJoinTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/node_geo_join/output"), true);
+    fs.delete(new Path("testdata/geo/node_geo_join/output"), true);
 
     var job = Job.getInstance(conf, "Node Geo Join");
     job.setJarByClass(Main.getClass);
@@ -37,12 +37,12 @@ class NodeGeoJoinTest {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     
-    FileInputFormat.addInputPath(job, new Path("testdata/node_geo_join/geo_partition"));
-    FileInputFormat.addInputPath(job, new Path("testdata/node_geo_join/node_geo"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/node_geo_join/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/geo/node_geo_join/geo_partition"));
+    FileInputFormat.addInputPath(job, new Path("testdata/geo/node_geo_join/node_geo"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/geo/node_geo_join/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compareContent("testdata/node_geo_join/result", "testdata/node_geo_join/output/part-r-00000"))
+    assertTrue(FileCompare.compareContent("testdata/geo/node_geo_join/result", "testdata/geo/node_geo_join/output/part-r-00000"))
 
   }
 }

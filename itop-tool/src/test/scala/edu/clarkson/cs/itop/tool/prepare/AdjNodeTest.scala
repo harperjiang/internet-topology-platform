@@ -21,7 +21,7 @@ class AdjNodeTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/adj_node/output"), true);
+    fs.delete(new Path("testdata/prepare/adj_node/output"), true);
 
     var job = Job.getInstance(conf, "Adjacent Node");
     job.setJarByClass(Prepare.getClass);
@@ -32,11 +32,11 @@ class AdjNodeTest {
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/adj_node/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/adj_node/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/prepare/adj_node/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/prepare/adj_node/output"));
     job.waitForCompletion(false);
 
     
-    assertTrue(FileCompare.compare("testdata/adj_node/result","testdata/adj_node/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/prepare/adj_node/result","testdata/prepare/adj_node/output/part-r-00000"))
   }
 }

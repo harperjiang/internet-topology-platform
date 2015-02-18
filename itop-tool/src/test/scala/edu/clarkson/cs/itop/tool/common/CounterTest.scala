@@ -23,7 +23,7 @@ class CounterTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/counter/output"), true);
+    fs.delete(new Path("testdata/common/counter/output"), true);
 
     conf.set(CounterParam.KEY_INDEX, "1");
     var job = Job.getInstance(conf, "Geo Count");
@@ -31,10 +31,10 @@ class CounterTest {
     job.setReducerClass(classOf[CounterReducer]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[IntWritable]);
-    FileInputFormat.addInputPath(job, new Path("testdata/counter/input"))
-    FileOutputFormat.setOutputPath(job, new Path("testdata/counter/output"))
+    FileInputFormat.addInputPath(job, new Path("testdata/common/counter/input"))
+    FileOutputFormat.setOutputPath(job, new Path("testdata/common/counter/output"))
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/counter/result", "testdata/counter/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/common/counter/result", "testdata/common/counter/output/part-r-00000"))
   }
 }

@@ -20,7 +20,7 @@ class CountNodeTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/count_node/output"), true);
+    fs.delete(new Path("testdata/prepare/count_node/output"), true);
 
     var job = Job.getInstance(conf, "Count Node");
     job.setJarByClass(Prepare.getClass);
@@ -31,10 +31,10 @@ class CountNodeTest {
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/count_node/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/count_node/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/prepare/count_node/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/prepare/count_node/output"));
     job.waitForCompletion(false);
 
-    assertTrue(FileCompare.compare("testdata/count_node/result", "testdata/count_node/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/prepare/count_node/result", "testdata/prepare/count_node/output/part-r-00000"))
   }
 }

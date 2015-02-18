@@ -26,7 +26,7 @@ class JoinTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/join/inner_output"), true);
+    fs.delete(new Path("testdata/common/join/inner_output"), true);
 
     var icjob1 = Job.getInstance(conf, "Inner Join");
     icjob1.setJarByClass(Main1.getClass);
@@ -38,12 +38,12 @@ class JoinTest {
     icjob1.setOutputValueClass(classOf[Text]);
     icjob1.setPartitionerClass(classOf[KeyPartitioner]);
     icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join/left"));
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join/right"));
-    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/join/inner_output"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/common/join/left"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/common/join/right"));
+    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/common/join/inner_output"));
     icjob1.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/join/inner_result", "testdata/join/inner_output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/common/join/inner_result", "testdata/common/join/inner_output/part-r-00000"))
 
   }
 
@@ -53,7 +53,7 @@ class JoinTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/join/left_output"), true);
+    fs.delete(new Path("testdata/common/join/left_output"), true);
 
     var icjob1 = Job.getInstance(conf, "left Join");
     icjob1.setJarByClass(Main1.getClass);
@@ -65,12 +65,12 @@ class JoinTest {
     icjob1.setOutputValueClass(classOf[Text]);
     icjob1.setPartitionerClass(classOf[KeyPartitioner]);
     icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join/left"));
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join/right"));
-    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/join/left_output"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/common/join/left"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/common/join/right"));
+    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/common/join/left_output"));
     icjob1.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/join/left_result", "testdata/join/left_output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/common/join/left_result", "testdata/common/join/left_output/part-r-00000"))
 
   }
 
@@ -80,7 +80,7 @@ class JoinTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/join/right_output"), true);
+    fs.delete(new Path("testdata/common/join/right_output"), true);
 
     var icjob1 = Job.getInstance(conf, "Right Join");
     icjob1.setJarByClass(Main1.getClass);
@@ -92,12 +92,12 @@ class JoinTest {
     icjob1.setOutputValueClass(classOf[Text]);
     icjob1.setPartitionerClass(classOf[KeyPartitioner]);
     icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join/left"));
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/join/right"));
-    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/join/right_output"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/common/join/left"));
+    FileInputFormat.addInputPath(icjob1, new Path("testdata/common/join/right"));
+    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/common/join/right_output"));
     icjob1.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/join/right_result", "testdata/join/right_output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/common/join/right_result", "testdata/common/join/right_output/part-r-00000"))
 
   }
 }

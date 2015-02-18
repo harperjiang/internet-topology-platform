@@ -20,7 +20,7 @@ class LinkAssignTester {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/link_assign/output"), true);
+    fs.delete(new Path("testdata/geo/link_assign/output"), true);
 
     var job = Job.getInstance(conf, "Link Assign Geo");
     job.setJarByClass(Main.getClass);
@@ -29,10 +29,10 @@ class LinkAssignTester {
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/link_assign/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/link_assign/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/geo/link_assign/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/geo/link_assign/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compareContent("testdata/link_assign/result", "testdata/link_assign/output/part-r-00000"))
+    assertTrue(FileCompare.compareContent("testdata/geo/link_assign/result", "testdata/geo/link_assign/output/part-r-00000"))
   }
 }

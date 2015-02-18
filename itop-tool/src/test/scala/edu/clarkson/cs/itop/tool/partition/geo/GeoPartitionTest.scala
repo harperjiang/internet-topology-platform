@@ -22,7 +22,7 @@ class GeoPartitionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/geo_partition/output"), true);
+    fs.delete(new Path("testdata/geo/partition/output"), true);
 
     var job = Job.getInstance(conf, "Geo Partition");
     job.setJarByClass(Main.getClass);
@@ -35,11 +35,11 @@ class GeoPartitionTest {
     job.setNumReduceTasks(1);
     job.setGroupingComparatorClass(classOf[GeoPartitionGroupComparator]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/geo_partition/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/geo_partition/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/geo/partition/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/geo/partition/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compareContent("testdata/geo_partition/result", "testdata/geo_partition/output/part-r-00000"))
+    assertTrue(FileCompare.compareContent("testdata/geo/partition/result", "testdata/geo/partition/output/part-r-00000"))
 
   }
 }

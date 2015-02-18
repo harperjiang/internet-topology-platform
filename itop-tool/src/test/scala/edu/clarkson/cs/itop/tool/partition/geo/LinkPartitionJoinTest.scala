@@ -20,7 +20,7 @@ class LinkPartitionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/geo_link_partition_join/output"), true);
+    fs.delete(new Path("testdata/geo/link_partition_join/output"), true);
     
     var job = Job.getInstance(conf, "Link Partition Join");
     job.setMapperClass(classOf[LinkPartitionJoinMapper]);
@@ -31,9 +31,9 @@ class LinkPartitionTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/geo_link_partition_join/node_link"))
-    FileInputFormat.addInputPath(job, new Path("testdata/geo_link_partition_join/node_partition"))
-    FileOutputFormat.setOutputPath(job, new Path("testdata/geo_link_partition_join/output"))
+    FileInputFormat.addInputPath(job, new Path("testdata/geo/link_partition_join/node_link"))
+    FileInputFormat.addInputPath(job, new Path("testdata/geo/link_partition_join/node_partition"))
+    FileOutputFormat.setOutputPath(job, new Path("testdata/geo/link_partition_join/output"))
     job.waitForCompletion(true);
   }
 }

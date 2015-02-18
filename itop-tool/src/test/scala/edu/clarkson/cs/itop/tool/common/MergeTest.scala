@@ -20,7 +20,7 @@ class MergeTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/merge/output"), true);
+    fs.delete(new Path("testdata/common/merge/output"), true);
 
     var job = Job.getInstance(conf, "Merge Data");
     job.setJarByClass(classOf[MergeTest]);
@@ -29,11 +29,11 @@ class MergeTest {
     job.setMapOutputKeyClass(classOf[Text]);
     job.setMapOutputValueClass(classOf[NullWritable]);
     for (i <- 0 to 9) {
-      FileInputFormat.addInputPath(job, new Path("testdata/merge/input_%d".format(i)));
+      FileInputFormat.addInputPath(job, new Path("testdata/common/merge/input_%d".format(i)));
     }
-    FileOutputFormat.setOutputPath(job, new Path("testdata/merge/output"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/common/merge/output"));
     job.waitForCompletion(false);
     
-    assertTrue(FileCompare.compareContent("testdata/merge/result", "testdata/merge/output"))
+    assertTrue(FileCompare.compareContent("testdata/common/merge/result", "testdata/common/merge/output"))
   }
 }

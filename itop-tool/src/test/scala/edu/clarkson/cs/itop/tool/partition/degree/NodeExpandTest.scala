@@ -23,7 +23,7 @@ class NodeExpandTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/node_expand/output"), true);
+    fs.delete(new Path("testdata/degree/node_expand/output"), true);
 
     var epjob = Job.getInstance(conf, "Degree n - Expand Node");
     epjob.setJarByClass(Mainn.getClass);
@@ -35,12 +35,12 @@ class NodeExpandTest {
     epjob.setOutputValueClass(classOf[IntWritable]);
     epjob.setPartitionerClass(classOf[KeyPartitioner]);
     epjob.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(epjob, new Path("testdata/node_expand/node_expand_1"));
-    FileInputFormat.addInputPath(epjob, new Path("testdata/node_expand/adj_node"));
-    FileOutputFormat.setOutputPath(epjob, new Path("testdata/node_expand/output"));
+    FileInputFormat.addInputPath(epjob, new Path("testdata/degree/node_expand/node_expand_1"));
+    FileInputFormat.addInputPath(epjob, new Path("testdata/degree/node_expand/adj_node"));
+    FileOutputFormat.setOutputPath(epjob, new Path("testdata/degree/node_expand/output"));
     epjob.waitForCompletion(true);
 
-    assertTrue(FileCompare.compareContent("testdata/node_expand/result", "testdata/node_expand/output/part-r-00000"))
+    assertTrue(FileCompare.compareContent("testdata/degree/node_expand/result", "testdata/degree/node_expand/output/part-r-00000"))
 
   }
 }

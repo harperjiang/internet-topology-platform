@@ -6,7 +6,7 @@ import org.apache.hadoop.io.Text
 
 /**
  * Input: node_id degree
- * Output: node_id merge_times max_degree
+ * Output: node_id max_degree
  */
 class PrepareClusterMapper extends Mapper[Object, Text, IntWritable, Text] {
 

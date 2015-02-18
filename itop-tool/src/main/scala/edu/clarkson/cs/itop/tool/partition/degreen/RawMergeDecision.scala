@@ -9,7 +9,7 @@ import org.apache.hadoop.io.IntWritable
 
 /**
  * Input: cluster_id, cluster_id (adj_cluster)
- * Input: cluster_id merge_times, degree (cluster)
+ * Input: cluster_id, degree (cluster)
  * Output: cluster_id cluster_id left_degree
  */
 class MergeDecisionLeftDegreeMapper extends SingleKeyJoinMapper("cluster", "adj_cluster", 0, 0) {
@@ -17,13 +17,13 @@ class MergeDecisionLeftDegreeMapper extends SingleKeyJoinMapper("cluster", "adj_
 }
 
 class MergeDecisionLeftDegreeReducer extends JoinReducer(null, (key: Text, left: Array[Writable], right: Array[Writable]) => {
-  (key, new Text(Array(left(1).toString, right(2).toString).mkString("\t")))
+  (key, new Text(Array(right(1).toString, left(1).toString).mkString("\t")))
 }) {
 
 }
 /**
+ * Input: cluster_id_2, degree (cluster)
  * Input: cluster_id_1, cluster_id_2 left_degree
- * Input: cluster_id_2 merge_times, degree (cluster)
  * Output: cluster_id_1 cluster_id_2 left_degree right_degree
  */
 class MergeDecisionRightDegreeMapper extends SingleKeyJoinMapper("cluster", "adj_cluster_left", 0, 1) {
@@ -33,7 +33,7 @@ class MergeDecisionRightDegreeMapper extends SingleKeyJoinMapper("cluster", "adj
 class MergeDecisionRightDegreeReducer extends JoinReducer(null,
   (key: Text, left: Array[Writable], right: Array[Writable]) => {
     (new Text(Array(right(0).toString(), right(1).toString()).mkString("\t")),
-      new Text(Array(right(2).toString, left(2).toString).mkString("\t")))
+      new Text(Array(right(2).toString, left(1).toString).mkString("\t")))
   }) {
 
 }

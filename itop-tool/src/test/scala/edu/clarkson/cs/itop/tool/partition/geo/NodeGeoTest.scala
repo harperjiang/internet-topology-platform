@@ -21,7 +21,7 @@ class NodeGeoTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/node_geo/output"), true);
+    fs.delete(new Path("testdata/geo/node_geo/output"), true);
 
     var job = Job.getInstance(conf, "Node Geo");
     job.setJarByClass(Main.getClass);
@@ -30,10 +30,10 @@ class NodeGeoTest {
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/node_geo/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/node_geo/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/geo/node_geo/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/geo/node_geo/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compareContent("testdata/node_geo/result", "testdata/node_geo/output/part-m-00000"))
+    assertTrue(FileCompare.compareContent("testdata/geo/node_geo/result", "testdata/geo/node_geo/output/part-m-00000"))
   }
 }

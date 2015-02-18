@@ -20,7 +20,7 @@ class DistinctTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/distinct/output"), true);
+    fs.delete(new Path("testdata/common/distinct/output"), true);
 
     var job = Job.getInstance(conf, "Distinct Data");
     job.setJarByClass(classOf[DistinctTest]);
@@ -31,10 +31,10 @@ class DistinctTest {
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/distinct/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/distinct/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/common/distinct/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/common/distinct/output"));
     job.waitForCompletion(false);
 
-    assertTrue(FileCompare.compare("testdata/distinct/result", "testdata/distinct/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/common/distinct/result", "testdata/common/distinct/output/part-r-00000"))
   }
 }

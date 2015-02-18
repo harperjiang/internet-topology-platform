@@ -19,7 +19,7 @@ class NodeToLinkTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/node_link/output"), true);
+    fs.delete(new Path("testdata/prepare/node_link/output"), true);
 
     var job = Job.getInstance(conf, "Node to Link");
     job.setJarByClass(Prepare.getClass);
@@ -28,10 +28,10 @@ class NodeToLinkTest {
     job.setMapOutputKeyClass(classOf[IntWritable]);
     job.setMapOutputValueClass(classOf[IntWritable]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/node_link/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/node_link/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/prepare/node_link/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/prepare/node_link/output"));
     job.waitForCompletion(false);
 
-    assertTrue(FileCompare.compareContent("testdata/node_link/result", "testdata/node_link/output/part-m-00000"))
+    assertTrue(FileCompare.compareContent("testdata/prepare/node_link/result", "testdata/prepare/node_link/output/part-m-00000"))
   }
 }

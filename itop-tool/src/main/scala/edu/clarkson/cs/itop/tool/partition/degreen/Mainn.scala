@@ -44,18 +44,9 @@ object Mainn extends App {
 
   // Prepare Data
   FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/adj_node")), FileSystem.get(conf), new Path(Config.file("degreen/adj_cluster")), false, true, conf);
+  FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/node_degree")), FileSystem.get(conf), new Path(Config.file("degreen/cluster")), false, true, conf);
 
-  var job = Job.getInstance(conf, "Degree n - Prepare Cluster");
-  job.setJarByClass(Mainn.getClass);
-  job.setMapperClass(classOf[PrepareClusterMapper]);
-  job.setNumReduceTasks(0);
-  job.setOutputKeyClass(classOf[IntWritable]);
-  job.setOutputValueClass(classOf[Text]);
-  FileInputFormat.addInputPath(job, new Path(Config.file("common/node_degree")))
-  FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster")));
-  job.waitForCompletion(true);
-  
-  job = Job.getInstance(conf, "Degree n - Prepare Cluster Node Mapping");
+  var job = Job.getInstance(conf, "Degree n - Prepare Cluster Node Mapping");
   job.setJarByClass(Mainn.getClass);
   job.setMapperClass(classOf[PrepareClusterNodeMapper]);
   job.setNumReduceTasks(0);
@@ -64,9 +55,6 @@ object Mainn extends App {
   FileInputFormat.addInputPath(job, new Path(Config.file("common/node_degree")))
   FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_node")));
   job.waitForCompletion(true);
-  
-  
-  
-  
+
 }
 

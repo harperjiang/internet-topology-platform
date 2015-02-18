@@ -20,7 +20,7 @@ class MaxDegreeTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/max_degree/output"), true);
+    fs.delete(new Path("testdata/degree/max_degree/output"), true);
 
     var icjob2 = Job.getInstance(conf, "Degree I1 - Max Degree");
     icjob2.setJarByClass(Main1.getClass);
@@ -28,10 +28,10 @@ class MaxDegreeTest {
     icjob2.setReducerClass(classOf[MaxDegreeReducer]);
     icjob2.setOutputKeyClass(classOf[IntWritable]);
     icjob2.setOutputValueClass(classOf[Text]);
-    FileInputFormat.addInputPath(icjob2, new Path("testdata/max_degree/input"))
-    FileOutputFormat.setOutputPath(icjob2, new Path("testdata/max_degree/output"));
+    FileInputFormat.addInputPath(icjob2, new Path("testdata/degree/max_degree/input"))
+    FileOutputFormat.setOutputPath(icjob2, new Path("testdata/degree/max_degree/output"));
     icjob2.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/max_degree/result", "testdata/max_degree/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/degree/max_degree/result", "testdata/degree/max_degree/output/part-r-00000"))
   }
 }

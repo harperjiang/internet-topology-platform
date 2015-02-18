@@ -23,7 +23,7 @@ class NodePartitionJoinTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/routing_node_partition_join/output"), true);
+    fs.delete(new Path("testdata/routing/node_partition_join/output"), true);
 
     var job = Job.getInstance(conf, "Routing Node Partition Join");
     job.setMapperClass(classOf[NodePartitionJoinMapper]);
@@ -34,11 +34,11 @@ class NodePartitionJoinTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/routing_node_partition_join/node_link"))
-    FileInputFormat.addInputPath(job, new Path("testdata/routing_node_partition_join/link_partition"))
-    FileOutputFormat.setOutputPath(job, new Path("testdata/routing_node_partition_join/output"))
+    FileInputFormat.addInputPath(job, new Path("testdata/routing/node_partition_join/node_link"))
+    FileInputFormat.addInputPath(job, new Path("testdata/routing/node_partition_join/link_partition"))
+    FileOutputFormat.setOutputPath(job, new Path("testdata/routing/node_partition_join/output"))
     job.waitForCompletion(true);
     
-    assertTrue(FileCompare.compareContent("testdata/routing_node_partition_join/result", "testdata/routing_node_partition_join/output/part-r-00000"))
+    assertTrue(FileCompare.compareContent("testdata/routing/node_partition_join/result", "testdata/routing/node_partition_join/output/part-r-00000"))
   }
 }

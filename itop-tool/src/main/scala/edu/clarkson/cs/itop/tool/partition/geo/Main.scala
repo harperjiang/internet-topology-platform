@@ -20,7 +20,7 @@ import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 object Main extends App {
 
   var conf = new Configuration();
-  /*
+  
   FileSystem.get(conf).delete(new Path(Config.file("geo")), true);
 
   var job = Job.getInstance(conf, "Node Geo");
@@ -72,9 +72,8 @@ object Main extends App {
   FileInputFormat.addInputPath(job, new Path(Config.file("geo/node_geo")));
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/node_partition")));
   job.waitForCompletion(true);
-*/
-  FileSystem.get(conf).delete(new Path(Config.file("geo/link_partition_join")), true);
-  var job = Job.getInstance(conf, "Link Partition Join");
+
+  job = Job.getInstance(conf, "Link Partition Join");
   job.setJarByClass(Main.getClass)
   job.setMapperClass(classOf[LinkPartitionJoinMapper]);
   job.setReducerClass(classOf[LinkPartitionJoinReducer]);
@@ -89,7 +88,7 @@ object Main extends App {
   FileInputFormat.addInputPath(job, new Path(Config.file("geo/node_partition")))
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/link_partition_join")))
   job.waitForCompletion(true);
-  /*
+  
   //  
   // assign links to majority partitions of nodes around it, break the tie randomly
 
@@ -103,5 +102,5 @@ object Main extends App {
   job.setOutputValueClass(classOf[IntWritable]);
   FileInputFormat.addInputPath(job, new Path(Config.file("geo/link_partition_join")))
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/link_partition")))
-  job.waitForCompletion(true);*/
+  job.waitForCompletion(true);
 }

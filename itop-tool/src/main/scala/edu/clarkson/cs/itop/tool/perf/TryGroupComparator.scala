@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition
+package edu.clarkson.cs.itop.tool.perf
 
 import scala.collection.JavaConversions.iterableAsScalaIterable
 

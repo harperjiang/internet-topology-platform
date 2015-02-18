@@ -16,7 +16,6 @@ import scala.collection.JavaConversions._
  *  Example:
  *
  *  Input:   node_id(root_node) node_id(bound_node)   (Include node that is on n-1 step of the node)
- *  Input:   node_id(root_node) node_id(bound_node)   (Include links that is on n step of the node)
  *  Input:   node_id(from_node) node_id(to_node)   (adjacent node)
  *
  *  Output:  node_id(root_node) node_id(bound_node)   (Include nodes that is on n+1 step of the node)
@@ -45,16 +44,24 @@ class NodeExpandMapper extends Mapper[Object, Text, StringArrayWritable, StringA
 }
 
 class NodeExpandReducer extends Reducer[StringArrayWritable, StringArrayWritable, IntWritable, IntWritable] {
+
+  var sizeThreshold = 10000;
+
   override def reduce(key: StringArrayWritable, values: java.lang.Iterable[StringArrayWritable],
     context: Reducer[StringArrayWritable, StringArrayWritable, IntWritable, IntWritable]#Context): Unit = {
 
     var adjList = scala.collection.mutable.ListBuffer[Int]();
-
+    var recorded = false;
     values.foreach(value => {
       var group = value.get()(0).toString();
       group match {
         case "adj_node" => {
           adjList += value.get()(1).toString().toInt;
+
+          if (adjList.length > sizeThreshold && !recorded) {
+            System.err.println("Buffer oversize");
+            recorded = true;
+          }
         }
         case "node_expand" => {
           var rootNode = value.get()(1).toString().toInt;
@@ -67,5 +74,8 @@ class NodeExpandReducer extends Reducer[StringArrayWritable, StringArrayWritable
         }
       }
     });
+    if (recorded) {
+      System.err.println("Final buffer size is " + adjList.size)
+    }
   }
 }

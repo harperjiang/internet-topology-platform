@@ -46,12 +46,14 @@ class UpdateAdjClusterReducer extends Reducer[StringArrayWritable, StringArrayWr
         }
         case "1" => {
           if (mergeReplace == -1) {
-            return ;
-          }
-          var counterpart = valueparts(1).toInt
-          if (mergeReplace != counterpart) {
-            context.write(new IntWritable(Math.min(mergeReplace, counterpart)),
-              new IntWritable(Math.max(mergeReplace, counterpart)))
+            // No change
+            context.write(new IntWritable(keyparts(0).toInt), new IntWritable(valueparts(1).toInt))
+          } else {
+            var counterpart = valueparts(1).toInt
+            if (mergeReplace != counterpart) {
+              context.write(new IntWritable(Math.min(mergeReplace, counterpart)),
+                new IntWritable(Math.max(mergeReplace, counterpart)))
+            }
           }
         }
       }

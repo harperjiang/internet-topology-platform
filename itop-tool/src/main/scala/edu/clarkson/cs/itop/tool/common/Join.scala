@@ -78,7 +78,8 @@ class JoinReducer(filter: (Text, Array[Writable], Array[Writable]) => Boolean,
                 context.write(singlekey, new Text((sub ++ rsub).map { _.toString }.mkString("\t")))
               } else {
                 var pair = formatter(singlekey, sub, rsub);
-                context.write(pair._1, pair._2)
+                if (pair != null)
+                  context.write(pair._1, pair._2)
               }
             }
           })
@@ -124,7 +125,8 @@ class LeftOuterJoinReducer(filter: (Text, Array[Writable], Array[Writable]) => B
             if (filter == null || filter(singlekey, sub, rsub)) {
               // In outer case, formatter cannot be null
               var pair = formatter(singlekey, sub, rsub);
-              context.write(pair._1, pair._2)
+              if (pair != null)
+                context.write(pair._1, pair._2)
             }
           })
         }
@@ -136,7 +138,8 @@ class LeftOuterJoinReducer(filter: (Text, Array[Writable], Array[Writable]) => B
         if (filter == null || filter(singlekey, left, null)) {
           // In outer case, formatter cannot be null
           var pair = formatter(singlekey, left, null);
-          context.write(pair._1, pair._2)
+          if (pair != null)
+            context.write(pair._1, pair._2)
         }
       })
     }
@@ -177,14 +180,16 @@ class RightOuterJoinReducer(filter: (Text, Array[Writable], Array[Writable]) => 
             if (filter == null || filter(singlekey, null, rsub)) {
               // In outer case, formatter cannot be null
               var pair = formatter(singlekey, null, rsub);
-              context.write(pair._1, pair._2)
+              if (pair != null)
+                context.write(pair._1, pair._2)
             }
           } else {
             buffer.foreach(sub => {
               if (filter == null || filter(singlekey, sub, rsub)) {
                 // In outer case, formatter cannot be null
                 var pair = formatter(singlekey, sub, rsub);
-                context.write(pair._1, pair._2)
+                if (pair != null)
+                  context.write(pair._1, pair._2)
               }
             })
           }

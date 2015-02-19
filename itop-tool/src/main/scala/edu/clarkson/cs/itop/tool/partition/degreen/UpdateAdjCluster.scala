@@ -1,62 +1,58 @@
 package edu.clarkson.cs.itop.tool.partition.degreen
 
-import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.io.Text
-import org.apache.hadoop.mapreduce.lib.input.FileSplit
-import edu.clarkson.cs.itop.tool.Utils
-import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import org.apache.hadoop.mapreduce.Reducer
-import org.apache.hadoop.io.IntWritable
-import scala.collection.JavaConversions._
+import org.apache.hadoop.io.Writable
+
+import edu.clarkson.cs.itop.tool.common.RightOuterJoinReducer
+import edu.clarkson.cs.itop.tool.common.SingleKeyJoinMapper
 
 /**
  * Input: small_cluster, big_cluster (adj_cluster)
  * Input: from_cluster, to_cluster (merge_decision)
  * Output: small_cluster, big_cluster (all appearance of from_cluster should be replaced by to_cluster)
  */
-class UpdateAdjClusterMapper extends Mapper[Object, Text, StringArrayWritable, StringArrayWritable] {
 
-  override def map(key: Object, value: Text, context: Mapper[Object, Text, StringArrayWritable, StringArrayWritable]#Context) = {
+/**
+ * Input: from_cluster, to_cluster(merge_decision)
+ * Input: small_cluster, big_cluster (adj_cluster)
+ * Output: small_replaced_cluster, big_cluster (adj_cluster_left)
+ */
+class UpdateLeftAdjClusterMapper extends SingleKeyJoinMapper("merge_decision", "adj_cluster", 0, 0)
 
-    var parts = value.toString().split("\\s+")
-    var fileName = Utils.fileName(context.getInputSplit.asInstanceOf[FileSplit])
-    fileName match {
-      case "merge_decision" => {
-        context.write(new StringArrayWritable(Array(parts(0), "0")), new StringArrayWritable(Array("0", parts(1))))
-      }
-      case "adj_cluster" => {
-        context.write(new StringArrayWritable(Array(parts(0), "1")), new StringArrayWritable(Array("1", parts(1))))
-        context.write(new StringArrayWritable(Array(parts(1), "1")), new StringArrayWritable(Array("1", parts(0))))
-      }
+class UpdateLeftAdjClusterReducer extends RightOuterJoinReducer(
+  null,
+  (key: Text, left: Array[Writable], right: Array[Writable]) => {
+    var to = right(1).toString.toInt
+    var from = -1
+    if (left == null)
+      from = right(0).toString.toInt
+    else
+      from = left(1).toString.toInt
+      
+    if (from == to)
+      null;
+    else
+      (new Text(from.toString), new Text(to.toString))
+  })
+
+/**
+ * Input: from_cluster, to_cluster(merge_decision)
+ * Input: small_replaced_cluster, big_cluster (adj_cluster_left)
+ * Output: small_replaced_cluster, big_replaced_cluster (adj_cluster_dup)
+ */
+class UpdateRightAdjClusterMapper extends SingleKeyJoinMapper("merge_decision", "adj_cluster_left", 0, 1)
+
+class UpdateRightAdjClusterReducer extends RightOuterJoinReducer(null,
+  (key: Text, left: Array[Writable], right: Array[Writable]) => {
+    var from = right(0).toString.toInt
+    var to = -1
+    if (left == null) {
+      to = right(1).toString.toInt
+    } else {
+      to = left(1).toString.toInt
     }
-  }
-}
-
-class UpdateAdjClusterReducer extends Reducer[StringArrayWritable, StringArrayWritable, IntWritable, IntWritable] {
-  override def reduce(key: StringArrayWritable, values: java.lang.Iterable[StringArrayWritable],
-    context: Reducer[StringArrayWritable, StringArrayWritable, IntWritable, IntWritable]#Context): Unit = {
-    var keyparts = key.toStrings();
-    var mergeReplace: Int = -1;
-    values.foreach(value => {
-      var valueparts = value.toStrings();
-
-      valueparts(0) match {
-        case "0" => {
-          mergeReplace = valueparts(1).toInt;
-        }
-        case "1" => {
-          if (mergeReplace == -1) {
-            // No change
-            context.write(new IntWritable(keyparts(0).toInt), new IntWritable(valueparts(1).toInt))
-          } else {
-            var counterpart = valueparts(1).toInt
-            if (mergeReplace != counterpart) {
-              context.write(new IntWritable(Math.min(mergeReplace, counterpart)),
-                new IntWritable(Math.max(mergeReplace, counterpart)))
-            }
-          }
-        }
-      }
-    })
-  }
-}
+    if (from == to)
+      null;
+    else
+      (new Text(Math.min(from, to).toString), new Text(Math.max(from, to).toString))
+  })

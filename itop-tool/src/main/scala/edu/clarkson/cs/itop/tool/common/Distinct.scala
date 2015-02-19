@@ -20,6 +20,6 @@ class DistinctMapper extends Mapper[Object, Text, StringArrayWritable, Text] {
 class DistinctReducer extends Reducer[StringArrayWritable, Text, Text, NullWritable] {
   override def reduce(key: StringArrayWritable, values: java.lang.Iterable[Text],
     context: Reducer[StringArrayWritable, Text, Text, NullWritable]#Context): Unit = {
-    context.write(new Text(key.get().map { a => a.toString() }.mkString(" ")), NullWritable.get);
+    context.write(new Text(key.get().map { a => a.toString() }.mkString("\t")), NullWritable.get);
   }
 }

@@ -32,7 +32,7 @@ class PrepareClusterNodeTest {
     FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/prepare_cluster_node/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/prepare_cluster_node/result", "testdata/join_link/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/degreen/prepare_cluster_node/result", "testdata/degreen/prepare_cluster_node/output/part-r-00000"))
 
   }
 }

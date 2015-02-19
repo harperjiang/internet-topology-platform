@@ -19,8 +19,8 @@ import edu.clarkson.cs.itop.tool.Param
  */
 
 /**
+ * Input: cluster_id, max_degree (cluster)
  * Input: cluster_id, node_id (cluster_node)
- * Input: cluster_id, merge_times, max_degree (cluster)
  * Output: cluster_id node_id max_degree (cluster_node_degree)
  */
 class ClusterDegreeMapper extends SingleKeyJoinMapper("cluster", "cluster_node", 0, 0) {
@@ -28,12 +28,12 @@ class ClusterDegreeMapper extends SingleKeyJoinMapper("cluster", "cluster_node",
 }
 
 class ClusterDegreeReducer extends JoinReducer(null, (key: Text, left: Array[Writable], right: Array[Writable]) => {
-  (key, new Text(Array(left(1).toString(), right(2).toString()).mkString("\t")))
+  (key, new Text(Array(right(1).toString(), left(1).toString()).mkString("\t")))
 })
 
 /**
- * Input: cluster_id, node_id, max_degree (cluster_node_degree)
  * Input: link_id, node_id (node_link)
+ * Input: cluster_id, node_id, max_degree (cluster_node_degree)
  * Output: link_id, cluster_id, cluster_degree (cluster_link)
  */
 class ClusterLinkMapper extends SingleKeyJoinMapper("node_link", "cluster_node_degree", 1, 1) {
@@ -41,7 +41,7 @@ class ClusterLinkMapper extends SingleKeyJoinMapper("node_link", "cluster_node_d
 }
 
 class ClusterLinkReducer extends JoinReducer(null, (key: Text, left: Array[Writable], right: Array[Writable]) => {
-  (new Text(right(0).toString()), new Text(Array(left(0).toString(), left(2).toString()).mkString("\t")))
+  (new Text(left(0).toString()), new Text(Array(right(0).toString(), right(2).toString()).mkString("\t")))
 }) {
 
 }
@@ -66,8 +66,10 @@ class LinkPartitionReducer extends Reducer[IntWritable, StringArrayWritable, Int
       var parts = value.toStrings();
       var degree = parts(1).toInt
       var cluster = parts(0).toInt
-      if (degree > maxDegree)
+      if (degree > maxDegree) {
+        maxDegree = degree
         maxCluster = cluster
+      }
     })
     var partition = Math.abs(maxCluster.toString.hashCode()) % Param.partition_count;
     context.write(key, new IntWritable(partition))

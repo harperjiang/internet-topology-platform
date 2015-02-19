@@ -111,7 +111,7 @@ class UpdateClusterTest {
     // true stands for recursively deleting the folder you gave
     fs.delete(new Path("testdata/degreen/update_cluster_node/output"), true);
 
-    var job = Job.getInstance(conf, "Test Update Cluster");
+    var job = Job.getInstance(conf, "Test Update Cluster Node");
     job.setJarByClass(Mainn.getClass);
     job.setMapperClass(classOf[UpdateClusterNodeMapper]);
     job.setReducerClass(classOf[UpdateClusterNodeReducer]);

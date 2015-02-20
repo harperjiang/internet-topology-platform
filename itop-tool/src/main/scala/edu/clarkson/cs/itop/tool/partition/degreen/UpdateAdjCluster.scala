@@ -37,10 +37,10 @@ class UpdateLeftAdjClusterReducer extends RightOuterJoinReducer(
 
 /**
  * Input: from_cluster, to_cluster(merge_decision)
- * Input: small_replaced_cluster, big_cluster (adj_cluster_left)
+ * Input: small_replaced_cluster, big_cluster (adj_cluster_updated_left)
  * Output: small_replaced_cluster, big_replaced_cluster (adj_cluster_dup)
  */
-class UpdateRightAdjClusterMapper extends SingleKeyJoinMapper("merge_decision", "adj_cluster_left", 0, 1)
+class UpdateRightAdjClusterMapper extends SingleKeyJoinMapper("merge_decision", "adj_cluster_updated_left", 0, 1)
 
 class UpdateRightAdjClusterReducer extends RightOuterJoinReducer(null,
   (key: Text, left: Array[Writable], right: Array[Writable]) => {

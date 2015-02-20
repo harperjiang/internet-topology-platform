@@ -39,7 +39,7 @@ import org.apache.hadoop.io.Text
 object Mainn extends App {
 
   var conf = new Configuration();
-/*
+  /*
   FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
 
   prepareData(conf)
@@ -50,12 +50,13 @@ object Mainn extends App {
     refineMergeDecision(conf, i)
     updateClusters(conf, i)
   }
-  generateLinkPartition(conf)
-*/
+  generateLink(conf) 
+  * */
+  
   rawMergeDecision(conf)
-  
-  
-  
+  refineMergeDecision(conf, 1)
+  updateClusters(conf, 1)
+
   def prepareData(conf: Configuration): Unit = {
     // Prepare Data
     FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/adj_node")), FileSystem.get(conf),
@@ -89,6 +90,7 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_left")));
@@ -104,6 +106,7 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_left")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision_dup")));
@@ -114,6 +117,7 @@ object Mainn extends App {
     job.setMapperClass(classOf[MergeDecisionMapper]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision_dup")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision_raw")));
     job.waitForCompletion(true);
@@ -124,6 +128,8 @@ object Mainn extends App {
     if (round > 0) {
       FileSystem.get(conf).rename(new Path(Config.file("degreen/merge_decision")),
         new Path(Config.file("degreen/merge_decision_%d".format(round))))
+    } else {
+      FileSystem.get(conf).delete(new Path(Config.file("degreen/merge_decision")), true);
     }
 
     var job = Job.getInstance(conf, "Refine Two Head");
@@ -134,6 +140,7 @@ object Mainn extends App {
     job.setMapOutputValueClass(classOf[Text]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision_raw")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision_refine_th")));
     job.waitForCompletion(true);
@@ -148,7 +155,7 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision_refine_th")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision")));
     job.waitForCompletion(true);
@@ -165,6 +172,7 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_updated")));
@@ -180,6 +188,7 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_node")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_node_updated")));
@@ -195,9 +204,10 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_left")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_updated_left")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Right Update Adj Cluster");
@@ -210,9 +220,10 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_left")));
+    job.setNumReduceTasks(6);
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_updated_left")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_dup")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_updated_dup")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Adj Cluster Distinct Data");
@@ -223,15 +234,15 @@ object Mainn extends App {
     job.setMapOutputValueClass(classOf[Text]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_dup")));
+    job.setNumReduceTasks(6);
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_updated_dup")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_updated")));
     job.waitForCompletion(false);
 
-    if (round > 0) {
-      FileSystem.get(conf).rename(new Path(Config.file("degreen/adj_cluster")), new Path(Config.file("degreen/adj_cluster_%d".format(round))))
-      FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster")), new Path(Config.file("degreen/cluster_%d".format(round))))
-      FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster_node")), new Path(Config.file("degreen/cluster_node_%d".format(round))))
-    }
+    FileSystem.get(conf).rename(new Path(Config.file("degreen/adj_cluster")), new Path(Config.file("degreen/adj_cluster_%d".format(round))))
+    FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster")), new Path(Config.file("degreen/cluster_%d".format(round))))
+    FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster_node")), new Path(Config.file("degreen/cluster_node_%d".format(round))))
+
     FileSystem.get(conf).rename(new Path(Config.file("degreen/adj_cluster_updated")), new Path(Config.file("degreen/adj_cluster")))
     FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster_updated")), new Path(Config.file("degreen/cluster")))
     FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster_node_updated")), new Path(Config.file("degreen/cluster_node")))
@@ -248,6 +259,7 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_node")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_node_degree")));
@@ -263,6 +275,7 @@ object Mainn extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/common/node_link")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_node_degree")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_link")));
@@ -276,6 +289,7 @@ object Mainn extends App {
     job.setMapOutputValueClass(classOf[StringArrayWritable]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_link")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/link_partition")));
     job.waitForCompletion(true);

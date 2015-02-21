@@ -52,10 +52,10 @@ object Mainn extends App {
   }
   generateLink(conf) 
   * */
-  
+
   rawMergeDecision(conf)
-  refineMergeDecision(conf, 1)
-  updateClusters(conf, 1)
+  refineMergeDecision(conf, 2)
+  updateClusters(conf, 2)
 
   def prepareData(conf: Configuration): Unit = {
     // Prepare Data
@@ -162,6 +162,9 @@ object Mainn extends App {
   }
 
   def updateClusters(conf: Configuration, round: Int): Unit = {
+    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_cluster_updated_left")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_cluster_updated_dup")), true);
+
     var job = Job.getInstance(conf, "Update Cluster");
     job.setJarByClass(Mainn.getClass);
     job.setMapperClass(classOf[UpdateClusterMapper]);

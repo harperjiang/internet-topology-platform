@@ -54,8 +54,8 @@ object Mainn extends App {
   * */
 
   rawMergeDecision(conf)
-  refineMergeDecision(conf, 2)
-  updateClusters(conf, 2)
+  refineMergeDecision(conf, 3)
+  updateClusters(conf, 3)
 
   def prepareData(conf: Configuration): Unit = {
     // Prepare Data

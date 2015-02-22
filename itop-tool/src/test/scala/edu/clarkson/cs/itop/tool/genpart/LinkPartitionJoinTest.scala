@@ -28,20 +28,20 @@ class LinkPartitionJoinTest {
     // true stands for recursively deleting the folder you gave
     fs.delete(new Path("testdata/genpart/link_partition_join/output"), true);
 
-    var icjob1 = Job.getInstance(conf, "Link Partition Join");
-    icjob1.setJarByClass(Main1.getClass);
-    icjob1.setMapperClass(classOf[LinkPartitionJoinMapper]);
-    icjob1.setReducerClass(classOf[LinkPartitionJoinReducer]);
-    icjob1.setMapOutputKeyClass(classOf[StringArrayWritable]);
-    icjob1.setMapOutputValueClass(classOf[StringArrayWritable]);
-    icjob1.setOutputKeyClass(classOf[Text]);
-    icjob1.setOutputValueClass(classOf[Text]);
-    icjob1.setPartitionerClass(classOf[KeyPartitioner]);
-    icjob1.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/genpart/link_partition_join/link_partition"));
-    FileInputFormat.addInputPath(icjob1, new Path("testdata/genpart/link_partition_join/kapar-midar-iff.links"));
-    FileOutputFormat.setOutputPath(icjob1, new Path("testdata/genpart/link_partition_join/output"));
-    icjob1.waitForCompletion(true);
+    var job = Job.getInstance(conf, "Link Partition Join");
+    job.setJarByClass(Main1.getClass);
+    job.setMapperClass(classOf[LinkPartitionJoinMapper]);
+    job.setReducerClass(classOf[LinkPartitionJoinReducer]);
+    job.setMapOutputKeyClass(classOf[StringArrayWritable]);
+    job.setMapOutputValueClass(classOf[StringArrayWritable]);
+    job.setOutputKeyClass(classOf[Text]);
+    job.setOutputValueClass(classOf[Text]);
+    job.setPartitionerClass(classOf[KeyPartitioner]);
+    job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    FileInputFormat.addInputPath(job, new Path("testdata/genpart/link_partition_join/link_partition"));
+    FileInputFormat.addInputPath(job, new Path("testdata/genpart/link_partition_join/kapar-midar-iff.links"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/genpart/link_partition_join/output"));
+    job.waitForCompletion(true);
 
     assertTrue(FileCompare.compare("testdata/genpart/link_partition_join/result", "testdata/genpart/link_partition_join/output/part-r-00000"))
   }

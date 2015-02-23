@@ -22,7 +22,7 @@ class NodePartitionJoinTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/genpart/node_partition_join/join_output"), true);
+    fs.delete(new Path("testdata/genpart/node_partition_join/output"), true);
 
     var job = Job.getInstance(conf, "Node Partition Join");
     job.setJarByClass(Main1.getClass);

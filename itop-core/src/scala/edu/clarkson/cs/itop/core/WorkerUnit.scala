@@ -15,6 +15,8 @@ import edu.clarkson.cs.itop.core.scheduler.Scheduler
 import edu.clarkson.cs.itop.core.model.Partition
 import edu.clarkson.cs.itop.core.task.Task
 import org.slf4j.LoggerFactory
+import edu.clarkson.cs.itop.core.task.TaskWorker
+import edu.clarkson.cs.itop.core.dist.message.TaskSubmit
 
 class WorkerUnit extends WorkerListener with SchedulerListener with InitializingBean {
 
@@ -45,9 +47,9 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
     scheduler.schedule(task);
   }
 
-  def submit(worker: Class[TaskWorker], startNode: Int): Unit = {
+  def submit(workerClassName: String, startNode: Int): Unit = {
     var task = new Task;
-    task.workerClass = worker;
+    task.workerClass = Class.forName(workerClassName).asSubclass(classOf[TaskWorker]);
     task.startNodeId = startNode;
     submit(task);
   }
@@ -67,6 +69,11 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
   override def onResponseReceived(subtask: SubtaskResult) = {
     // Send the result to scheduler
     scheduler.collect(subtask.parentId, subtask.sourcePartitionId, subtask.result);
+  }
+
+  override def onTaskSubmitted(task: TaskSubmit) = {
+    // Submit the task
+    submit(task.workerClassName, task.startNodeId);
   }
 
   /**

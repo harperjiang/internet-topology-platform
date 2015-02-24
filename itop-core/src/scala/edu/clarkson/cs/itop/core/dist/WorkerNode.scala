@@ -9,7 +9,7 @@ import org.springframework.beans.factory.InitializingBean
 import java.util.EventListener
 import org.slf4j.LoggerFactory
 import scala.beans.BeanProperty
-
+import edu.clarkson.cs.itop.core.dist.message.TaskSubmit
 
 class WorkerNode extends Sender with EventListenerSupport[WorkerListener] with InitializingBean {
 
@@ -64,6 +64,10 @@ class WorkerNode extends Sender with EventListenerSupport[WorkerListener] with I
   def onResponseReceived(task: SubtaskResult) = {
     listeners.foreach(_.onResponseReceived(task));
   }
+
+  def onTaskSubmitted(task: TaskSubmit) = {
+    listeners.foreach(_.onTaskSubmitted(task));
+  }
 }
 
 trait WorkerListener extends EventListener {
@@ -75,4 +79,6 @@ trait WorkerListener extends EventListener {
   def onResponseSent(task: SubtaskResult) = {};
 
   def onResponseReceived(task: SubtaskResult) = {};
+
+  def onTaskSubmitted(task: TaskSubmit) = {};
 }

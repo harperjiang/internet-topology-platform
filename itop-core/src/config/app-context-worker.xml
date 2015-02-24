@@ -55,5 +55,7 @@
 			method="onRequestReceived" selector="targetPartition=#{partition.id}" />
 		<jms:listener destination="workResponseDest" ref="workerNode"
 			method="onResponseReceived" selector="targetMachine=#{workerNode.machineId}" />
+		<jms:listener destination="taskSubmitDest" ref="workerNode"
+			method="onTaskSubmitted" selector="targetPartition=#{partition.id}" />
 	</jms:listener-container>
 </beans>

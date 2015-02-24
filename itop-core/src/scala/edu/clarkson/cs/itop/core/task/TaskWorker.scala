@@ -3,7 +3,6 @@ package edu.clarkson.cs.itop.core.task
 import edu.clarkson.cs.scala.common.message.KVStore
 import edu.clarkson.cs.itop.core.model.Node
 
-
 /**
  * <code>TaskWorker</code> is the interface provided to users who want to
  * implement their own vertex programs.
@@ -30,4 +29,9 @@ trait TaskWorker {
    * Callback when the task is done
    */
   def done(t: Task);
+
+  /**
+   * Data return from this method will be collected with JMS collector
+   */
+  def export: KVStore = { return null }
 }

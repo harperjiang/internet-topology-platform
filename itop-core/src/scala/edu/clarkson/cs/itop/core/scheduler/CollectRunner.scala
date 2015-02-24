@@ -21,8 +21,9 @@ class CollectRunner(origin: Task, r: KVStore, cb: (Task, Exception) => Unit) ext
     }
     task.hasError |= (exception != null);
 
-    if (task.spawned == 0)
+    if (task.spawned == 0) {
       task.getWorker.done(task);
+    }
     callback(task, exception);
   }
 }

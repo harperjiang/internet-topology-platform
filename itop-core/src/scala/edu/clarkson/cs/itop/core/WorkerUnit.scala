@@ -17,6 +17,7 @@ import edu.clarkson.cs.itop.core.task.Task
 import org.slf4j.LoggerFactory
 import edu.clarkson.cs.itop.core.task.TaskWorker
 import edu.clarkson.cs.itop.core.dist.message.TaskSubmit
+import edu.clarkson.cs.itop.core.util.NamingUtils
 
 class WorkerUnit extends WorkerListener with SchedulerListener with InitializingBean {
 
@@ -31,8 +32,9 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
 
   def submit(task: Task): Unit = {
     // Assign valid task id
-    task.id = taskId
-
+    if (null == task.id) {
+      task.id = taskId
+    }
     // Check task information
     if (task.startNodeId == -1) {
       throw new IllegalArgumentException("Task startNodeId is missing");
@@ -47,8 +49,9 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
     scheduler.schedule(task);
   }
 
-  def submit(workerClassName: String, startNode: Int): Unit = {
+  def submit(expectTaskId: String, workerClassName: String, startNode: Int): Unit = {
     var task = new Task;
+    task.id = taskId(expectTaskId);
     task.workerClass = Class.forName(workerClassName).asSubclass(classOf[TaskWorker]);
     task.startNodeId = startNode;
     submit(task);
@@ -73,7 +76,7 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
 
   override def onTaskSubmitted(task: TaskSubmit) = {
     // Submit the task
-    submit(task.workerClassName, task.startNodeId);
+    submit(task.taskId, task.workerClassName, task.startNodeId);
   }
 
   /**
@@ -89,14 +92,18 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
         node.sendSubtaskResponse(resp);
       }
       case _ => {
-        // Normal task, no need to handle it now
-
+        // Normal task, query to see whether need to collect result using jms collector
+        
       }
     }
   }
 
   def taskId: (Int, String) = {
-    (node.machineId, UUID.randomUUID().toString())
+    (node.machineId, NamingUtils.taskId)
+  }
+
+  def taskId(expect: String): (Int, String) = {
+    (node.machineId, expect)
   }
 }
 

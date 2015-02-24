@@ -39,7 +39,7 @@ import org.apache.hadoop.io.Text
 object Mainn extends App {
 
   var conf = new Configuration();
-  /*
+
   FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
 
   prepareData(conf)
@@ -50,12 +50,7 @@ object Mainn extends App {
     refineMergeDecision(conf, i)
     updateClusters(conf, i)
   }
-  generateLink(conf) 
-  * */
-
-  rawMergeDecision(conf)
-  refineMergeDecision(conf, 5)
-  updateClusters(conf, 5)
+  generateLinkPartition(conf)
 
   def prepareData(conf: Configuration): Unit = {
     // Prepare Data

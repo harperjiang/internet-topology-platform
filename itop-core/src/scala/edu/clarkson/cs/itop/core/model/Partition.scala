@@ -3,14 +3,14 @@ package edu.clarkson.cs.itop.core.model
 import scala.io.Source
 import org.springframework.beans.factory.InitializingBean
 import edu.clarkson.cs.itop.core.parser.Parser
-
+import scala.beans.BeanProperty
 
 /**
  * Partition is the manager of everything in a machine
  */
 class Partition extends InitializingBean {
 
-  var id = 0;
+  @BeanProperty var id = 0;
   var nodeFile = "";
   var linkFile = "";
   /**

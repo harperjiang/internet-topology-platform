@@ -11,6 +11,10 @@ trait Sender {
   var jmsTemplate: JmsTemplate = null;
 
   def send(dest: String, message: (Object, (Message => Unit))) = {
-    jmsTemplate.convertAndSend(dest, message)
+    if (jmsTemplate != null)
+      jmsTemplate.convertAndSend(dest, message)
+    else {
+      throw new IllegalArgumentException("Invalid JMS Template")
+    }
   }
 }

@@ -1,7 +1,13 @@
-#!/bin/sh
-
+#!/bin/bash
 
 CLASSPATH=../lib/*
-CLASSPATH=$CLASSPATH:../config
+CLASSPATH=$CLASSPATH:../conf
 
-java -cp $CLASSPATH edu.clarkson.cs.itop.core.RunMaster
+DEBUG=" -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8990,suspend=y"
+
+if [ "$1" == "-debug" ]; then
+        PARAMS=$PARAMS$DEBUG
+fi
+
+java $PARAMS -cp $CLASSPATH edu.clarkson.cs.itop.core.RunMaster
+                                                          

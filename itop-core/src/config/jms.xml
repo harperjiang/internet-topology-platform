@@ -8,14 +8,18 @@
 		<property name="connectionFactory">
 			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
 				<property name="brokerURL">
-					<value>tcp://localhost:61616?daemon=true</value>
+					<value>tcp://gradhadoopmaster:61616?daemon=true</value>
 				</property>
 			</bean>
 		</property>
 	</bean>
 
-	<bean id="gsonTranslator"
-		class="edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean" />
+	<bean id="gsonTranslator" class="edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean" />
+
+	<bean id="messageConverter"
+		class="edu.clarkson.cs.scala.common.message.JsonMessageConverter">
+		<property name="translator" ref="gsonTranslator" />
+	</bean>
 
 	<!-- Spring JMS Template -->
 	<bean id="bfDestinationResolver"
@@ -25,27 +29,20 @@
 		<property name="connectionFactory">
 			<ref local="jmsFactory" />
 		</property>
-		<property name="messageConverter">
-			<bean class="edu.clarkson.cs.scala.common.message.JsonMessageConverter">
-				<property name="translator" ref="gsonTranslator" />
-			</bean>
-		</property>
+		<property name="messageConverter" ref="messageConverter" />
 		<property name="destinationResolver" ref="bfDestinationResolver" />
 	</bean>
 
 	<!-- Destinations -->
 	<bean id="heartbeatDest" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg index="0"
-			value="itop.queue.heartbeat" />
+		<constructor-arg index="0" value="itop.queue.heartbeat" />
 	</bean>
 
 	<bean id="workRequestDest" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg index="0"
-			value="itop.caida.queue.workRequest" />
+		<constructor-arg index="0" value="itop.caida.queue.workRequest" />
 	</bean>
 
 	<bean id="workResponseDest" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg index="0"
-			value="itop.caida.queue.workResponse" />
+		<constructor-arg index="0" value="itop.caida.queue.workResponse" />
 	</bean>
 </beans>

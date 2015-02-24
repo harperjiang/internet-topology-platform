@@ -32,7 +32,7 @@ class Task {
   /**
    * The start node of this task
    */
-  var startNodeId: Int = 0;
+  var startNodeId: Int = -1;
 
   /**
    * How many items has been spawned from it

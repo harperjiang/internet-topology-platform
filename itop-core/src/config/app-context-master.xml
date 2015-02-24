@@ -8,18 +8,19 @@
 	<import resource="jms.xml" />
 
 
-	<bean id="masterNode" class="edu.clarkson.cs.itop.core.core.dist.MasterNode">
+	<bean id="masterNode" class="edu.clarkson.cs.itop.core.dist.MasterNode">
 		<property name="maxMachineId" value="3000" />
 		<property name="abnormalInterval" value="60000" />
 		<property name="downInterval" value="60" />
 		<property name="stableCount" value="10" />
 	</bean>
 
-	<bean id="masterUnit" class="edu.clarkson.cs.itop.core.core.MasterUnit">
+	<bean id="masterUnit" class="edu.clarkson.cs.itop.core.MasterUnit">
 		<property name="node" ref="masterNode" />
 	</bean>
 
-	<jms:listener-container connection-factory="jmsFactory">
+	<jms:listener-container connection-factory="jmsFactory"
+		destination-resolver="bfDestinationResolver" message-converter="messageConverter">
 		<jms:listener destination="heartbeatDest" ref="masterNode"
 			method="onHeartbeat" />
 	</jms:listener-container>

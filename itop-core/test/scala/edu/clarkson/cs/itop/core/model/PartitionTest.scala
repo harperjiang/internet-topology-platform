@@ -16,6 +16,7 @@ class PartitionTest {
 
   @Test
   def testLoadPartition = {
+    assertEquals(1, partition.id)
     assertEquals(10, partition.nodeMap.size);
     assertEquals(1, partition.nodeIpMap.get("23.13.15.29").get.id);
     assertEquals(10, partition.nodeIpMap.get("23.13.15.137").get.id);

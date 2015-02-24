@@ -8,12 +8,13 @@ import edu.clarkson.cs.scala.common.EventListenerSupport
 import org.springframework.beans.factory.InitializingBean
 import java.util.EventListener
 import org.slf4j.LoggerFactory
+import scala.beans.BeanProperty
 
 
 class WorkerNode extends Sender with EventListenerSupport[WorkerListener] with InitializingBean {
 
-  var groupId = 0;
-  var machineId = 0;
+  @BeanProperty var groupId = 0;
+  @BeanProperty var machineId = 0;
   var hbInterval = 2000;
 
   private val logger = LoggerFactory.getLogger(getClass());

@@ -14,6 +14,7 @@ import edu.clarkson.cs.itop.core.scheduler.SchedulerListener
 import edu.clarkson.cs.itop.core.scheduler.Scheduler
 import edu.clarkson.cs.itop.core.model.Partition
 import edu.clarkson.cs.itop.core.task.Task
+import org.slf4j.LoggerFactory
 
 class WorkerUnit extends WorkerListener with SchedulerListener with InitializingBean {
 
@@ -29,14 +30,24 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
   def submit(task: Task): Unit = {
     // Assign valid task id
     task.id = taskId
+
+    // Check task information
+    if (task.startNodeId == -1) {
+      throw new IllegalArgumentException("Task startNodeId is missing");
+    }
+    if (task.workerClass == null) {
+      throw new IllegalArgumentException("Task workerClass is missing");
+    }
+
+    // Submit the task into scheduler
     var ctx = new TaskContext(node, partition);
     task.context = ctx;
-    // Submit the task into scheduler
     scheduler.schedule(task);
   }
 
   def submit(worker: Class[TaskWorker], startNode: Int): Unit = {
     var task = new Task;
+    task.workerClass = worker;
     task.startNodeId = startNode;
     submit(task);
   }
@@ -82,7 +93,8 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
   }
 }
 
-
 object RunWorker extends App {
+  var logger = LoggerFactory.getLogger(RunWorker.getClass)
+  logger.info("Worker Unit Started")
   var appContext = new ClassPathXmlApplicationContext("app-context-worker.xml");
 }

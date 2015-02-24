@@ -6,14 +6,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
 import edu.clarkson.cs.itop.core.dist.message.Heartbeat
 
-
 /**
  * <code>MasterNode</code> is the control plane of the system. It can report status of each machine.
  */
 class MasterNode extends InitializingBean {
 
   private val machineStatus = new ConcurrentHashMap[Int, MachineState]();
-  private val logger = LoggerFactory.getLogger(getClass());
+  private val logger = LoggerFactory.getLogger(classOf[MasterNode]);
 
   var maxMachineId = 0;
   var abnormalInterval = 0L;
@@ -35,10 +34,13 @@ class MasterNode extends InitializingBean {
   }
 
   def onHeartbeat(hb: Heartbeat): Unit = {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Received heart beat from %d".format(hb.machineId));
+    }
     if (hb.machineId > maxMachineId || hb.machineId < 0) {
       var msg = "Invalid machine id received:%d".format(hb.machineId)
-      logger.warn(msg);
-      throw new IllegalArgumentException(msg);
+      logger.error(msg);
+      // Just discard the message
     }
     val record = machineStatus.get(hb.machineId);
 

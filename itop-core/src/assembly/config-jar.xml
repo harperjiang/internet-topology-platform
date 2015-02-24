@@ -37,9 +37,10 @@
 		</fileSet>
 		<fileSet>
 			<directory>src/config</directory>
-			<outputDirectory>/config</outputDirectory>
+			<outputDirectory>/conf</outputDirectory>
 			<includes>
 				<include>**/*.xml</include>
+				<include>**/*.properties</include>
 			</includes>
 		</fileSet>
 	</fileSets>

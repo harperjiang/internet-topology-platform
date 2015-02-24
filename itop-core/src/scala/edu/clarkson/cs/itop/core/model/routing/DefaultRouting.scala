@@ -7,7 +7,13 @@ import com.google.common.hash.BloomFilter
 import com.google.common.hash.Funnels
 import edu.clarkson.cs.itop.core.model.Routing
 
-
+/**
+ * This class read routing information from routing file:
+ * 
+ * A valid routing file should be in the following format:
+ * 
+ * node_id partition_1 partition_2 .... partition_n
+ */
 class DefaultRouting extends Routing with InitializingBean {
 
   var routingSize = 0;

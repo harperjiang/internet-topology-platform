@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	   					http://www.springframework.org/schema/beans/spring-beans.xsd 
 	   					http://www.springframework.org/schema/jms 
-	   					http://www.springframework.org/schema/jms/spring-jms.xsd">
+	   					http://www.springframework.org/schema/jms/spring-jms.xsd
+	   					http://www.springframework.org/schema/context
+	   					http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
 	<import resource="jms.xml" />
+	<context:property-placeholder location="classpath:worker.properties" />
 
 	<bean id="workerUnit" class="edu.clarkson.cs.itop.core.WorkerUnit">
 		<property name="node" ref="workerNode" />
@@ -16,27 +20,25 @@
 
 
 	<bean id="workerNode" class="edu.clarkson.cs.itop.core.dist.WorkerNode">
-		<property name="groupId" value="1" />
-		<property name="machineId" value="1" />
+		<property name="groupId" value="${itop.worker.groupid}" />
+		<property name="machineId" value="${itop.worker.machineid}" />
 		<property name="hbInterval" value="2000" />
 		<property name="jmsTemplate" ref="jmsTemplate" />
 	</bean>
 
 	<bean id="partition" class="edu.clarkson.cs.itop.core.model.Partition">
-		<property name="id" value="1" />
-		<property name="nodeFile" value="testdata/nodes" />
-		<property name="linkFile" value="testdata/links" />
+		<property name="id" value="${itop.worker.partitionid}" />
+		<property name="nodeFile" value="${itop.worker.nodefile}" />
+		<property name="linkFile" value="${itop.worker.linkfile}" />
 		<property name="routing">
-			<bean
-				class="edu.clarkson.cs.itop.core.model.routing.DefaultRouting">
-				<property name="routingFile" value="testdata/routing" />
-				<property name="routingSize" value="100" />
+			<bean class="edu.clarkson.cs.itop.core.model.routing.DefaultRouting">
+				<property name="routingFile" value="${itop.worker.routing.file}" />
+				<property name="routingSize" value="${itop.worker.routing.size}" />
 			</bean>
 		</property>
 	</bean>
 
-	<bean id="scheduler"
-		class="edu.clarkson.cs.itop.core.scheduler.DefaultScheduler">
+	<bean id="scheduler" class="edu.clarkson.cs.itop.core.scheduler.DefaultScheduler">
 		<property name="threadPool">
 			<bean
 				class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
@@ -47,7 +49,8 @@
 		</property>
 	</bean>
 
-	<jms:listener-container connection-factory="jmsFactory">
+	<jms:listener-container connection-factory="jmsFactory"
+		destination-resolver="bfDestinationResolver" message-converter="messageConverter">
 		<jms:listener destination="workRequestDest" ref="workerNode"
 			method="onRequestReceived" selector="targetPartition=#{partition.id}" />
 		<jms:listener destination="workResponseDest" ref="workerNode"

@@ -93,7 +93,10 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
       }
       case _ => {
         // Normal task, query to see whether need to collect result using jms collector
-        
+        var result = e.task.getWorker.export;
+        if (null != result) {
+        	this.node.exportTaskResult(e.task, result);
+        }
       }
     }
   }

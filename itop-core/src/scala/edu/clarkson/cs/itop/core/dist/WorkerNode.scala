@@ -10,6 +10,8 @@ import java.util.EventListener
 import org.slf4j.LoggerFactory
 import scala.beans.BeanProperty
 import edu.clarkson.cs.itop.core.dist.message.TaskSubmit
+import edu.clarkson.cs.scala.common.message.KVStore
+import edu.clarkson.cs.itop.core.task.Task
 
 class WorkerNode extends Sender with EventListenerSupport[WorkerListener] with InitializingBean {
 
@@ -55,6 +57,10 @@ class WorkerNode extends Sender with EventListenerSupport[WorkerListener] with I
   def sendSubtaskResponse(task: SubtaskResult) = {
     send("workResponseDest", (task, m => { m.setIntProperty("targetMachine", task.parentId._1) }));
     listeners.foreach(_.onResponseSent(task));
+  }
+
+  def exportTaskResult(task: Task, result: KVStore) = {
+    send("taskSubmitDest", (result, null));
   }
 
   def onRequestReceived(task: SubtaskExecute) = {

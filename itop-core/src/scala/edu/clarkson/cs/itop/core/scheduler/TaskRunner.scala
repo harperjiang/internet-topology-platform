@@ -21,22 +21,20 @@ class TaskRunner(t: Task, cb: (Task, Exception) => Unit) extends Runnable {
     val com = context.worker;
     worker.start(t);
 
-    var toexecute = new ArrayBuffer[Node]();
     var exception: Exception = null;
 
     try {
-      toexecute += partition.nodeMap.get(task.startNodeId)
-        .getOrElse(throw new IllegalArgumentException("No such node:%d".format(task.startNodeId)));
-      while (!toexecute.isEmpty) {
-        var target = toexecute.remove(0);
-        if (task.parent == null || task.startNodeId != target.id) {
+      var currentNode: Option[Node] = Some(partition.nodeMap.get(task.startNodeId)
+        .getOrElse(throw new IllegalArgumentException("No such node:%d".format(task.startNodeId))));
+      while (currentNode != None) {
+        if (task.parent == null || task.startNodeId != currentNode.get.id) {
           // For subtasks that just started, don't spawn to avoid infinite loop on the spawn point
-          var tospawn = partition.queryPartition(target);
+          var tospawn = partition.queryPartition(currentNode.get);
           if (!tospawn.isEmpty) {
-            spawn(target.id, tospawn)
+            spawn(currentNode.get.id, tospawn)
           }
         }
-        toexecute ++= worker.execute(t, target);
+        currentNode = worker.workon(task, currentNode.get)
       }
     } catch {
       case e: Exception => {

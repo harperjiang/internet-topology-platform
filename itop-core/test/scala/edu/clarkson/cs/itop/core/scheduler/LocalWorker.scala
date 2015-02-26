@@ -15,8 +15,8 @@ class LocalWorker extends TaskWorker {
    * Work on the current node.
    * Return The next node(s) it wants to execute on
    */
-  def execute(t: Task, node: Node): Iterable[Node] = {
-    return List[Node]();
+  def workon(t: Task, node: Node): Option[Node] = {
+    return None;
   }
 
   /**

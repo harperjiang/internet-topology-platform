@@ -4,6 +4,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
 import scala.math.BigDecimal.int2bigDecimal
 import scala.collection.mutable.Buffer
+import scala.collection.SortedMap
 /**
  * A node represents a router
  */
@@ -23,7 +24,7 @@ class Node {
 
   var ips = Set[String]();
 
-  var namedLinks = scala.collection.mutable.Map[String, Link]();
+  var namedLinks = SortedMap[String, Link]();
   var anonymousLinks = ArrayBuffer[Link]();
 
   def this(nid: Int) = {
@@ -43,4 +44,13 @@ class Node {
   def appendLink(link: Link, ip: String) = {
     namedLinks += (ip -> link);
   }
+
+  def foreachLink(f: (Link, LinkIndex) => Unit) = {
+
+  }
+}
+
+// A Link Index Uniquely identify a link connect to a node
+class LinkIndex {
+
 }

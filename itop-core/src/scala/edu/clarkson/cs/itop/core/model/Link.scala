@@ -60,4 +60,14 @@ class Link(lid: Int) {
       namedNodes.size + anonymousNodes.length;
   }
 
+  def foreachNode(f:(Node,NodeIndex)=>Unit) = {
+    
+  }
+}
+
+/**
+ * NodeIndex uniquely identify a node attached to a link
+ */
+class NodeIndex {
+  
 }

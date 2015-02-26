@@ -46,7 +46,7 @@ class Node {
   }
 
   def foreachLink(f: (Link, LinkIndex) => Unit) = {
-
+    
   }
 }
 

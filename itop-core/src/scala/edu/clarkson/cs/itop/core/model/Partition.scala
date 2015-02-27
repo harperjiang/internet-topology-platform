@@ -44,7 +44,7 @@ class Partition extends InitializingBean {
       .map[Link](line => { parser.parse[Link](line) })
       .foreach(link => {
         // Attach Link with nodes
-        link.attachNodes(nodeMap);
+        link.attachNodes(nodeMap.toMap);
         // Attach node with links
         link.namedNodes.foreach(entry => {
           entry._2.appendLink(link, entry._1);

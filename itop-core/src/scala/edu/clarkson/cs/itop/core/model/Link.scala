@@ -3,6 +3,8 @@ package edu.clarkson.cs.itop.core.model
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Buffer
+import scala.collection.SortedMap
+import scala.collection.immutable.TreeMap
 
 /**
  * A link consists of multiple nodes and it works like a shared bus between these links.
@@ -16,8 +18,8 @@ class Link(lid: Int) {
   val namedNodeIds = scala.collection.mutable.Map[String, Int]();
   val anonymousNodeIds = new ArrayBuffer[Int];
 
-  val namedNodes = scala.collection.mutable.Map[String, Node]();
-  val anonymousNodes = new ArrayBuffer[Node]();
+  var namedNodes = SortedMap[String, Node]();
+  var anonymousNodes = new ArrayBuffer[Node]();
 
   def this(sid: String, nodes: java.util.List[(String, String)]) = {
     this(Integer.parseInt(sid.substring(1)));
@@ -41,9 +43,8 @@ class Link(lid: Int) {
   def attachNodes(nodeMap: scala.collection.mutable.Map[Int, Node]) = {
     var nodeNotFound = { node_id: Int => { throw new IllegalArgumentException("Node not found: %d".format(node_id)); } };
 
-    namedNodeIds.foreach(entry => {
-      namedNodes += (entry._1 -> nodeMap.get(entry._2).getOrElse(nodeNotFound(entry._2)));
-    });
+    var nodeMaps = namedNodeIds.mapValues(node_id => nodeMap.get(node_id).getOrElse(nodeNotFound(node_id)));
+    namedNodes = TreeMap(nodeMaps.toArray: _*);
     anonymousNodeIds.foreach(entry => {
       anonymousNodes += nodeMap.get(entry).getOrElse(nodeNotFound(entry));
     });
@@ -60,16 +61,49 @@ class Link(lid: Int) {
       namedNodes.size + anonymousNodes.length;
   }
 
-  def foreachNode(f: (Node, NodeIndex) => Unit) = {
-
+  def foreachNode(f: ((Node, NodeIndex)) => Unit) = {
+    var index = new NodeIndex();
+    index.onNamedNodes = true;
+    index.nameKey = namedNodes.firstKey;
+    var current = nodeAtIndex(index);
+    while (current != null) {
+      f(current);
+      current = nextNode(current._2);
+    }
   }
 
-  def nodeAtIndex(index: NodeIndex): Node = {
-    return null;
+  def nodeAtIndex(index: NodeIndex): (Node, NodeIndex) = {
+    var node: Node = null;
+    if (index.onNamedNodes) {
+      node = namedNodes.get(index.nameKey).get;
+    } else if (index.anonymousIndex < anonymousNodes.length) {
+      node = anonymousNodes(index.anonymousIndex);
+    }
+    if (node == null)
+      return null;
+    return (node, index);
   }
 
   def nextNode(index: NodeIndex): (Node, NodeIndex) = {
-    return null;
+    // Name nodes first, anonymous nodes then
+    var newIndex = new NodeIndex(index);
+
+    if (index.onNamedNodes) {
+      var iterator = namedNodes.iteratorFrom(index.nameKey);
+      // Ignore this one and return the "next" one
+      iterator.next
+      var expect = iterator.next;
+      if (expect == null) {
+        // No more named nodes, should switch to anonymous nodes
+        newIndex.onNamedNodes = false;
+        newIndex.anonymousIndex = 0;
+      } else {
+        newIndex.nameKey = expect._1;
+      }
+    } else {
+      newIndex.anonymousIndex += 1;
+    }
+    return nodeAtIndex(newIndex);
   }
 }
 
@@ -77,5 +111,14 @@ class Link(lid: Int) {
  * NodeIndex uniquely identify a node attached to a link
  */
 class NodeIndex {
+  var onNamedNodes = false;
+  var nameKey = "";
+  var anonymousIndex = 0;
 
+  def this(copy: NodeIndex) = {
+    this();
+    this.onNamedNodes = copy.onNamedNodes;
+    this.nameKey = copy.nameKey;
+    this.anonymousIndex = copy.anonymousIndex;
+  }
 }

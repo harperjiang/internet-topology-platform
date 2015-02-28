@@ -20,7 +20,7 @@ class LinkTest {
   @Test
   def testAttachNodes: Unit = {
     var link = new Link(1);
-    link.namedNodeIds += { "1.2.3.4" -> 1; "2.3.4.5" -> 2; "3.4.5.6" -> 3 }
+    link.namedNodeIds ++= Map("1.2.3.4" -> 1, "2.3.4.5" -> 2, "3.4.5.6" -> 3)
     link.anonymousNodeIds ++= List(5, 6, 7, 8);
 
     var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
@@ -45,15 +45,15 @@ class LinkTest {
   def testForeachNode: Unit = {
     var set = scala.collection.mutable.Set[Int]();
     var link = new Link(1)
-    link.namedNodeIds += { "1.2.3.4" -> 1; "2.3.4.5" -> 2; "3.4.5.6" -> 3 }
+    link.namedNodeIds ++= Map("1.2.3.4" -> 1, "2.3.4.5" -> 2, "3.4.5.6" -> 3)
     link.anonymousNodeIds ++= List(5, 6, 7, 8);
-    var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
+    var nodeMap = Map(1 -> new Node(1), 2 -> new Node(2), 3 -> new Node(3), 5 -> new Node(5), 6 -> new Node(6), 7 -> new Node(7), 8 -> new Node(8))
     link.attachNodes(nodeMap);
-    link.foreachNode((n, i) => {
-      set.add(n.id);
+    link.foreachNode(f => {
+      set.add(f._1.id);
     });
 
-    assertEquals(4, set.size);
+    assertEquals(7, set.size);
     assertTrue(set.contains(1))
     assertTrue(set.contains(2))
     assertTrue(set.contains(3))
@@ -67,28 +67,49 @@ class LinkTest {
   def testNodeAtIndex: Unit = {
     var set = scala.collection.mutable.Set[Int]();
     var link = new Link(1)
-    link.namedNodeIds += { "1.2.3.4" -> 1; "2.3.4.5" -> 2; "3.4.5.6" -> 3 }
+    link.namedNodeIds ++= Map("1.2.3.4" -> 1, "2.3.4.5" -> 2, "3.4.5.6" -> 3)
     link.anonymousNodeIds ++= List(5, 6, 7, 8);
     var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
     link.attachNodes(nodeMap);
 
     var index = new NodeIndex()
-    assertEquals((nodeMap.get(1).get, index), link.nodeAtIndex(index))
+    index.onNamedNodes = true
+    index.nameKey = "1.2.3.4"
+    assertEquals(nodeMap.get(1).get, link.nodeAtIndex(index)._1)
 
     var index2 = new NodeIndex()
-    assertEquals((nodeMap.get(5).get, index), link.nodeAtIndex(index))
+    index2.onNamedNodes = false
+    index2.anonymousIndex = 0
+    assertEquals(nodeMap.get(5).get, link.nodeAtIndex(index2)._1)
+  }
+
+  @Test
+  def testFirstNode: Unit = {
+    var link = new Link(1)
+    link.namedNodeIds ++= Map("1.2.3.4" -> 1, "2.3.4.5" -> 2, "3.4.5.6" -> 3)
+    link.anonymousNodeIds ++= List(5, 6, 7, 8);
+    var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
+    link.attachNodes(nodeMap);
+    assertEquals(nodeMap.get(1).get, link.firstNode._1)
+
+    var link2 = new Link(2)
+    link2.anonymousNodeIds ++= List(5, 6, 7, 8);
+    var nodeMap2 = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
+    link2.attachNodes(nodeMap2);
+    assertEquals(nodeMap2.get(5).get, link2.firstNode._1)
   }
 
   @Test
   def testNextNode: Unit = {
-    var set = scala.collection.mutable.Set[Int]();
     var link = new Link(1)
-    link.namedNodeIds += { "1.2.3.4" -> 1; "2.3.4.5" -> 2; "3.4.5.6" -> 3 }
+    link.namedNodeIds ++= Map("1.2.3.4" -> 1, "2.3.4.5" -> 2, "3.4.5.6" -> 3)
     link.anonymousNodeIds ++= List(5, 6, 7, 8);
     var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
     link.attachNodes(nodeMap);
 
     var index = new NodeIndex();
+    index.onNamedNodes = true;
+    index.nameKey = "1.2.3.4";
     var tuple = link.nextNode(index);
     index = tuple._2;
     assertEquals(nodeMap.get(2).get, tuple._1)
@@ -108,6 +129,6 @@ class LinkTest {
     index = tuple._2;
     assertEquals(nodeMap.get(8).get, tuple._1)
     tuple = link.nextNode(index);
-    assertEquals(null,tuple)
+    assertEquals(null, tuple)
   }
 }

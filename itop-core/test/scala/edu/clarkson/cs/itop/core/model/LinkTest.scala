@@ -49,7 +49,7 @@ class LinkTest {
     link.anonymousNodeIds ++= List(5, 6, 7, 8);
     var nodeMap = Map(1 -> new Node(1), 2 -> new Node(2), 3 -> new Node(3), 5 -> new Node(5), 6 -> new Node(6), 7 -> new Node(7), 8 -> new Node(8))
     link.attachNodes(nodeMap);
-    link.foreachNode(f => {
+    link.nodes.foreach(f => {
       set.add(f._1.id);
     });
 
@@ -72,15 +72,15 @@ class LinkTest {
     var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
     link.attachNodes(nodeMap);
 
-    var index = new NodeIndex()
-    index.onNamedNodes = true
+    var index = new Index()
+    index.onNamedItems = true
     index.nameKey = "1.2.3.4"
-    assertEquals(nodeMap.get(1).get, link.nodeAtIndex(index)._1)
+    assertEquals(nodeMap.get(1).get, link.nodes.at(index))
 
-    var index2 = new NodeIndex()
-    index2.onNamedNodes = false
+    var index2 = new Index()
+    index2.onNamedItems = false
     index2.anonymousIndex = 0
-    assertEquals(nodeMap.get(5).get, link.nodeAtIndex(index2)._1)
+    assertEquals(nodeMap.get(5).get, link.nodes.at(index2))
   }
 
   @Test
@@ -90,13 +90,13 @@ class LinkTest {
     link.anonymousNodeIds ++= List(5, 6, 7, 8);
     var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
     link.attachNodes(nodeMap);
-    assertEquals(nodeMap.get(1).get, link.firstNode._1)
+    assertEquals(nodeMap.get(1).get, link.nodes.first._1)
 
     var link2 = new Link(2)
     link2.anonymousNodeIds ++= List(5, 6, 7, 8);
     var nodeMap2 = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
     link2.attachNodes(nodeMap2);
-    assertEquals(nodeMap2.get(5).get, link2.firstNode._1)
+    assertEquals(nodeMap2.get(5).get, link2.nodes.first._1)
   }
 
   @Test
@@ -107,28 +107,32 @@ class LinkTest {
     var nodeMap = Map(1 -> new Node(), 2 -> new Node(), 3 -> new Node(), 5 -> new Node(), 6 -> new Node(), 7 -> new Node(), 8 -> new Node)
     link.attachNodes(nodeMap);
 
-    var index = new NodeIndex();
-    index.onNamedNodes = true;
-    index.nameKey = "1.2.3.4";
-    var tuple = link.nextNode(index);
+    var index = link.nodes.first._2;
+    var tuple = link.nodes.next(index);
     index = tuple._2;
     assertEquals(nodeMap.get(2).get, tuple._1)
-    tuple = link.nextNode(index);
+    tuple = link.nodes.next(index);
     index = tuple._2;
     assertEquals(nodeMap.get(3).get, tuple._1)
-    tuple = link.nextNode(index);
+    tuple = link.nodes.next(index);
     index = tuple._2;
     assertEquals(nodeMap.get(5).get, tuple._1)
-    tuple = link.nextNode(index);
+    tuple = link.nodes.next(index);
     index = tuple._2;
     assertEquals(nodeMap.get(6).get, tuple._1)
-    tuple = link.nextNode(index);
+    tuple = link.nodes.next(index);
     index = tuple._2;
     assertEquals(nodeMap.get(7).get, tuple._1)
-    tuple = link.nextNode(index);
+    tuple = link.nodes.next(index);
     index = tuple._2;
     assertEquals(nodeMap.get(8).get, tuple._1)
-    tuple = link.nextNode(index);
-    assertEquals(null, tuple)
+    try {
+      tuple = link.nodes.next(index);
+      fail("No such Element");
+    } catch {
+      case e: NoSuchElementException => {
+
+      }
+    }
   }
 }

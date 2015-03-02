@@ -16,29 +16,71 @@ class Index {
   }
 }
 
-class IndexableIterator[T](namedItems: SortedMap[String, T], anonymousItems: List[T]) {
+object Index {
+  val beforeFirst: Index = new Index;
+}
 
-  def foreach(f: ((T, Index)) => Unit): Unit = {
-    try {
-      var index = first._2;
-      var item = at(index);
+class IndexableIterator[T](namedItems: SortedMap[String, T], anonymousItems: List[T]) extends java.util.Iterator[T] {
 
-      while (true) {
-        f((item, index));
-        var tuple = next(index);
-        if (tuple == null)
-          return ;
-        item = tuple._1;
-        index = tuple._2;
-      }
-    } catch {
-      case e: NoSuchElementException => {
-        // No more, stop
-      }
+  private var currentIndex = Index.beforeFirst;
+
+  def isEmpty: Boolean = {
+    return this.namedItems.isEmpty && this.anonymousItems.isEmpty;
+  }
+
+  def hasNext(): Boolean = {
+    if (currentIndex == Index.beforeFirst) {
+      return !isEmpty;
+    }
+    if (currentIndex.onNamedItems) {
+      return currentIndex.nameKey != namedItems.lastKey || !anonymousItems.isEmpty
+    } else {
+      return currentIndex.anonymousIndex < anonymousItems.size - 1;
     }
   }
 
-  def at(index: Index): T = {
+  def next(): T = {
+    if (currentIndex == Index.beforeFirst) {
+      currentIndex = new Index();
+      if (!namedItems.isEmpty) {
+        currentIndex.onNamedItems = true;
+        currentIndex.nameKey = namedItems.firstKey;
+      } else {
+        currentIndex.onNamedItems = false;
+        currentIndex.anonymousIndex = 0;
+      }
+    } else {
+      // Name nodes first, anonymous nodes then
+      if (currentIndex.onNamedItems) {
+        if (index.nameKey.equals(namedItems.lastKey)) {
+          // Already the last
+          currentIndex.onNamedItems = false;
+          currentIndex.anonymousIndex = 0;
+        } else {
+          var iterator = namedItems.iteratorFrom(index.nameKey);
+          // Ignore this one and return the "next" one
+          iterator.next
+          var expect = iterator.next;
+          currentIndex.nameKey = expect._1;
+        }
+      } else {
+        currentIndex.anonymousIndex += 1;
+      }
+    }
+    return at(currentIndex);
+  }
+
+  // Return Current Index
+  def index(): Index = {
+    currentIndex;
+  }
+
+  // Move the iterator to the element just after the given index
+  def to(index: Index): Unit = {
+    currentIndex = index;
+  }
+
+  private def at(index: Index): T = {
     try {
       if (index.onNamedItems) {
         return namedItems.get(index.nameKey).get;
@@ -55,52 +97,9 @@ class IndexableIterator[T](namedItems: SortedMap[String, T], anonymousItems: Lis
     }
   }
 
-  def first: (T, Index) = {
-    var newIndex = new Index();
-    if (namedItems.isEmpty) {
-      newIndex.onNamedItems = false;
-      newIndex.anonymousIndex = 0;
-    } else {
-      newIndex.onNamedItems = true;
-      newIndex.nameKey = namedItems.firstKey;
+  def foreach(f: ((T, Index)) => Unit): Unit = {
+    while (hasNext()) {
+      f((next(), currentIndex));
     }
-    return (at(newIndex), newIndex);
-  }
-
-  def last: (T, Index) = {
-    var newIndex = new Index();
-    if (anonymousItems.isEmpty) {
-      newIndex.onNamedItems = true;
-      newIndex.nameKey = namedItems.lastKey;
-    } else {
-      newIndex.onNamedItems = false;
-      newIndex.anonymousIndex = anonymousItems.length - 1;
-    }
-    return (at(newIndex), newIndex);
-  }
-
-  def isEmpty: Boolean = {
-    return this.namedItems.isEmpty && this.anonymousItems.isEmpty;
-  }
-
-  def next(index: Index): (T, Index) = {
-    // Name nodes first, anonymous nodes then
-    var newIndex = new Index(index);
-    if (index.onNamedItems) {
-      if (index.nameKey.equals(namedItems.lastKey)) {
-        // Already the last
-        newIndex.onNamedItems = false;
-        newIndex.anonymousIndex = 0;
-      } else {
-        var iterator = namedItems.iteratorFrom(index.nameKey);
-        // Ignore this one and return the "next" one
-        iterator.next
-        var expect = iterator.next;
-        newIndex.nameKey = expect._1;
-      }
-    } else {
-      newIndex.anonymousIndex += 1;
-    }
-    return (at(newIndex), newIndex);
   }
 }

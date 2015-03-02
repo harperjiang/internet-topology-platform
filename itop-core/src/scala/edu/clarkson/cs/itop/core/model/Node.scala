@@ -49,9 +49,6 @@ class Node {
   }
 
   def links: IndexableIterator[Link] = {
-    if (linksIterator == null) {
-      linksIterator = new IndexableIterator[Link](TreeMap(namedLinks.toArray: _*), anonymousLinks.toList);
-    }
-    return linksIterator;
+    return new IndexableIterator[Link](TreeMap(namedLinks.toArray: _*), anonymousLinks.toList);
   }
 }

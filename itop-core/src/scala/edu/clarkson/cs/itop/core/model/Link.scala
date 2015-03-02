@@ -61,9 +61,6 @@ class Link(lid: Int) {
   }
 
   def nodes: IndexableIterator[Node] = {
-    if (nodesIterator == null) {
-      nodesIterator = new IndexableIterator[Node](namedNodes, anonymousNodes);
-    }
-    return nodesIterator;
+    return new IndexableIterator[Node](namedNodes, anonymousNodes);
   }
 }

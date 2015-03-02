@@ -30,35 +30,58 @@ class ShortestPathWorker extends TaskWorker {
       return None;
     }
 
-    // First go for next unvisited child in current node's list
-    var currentPathNode = stack.top
-
-    if (currentPathNode.node == null) {
-      var lastLink = currentPathNode.link;
-      var current = lastLink.nodes.first;
-      var lastIndex = lastLink.nodes.last._2;
-
-      // Go through all child nodes to find unvisited ones
+    if (!visited.contains(node.id)) {
+      visited.add(node.id);
+      // Go through all child nodes through all the links to find unvisited ones
       // TODO Check current depth
-      
-      while (current._2 != lastIndex) {
-        var node = current._1;
-        if (!visited.contains(node.id)) {
-          // This is the next node to be visited
-          var newPathNode = new PathNode(node, current._2);
-          stack.push(newPathNode);
-          return Some(node);
-        }
-        current = lastLink.nodes.next(current._2);
-      }
-      // No child unvisited, should go to next sibling. 
-      var oldPathNode = stack.pop
-      
-    } else {
+      var currentPathNode = stack.top
 
+      var links = node.links;
+
+      while (links.hasNext()) {
+        var link = links.next();
+        var nodes = link.nodes;
+        while (nodes.hasNext()) {
+          var nextChildNode = nodes.next();
+          if (!visited.contains(nextChildNode.id)) {
+            var newPathNode = new PathNode(nextChildNode, link, nodes.index, links.index);
+            stack.push(newPathNode);
+            return Some(nextChildNode);
+          }
+        }
+      }
+    }
+    // No unvisited child, return next sibling. 
+    var currentPathNode = stack.pop
+
+    var next = nextSibling(currentPathNode);
+    if (next == null) {
+      return Some(stack.top.node);
+    } else {
+      stack.push(next);
+      return Some(next.node);
     }
 
     return None;
+  }
+
+  private def nextSibling(current: PathNode): PathNode = {
+    var links = stack.top.node.links;
+    links.to(current.linkIndex);
+    var nodes = current.link.nodes;
+    nodes.to(current.nodeIndex);
+
+    if (nodes.hasNext()) {
+      return new PathNode(nodes.next, current.link, nodes.index, current.linkIndex);
+    } else if (links.hasNext) {
+      var link = links.next;
+      var newnodes = link.nodes;
+      if (newnodes.hasNext) {
+        var node = newnodes.next;
+        return new PathNode(node, link, newnodes.index, links.index);
+      }
+    }
+    return null;
   }
 
   override def collect(t: Task, result: KVStore) = {
@@ -72,20 +95,19 @@ class ShortestPathWorker extends TaskWorker {
 }
 
 class PathNode {
-
+  // Latest node
   var node: Node = null;
+  // The link connecting this node and its parent
   var link: Link = null;
-  var index: Index = null;
-
-  def this(n: Node, i: Index) = {
+  // The link's index in parent node
+  var linkIndex: Index = null;
+  // The node's index in link
+  var nodeIndex: Index = null;
+  def this(n: Node, l: Link, ni: Index, li: Index) = {
     this();
     node = n;
-    index = i;
-  }
-
-  def this(l: Link, i: Index) = {
-    this();
     link = l;
-    index = i;
+    nodeIndex = ni;
+    linkIndex = li;
   }
 }

@@ -16,7 +16,7 @@ class DefaultScheduler extends Scheduler {
   /**
    * Schedule a new task
    */
-  def schedule(task: Task): Unit = {
+  override def schedule(task: Task): Unit = {
     task.status = TaskStatus.ACTIVE;
     threadPool.submit(new TaskRunner(task, (t: Task, e: Exception) => {
       if (t.spawned != 0) {
@@ -33,7 +33,7 @@ class DefaultScheduler extends Scheduler {
   /**
    * Collect result from spawned tasks
    */
-  def collect(tid: (Int, String), fromPid: Int, result: KVStore): Unit = {
+  override def collect(tid: (Int, String), fromPartition: Int, spawnNode: Int, result: KVStore): Unit = {
     if (!waitingQueue.containsKey(tid)) {
       logger.warn("Requested task not found:%s".format(tid));
       return
@@ -48,7 +48,7 @@ class DefaultScheduler extends Scheduler {
         waitingQueue.remove(tid);
       }
       val remain = task.spawned;
-      threadPool.submit(new CollectRunner(task, result, (t: Task, e: Exception) => {
+      threadPool.submit(new CollectRunner(task, fromPartition, spawnNode, result, (t: Task, e: Exception) => {
         if (remain == 0) {
           t.status = TaskStatus.END;
           this.onTaskEnd(t, t.hasError);

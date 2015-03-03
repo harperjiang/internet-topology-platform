@@ -25,6 +25,11 @@ class Task {
   var parent: (Int, String) = null;
 
   /**
+   * Subtask only, root parent id
+   */
+  var root: (Int, String) = null;
+
+  /**
    * Task Status
    */
   var status: TaskStatus.T = TaskStatus.READY;
@@ -57,9 +62,10 @@ class Task {
   @transient
   private var worker: Option[TaskWorker] = None;
 
-  def this(pid: (Int, String)) = {
+  def this(pid: (Int, String), rootId: (Int, String)) = {
     this();
     this.parent = pid;
+    this.root = rootId;
   }
 
   def getWorker: TaskWorker = {

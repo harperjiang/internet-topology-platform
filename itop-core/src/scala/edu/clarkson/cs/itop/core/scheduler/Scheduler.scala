@@ -10,7 +10,7 @@ trait Scheduler extends EventListenerSupport[SchedulerListener] {
 
   def schedule(task: Task);
 
-  def collect(taskId: (Int, String), fromPartition: Int, result: KVStore);
+  def collect(taskId: (Int, String), fromPartition: Int, fromNode: Int, result: KVStore);
 
   protected def onTaskEnd(task: Task, success: Boolean) {
     val e = new SchedulerEvent(this, task, success);
@@ -23,7 +23,7 @@ trait SchedulerListener extends EventListener {
 }
 
 class SchedulerEvent(scheduler: Scheduler, t: Task, suc: Boolean)
-  extends EventObject(scheduler) {
+    extends EventObject(scheduler) {
   val success = suc;
   val task = t;
 }

@@ -5,7 +5,6 @@ import edu.clarkson.cs.itop.core.task.TaskWorker
 import edu.clarkson.cs.itop.core.model.Node
 import edu.clarkson.cs.itop.core.task.Task
 
-
 class LocalWorker extends TaskWorker {
 
   def start(t: Task) = {
@@ -19,17 +18,18 @@ class LocalWorker extends TaskWorker {
     return None;
   }
 
-  /**
-   * Collect result from spawned processes
-   */
-  def collect(t: Task, result: KVStore) = {
+  def collect(t: Task, fromPartition: Int, nodeId: Int, result: KVStore) = {
 
   }
 
+  def spawnTo(t: Task, nodeId: Int, partitionId: Int) = {
+
+  }
   /**
    * Callback when the task is done
    */
   def done(t: Task) = {
 
   }
+
 }

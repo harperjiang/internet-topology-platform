@@ -18,7 +18,7 @@ class TaskRunner(t: Task, cb: (Task, Exception) => Unit) extends Runnable {
     val worker = task.getWorker;
     val context = task.context;
     val partition = context.partition;
-    val com = context.worker;
+    val com = context.workerNode;
     worker.start(t);
 
     var exception: Exception = null;
@@ -31,7 +31,7 @@ class TaskRunner(t: Task, cb: (Task, Exception) => Unit) extends Runnable {
           // For subtasks that just started, don't spawn to avoid infinite loop on the spawn point
           var tospawn = partition.queryPartition(currentNode.get);
           if (!tospawn.isEmpty) {
-            spawn(currentNode.get.id, tospawn)
+            spawn(task, currentNode.get.id, tospawn)
           }
         }
         currentNode = worker.workon(task, currentNode.get)
@@ -48,14 +48,15 @@ class TaskRunner(t: Task, cb: (Task, Exception) => Unit) extends Runnable {
     callback(task, exception);
   }
 
-  def spawn(nid: Int, dests: Iterable[Int]) = {
+  def spawn(task: Task, nid: Int, dests: Iterable[Int]) = {
     // The destination may contain local partition number, need to skip it
     val localId = this.task.context.partition.id;
 
     dests.filter(_ != localId).foreach(dest => {
       // Create spawning task
+      task.getWorker.spawnTo(task, nid, dest);
       var sub = new SubtaskExecute(task, dest, nid);
-      task.context.worker.sendSubtaskRequest(sub);
+      task.context.workerNode.sendSubtaskRequest(sub);
       task.spawned += 1;
     });
   }

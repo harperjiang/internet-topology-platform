@@ -25,28 +25,30 @@ class ShortestPathWorker extends TaskWorker {
 
     var context = t.context;
 
-    if (node.id == destId) {
-      // Found
-      return None;
-    }
-
     if (!visited.contains(node.id)) {
       visited.add(node.id);
-      // Go through all child nodes through all the links to find unvisited ones
-      // TODO Check current depth
-      var currentPathNode = stack.top
 
-      var links = node.links;
+      if (node.id == destId) {
+        // Found
+        return None;
+      }
 
-      while (links.hasNext()) {
-        var link = links.next();
-        var nodes = link.nodes;
-        while (nodes.hasNext()) {
-          var nextChildNode = nodes.next();
-          if (!visited.contains(nextChildNode.id)) {
-            var newPathNode = new PathNode(nextChildNode, link, nodes.index, links.index);
-            stack.push(newPathNode);
-            return Some(nextChildNode);
+      if (expectedDepth > stack.size) {
+        // Go through all child nodes through all the links to find unvisited ones
+        var currentPathNode = stack.top
+
+        var links = node.links;
+
+        while (links.hasNext()) {
+          var link = links.next();
+          var nodes = link.nodes;
+          while (nodes.hasNext()) {
+            var nextChildNode = nodes.next();
+            if (!visited.contains(nextChildNode.id)) {
+              var newPathNode = new PathNode(nextChildNode, link, nodes.index, links.index);
+              stack.push(newPathNode);
+              return Some(nextChildNode);
+            }
           }
         }
       }
@@ -56,6 +58,9 @@ class ShortestPathWorker extends TaskWorker {
 
     var next = nextSibling(currentPathNode);
     if (next == null) {
+      if (stack.isEmpty)
+        // Nothing had been found
+        return None;
       return Some(stack.top.node);
     } else {
       stack.push(next);
@@ -84,7 +89,11 @@ class ShortestPathWorker extends TaskWorker {
     return null;
   }
 
-  override def collect(t: Task, result: KVStore) = {
+  def collect(t: Task, fromPartition: Int, nodeId: Int, result: KVStore) = {
+
+  }
+
+  def spawnTo(t: Task, nodeId: Int, partitionId: Int) = {
 
   }
 

@@ -69,10 +69,10 @@ class DefaultSchedulerTest {
     };
     scheduler.addListener(slistener)
 
-    var task = new Task(null);
+    var task = new Task(null, null);
     task.startNodeId = 1;
     task.workerClass = classOf[LocalWorker];
-    task.context = new TaskContext(null, partition);
+    task.context = new TaskContext(task.id, workerNode, partition, null);
 
     scheduler.schedule(task);
     semaphore.acquire();
@@ -93,11 +93,11 @@ class DefaultSchedulerTest {
     };
     scheduler.addListener(slistener)
 
-    var task = new Task(null);
+    var task = new Task(null, null);
     task.id = (1, "taskid");
     task.startNodeId = 7;
     task.workerClass = classOf[LocalWorker];
-    task.context = new TaskContext(workerNode, partition);
+    task.context = new TaskContext(task.id, workerNode, partition, null);
 
     var targetPartition = 0;
     var targetNodeId = 0;
@@ -110,7 +110,7 @@ class DefaultSchedulerTest {
       }
 
       override def onResponseReceived(task: SubtaskResult) = {
-        scheduler.collect(task.parentId, task.sourcePartitionId, task.result);
+        scheduler.collect(task.parentId, task.sourcePartitionId, task.sourceFromNodeId, task.result);
         semaphore.release();
       }
     });
@@ -124,7 +124,7 @@ class DefaultSchedulerTest {
     assertEquals(7, targetNodeId);
     assertEquals(TaskStatus.WAIT_FOR_SUB, task.status);
 
-    var subresult = new SubtaskResult((1, "taskid"), targetPartition, new KVStore());
+    var subresult = new SubtaskResult((1, "taskid"), targetPartition, 2, new KVStore());
 
     workerNode.onResponseReceived(subresult);
 

@@ -18,12 +18,14 @@ import org.slf4j.LoggerFactory
 import edu.clarkson.cs.itop.core.task.TaskWorker
 import edu.clarkson.cs.itop.core.dist.message.TaskSubmit
 import edu.clarkson.cs.itop.core.util.NamingUtils
+import edu.clarkson.cs.itop.core.external.KeyValueStore
 
 class WorkerUnit extends WorkerListener with SchedulerListener with InitializingBean {
 
   var node: WorkerNode = null;
   var partition: Partition = null;
   var scheduler: Scheduler = null;
+  var kvStore: KeyValueStore = null;
 
   def afterPropertiesSet() = {
     node.addListener(this);
@@ -35,6 +37,10 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
     if (null == task.id) {
       task.id = taskId
     }
+    // Assign task root id
+    if (null == task.parent) {
+      task.root = task.id;
+    }
     // Check task information
     if (task.startNodeId == -1) {
       throw new IllegalArgumentException("Task startNodeId is missing");
@@ -44,7 +50,7 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
     }
 
     // Submit the task into scheduler
-    var ctx = new TaskContext(node, partition);
+    var ctx = new TaskContext(task.root, node, partition, kvStore);
     task.context = ctx;
     scheduler.schedule(task);
   }
@@ -62,7 +68,7 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
    */
   override def onRequestReceived(stask: SubtaskExecute) = {
     // submit the subtask to schedule
-    var subtask = new Task(stask.parentId);
+    var subtask = new Task(stask.parentId, stask.rootId);
     subtask.workerClass = Class.forName(stask.workerClass).asInstanceOf[Class[TaskWorker]];
     subtask.startNodeId = stask.targetNodeId;
 
@@ -71,7 +77,7 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
 
   override def onResponseReceived(subtask: SubtaskResult) = {
     // Send the result to scheduler
-    scheduler.collect(subtask.parentId, subtask.sourcePartitionId, subtask.result);
+    scheduler.collect(subtask.parentId, subtask.sourcePartitionId, subtask.sourceFromNodeId, subtask.result);
   }
 
   override def onTaskSubmitted(task: TaskSubmit) = {
@@ -88,14 +94,14 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
     e.task.parent match {
       case pid if (pid != null) => {
         // Non-empty parent, subtask, should be returned to original partition
-        var resp = new SubtaskResult(pid, partition.id, e.task.context.result);
+        var resp = new SubtaskResult(pid, partition.id, e.task.startNodeId, e.task.getWorker.summary(e.task));
         node.sendSubtaskResponse(resp);
       }
       case _ => {
         // Normal task, query to see whether need to collect result using jms collector
-        var result = e.task.getWorker.export;
+        var result = e.task.getWorker.summary(e.task);
         if (null != result) {
-        	this.node.exportTaskResult(e.task, result);
+          this.node.exportTaskResult(e.task, result);
         }
       }
     }

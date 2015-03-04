@@ -10,12 +10,14 @@
 	   					http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
 	<import resource="jms.xml" />
+	<import resource="redis.xml" />
 	<context:property-placeholder location="classpath:worker.properties" />
 
 	<bean id="workerUnit" class="edu.clarkson.cs.itop.core.WorkerUnit">
 		<property name="node" ref="workerNode" />
 		<property name="partition" ref="partition" />
 		<property name="scheduler" ref="scheduler" />
+		<property name="kvstore" ref="kvstore" />
 	</bean>
 
 
@@ -47,6 +49,10 @@
 				<property name="arguments" value="50" />
 			</bean>
 		</property>
+	</bean>
+
+	<bean id="kvstore" class="edu.clarkson.cs.itop.core.store.RedisStore">
+		<property name="template" ref="redisTemplate" />
 	</bean>
 
 	<jms:listener-container connection-factory="jmsFactory"

@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.core.external
+package edu.clarkson.cs.itop.core.store
 
 trait KeyValueStore {
   

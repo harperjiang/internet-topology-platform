@@ -1,9 +1,8 @@
 package edu.clarkson.cs.itop.core.task
 
-import edu.clarkson.cs.scala.common.message.KVStore
 import edu.clarkson.cs.itop.core.dist.WorkerNode
+import edu.clarkson.cs.itop.core.store.KeyValueStore
 import edu.clarkson.cs.itop.core.model.Partition
-import edu.clarkson.cs.itop.core.external.KeyValueStore
 
 class TaskContext(rootTaskId: (Int, String), wNode: WorkerNode, ptn: Partition, kvstore: KeyValueStore) {
 

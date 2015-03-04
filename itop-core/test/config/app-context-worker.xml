@@ -7,11 +7,13 @@
 	   					http://www.springframework.org/schema/jms/spring-jms.xsd">
 
 	<import resource="jms.xml" />
+	<import resource="redis.xml" />
 
 	<bean id="workerUnit" class="edu.clarkson.cs.itop.core.WorkerUnit">
 		<property name="node" ref="workerNode" />
 		<property name="partition" ref="partition" />
 		<property name="scheduler" ref="scheduler" />
+		<property name="kvstore" ref="kvstore" />
 	</bean>
 
 
@@ -27,16 +29,14 @@
 		<property name="nodeFile" value="testdata/nodes" />
 		<property name="linkFile" value="testdata/links" />
 		<property name="routing">
-			<bean
-				class="edu.clarkson.cs.itop.core.model.routing.DefaultRouting">
+			<bean class="edu.clarkson.cs.itop.core.model.routing.DefaultRouting">
 				<property name="routingFile" value="testdata/routing" />
 				<property name="routingSize" value="100" />
 			</bean>
 		</property>
 	</bean>
 
-	<bean id="scheduler"
-		class="edu.clarkson.cs.itop.core.scheduler.DefaultScheduler">
+	<bean id="scheduler" class="edu.clarkson.cs.itop.core.scheduler.DefaultScheduler">
 		<property name="threadPool">
 			<bean
 				class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
@@ -47,5 +47,8 @@
 		</property>
 	</bean>
 
+	<bean id="kvstore" class="edu.clarkson.cs.itop.core.store.RedisStore">
+		<property name="template" ref="redisTemplate" />
+	</bean>
 
 </beans>

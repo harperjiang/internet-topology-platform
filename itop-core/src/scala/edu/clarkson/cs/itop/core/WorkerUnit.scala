@@ -18,14 +18,14 @@ import org.slf4j.LoggerFactory
 import edu.clarkson.cs.itop.core.task.TaskWorker
 import edu.clarkson.cs.itop.core.dist.message.TaskSubmit
 import edu.clarkson.cs.itop.core.util.NamingUtils
-import edu.clarkson.cs.itop.core.external.KeyValueStore
+import edu.clarkson.cs.itop.core.store.KeyValueStore
 
 class WorkerUnit extends WorkerListener with SchedulerListener with InitializingBean {
 
   var node: WorkerNode = null;
   var partition: Partition = null;
   var scheduler: Scheduler = null;
-  var kvStore: KeyValueStore = null;
+  var kvstore: KeyValueStore = null;
 
   def afterPropertiesSet() = {
     node.addListener(this);
@@ -50,7 +50,7 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
     }
 
     // Submit the task into scheduler
-    var ctx = new TaskContext(task.root, node, partition, kvStore);
+    var ctx = new TaskContext(task.root, node, partition, kvstore);
     task.context = ctx;
     scheduler.schedule(task);
   }

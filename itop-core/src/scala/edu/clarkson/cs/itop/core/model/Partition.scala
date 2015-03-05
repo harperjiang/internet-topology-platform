@@ -1,9 +1,11 @@
 package edu.clarkson.cs.itop.core.model
 
-import scala.io.Source
-import org.springframework.beans.factory.InitializingBean
-import edu.clarkson.cs.itop.core.parser.Parser
 import scala.beans.BeanProperty
+import scala.io.Source
+
+import org.springframework.beans.factory.InitializingBean
+
+import edu.clarkson.cs.itop.core.parser.Parser
 
 /**
  * Partition is the manager of everything in a machine
@@ -17,8 +19,12 @@ class Partition extends InitializingBean {
    * Mapping from IP address to node
    */
   val nodeIpMap = scala.collection.mutable.Map[String, Node]();
-  val nodeMap = scala.collection.mutable.Map[Int, Node]();
 
+  /**
+   * Mapping from id to item
+   */
+  val nodeMap = scala.collection.mutable.Map[Int, Node]();
+  val linkMap = scala.collection.mutable.Map[Int, Link]();
   /**
    * Routing table
    */
@@ -43,6 +49,7 @@ class Partition extends InitializingBean {
     Source.fromFile(lfName).getLines.filter(!_.startsWith("#"))
       .map[Link](line => { parser.parse[Link](line) })
       .foreach(link => {
+        linkMap += (link.id -> link);
         // Attach Link with nodes
         link.attachNodes(nodeMap.toMap);
         // Attach node with links

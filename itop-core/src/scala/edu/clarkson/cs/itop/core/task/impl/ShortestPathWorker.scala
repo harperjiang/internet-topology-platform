@@ -14,34 +14,37 @@ import scala.util.control.Breaks._
  */
 class ShortestPathWorker extends TaskWorker {
 
-  var destId = -1
-  var expectedDepth = -1
-  var stack = scala.collection.mutable.Stack[PathNode]();
-  var currentPath: Path = null;
-  var existedPath: Path = null;
+  var destId = -1;
+  var expectedDepth = -1;
+  var currentPath: Path = new Path;
+  var existedPath: Path = new InfPath;
 
   override def start(t: Task) = {
     if (t.parent != null) { // Spawned Task, should load information from context
       expectedDepth = t.context.get("%d-%d.depthRemain".format(t.context.partition.id, t.startNodeId)).toInt;
     }
-    stack.push(new PathNode(t.context.partition.nodeMap.get(t.startNodeId).get, null, null, null));
+    currentPath.push(new PathNode(t.context.partition.nodeMap.get(t.startNodeId).get, null, null, null));
   }
 
   override def spawnTo(t: Task, nodeId: Int, partitionId: Int) = {
     // This is the remaining path length that will be passed to child task
-    t.context.set("%d-%d.depthRemain".format(partitionId, nodeId), (expectedDepth - stack.size).toString)
+    t.context.set("%d-%d.depthRemain".format(partitionId, nodeId), (expectedDepth - currentPath.length).toString)
     // This is the current path to the spawned node
-    t.context.setObject("%d-%d.path".format(partitionId, nodeId), stack)
+    t.context.setObject("%d-%d.path".format(partitionId, nodeId), currentPath)
   }
 
   override def collect(t: Task, fromPartition: Int, nodeId: Int) = {
     // Retrieve path info from subtask
-    var subtaskPath = t.context.get("%d-%d.result");
+    var subtaskPath = t.context.getObject[Path]("%d-%d.result".format(fromPartition, nodeId), classOf[Path]);
     if (subtaskPath != null) {
       // Retrieve stored path
-      var localPath = t.context.get("%d-%d.path");
+      var localPath = t.context.getObject[Path]("%d-%d.path".format(fromPartition, nodeId), classOf[Path]);
       // If subtask is not empty, connect two parts together and store a valid path
+      localPath.join(subtaskPath);
 
+      if (localPath.length < existedPath.length) {
+        existedPath = localPath;
+      }
     }
   }
 
@@ -49,7 +52,7 @@ class ShortestPathWorker extends TaskWorker {
     // Child process should store its path in context
     if (existedPath != null) {
       t.context.set("%d-%d.found".format(t.context.partition.id, t.startNodeId), "true");
-      t.context.setObject("%d-%d.result".format(t.context.partition.id, t.startNodeId), existedPath)
+      t.context.setObject("%d-%d.result".format(t.context.partition.id, t.startNodeId), existedPath);
     }
     // Nothing to do here cause the valid path should have been stored in collect process
   }
@@ -79,9 +82,9 @@ class ShortestPathWorker extends TaskWorker {
         return Some(parentSibling.node);
       }
 
-      if (expectedDepth > stack.size && currentPath.length < existedPath.length) {
+      if (expectedDepth > currentPath.length && currentPath.length < existedPath.length) {
         // Go through all child nodes through all the links to find unvisited ones
-        var currentPathNode = stack.top
+        var currentPathNode = currentPath.top
 
         var links = node.links;
 
@@ -92,7 +95,7 @@ class ShortestPathWorker extends TaskWorker {
             var nextChildNode = nodes.next();
             if (!isVisited(t, nextChildNode.id)) {
               var newPathNode = new PathNode(nextChildNode, link, nodes.index, links.index);
-              stack.push(newPathNode);
+              currentPath.push(newPathNode);
               return Some(nextChildNode);
             }
           }
@@ -100,16 +103,16 @@ class ShortestPathWorker extends TaskWorker {
       }
     }
     // No unvisited child, return next sibling. 
-    var currentPathNode = stack.pop
+    var currentPathNode = currentPath.pop
 
     var next = nextSibling(currentPathNode);
     if (next == null) {
-      if (stack.isEmpty)
+      if (currentPath.isEmpty)
         // Nothing had been found
         return None;
-      return Some(stack.top.node);
+      return Some(currentPath.top.node);
     } else {
-      stack.push(next);
+      currentPath.push(next);
       return Some(next.node);
     }
 
@@ -117,7 +120,7 @@ class ShortestPathWorker extends TaskWorker {
   }
 
   private def nextSibling(current: PathNode): PathNode = {
-    var links = stack.top.node.links;
+    var links = currentPath.top.node.links;
     links.to(current.linkIndex);
     var nodes = current.link.nodes;
     nodes.to(current.nodeIndex);
@@ -165,7 +168,45 @@ class PathNode {
 
 class Path {
 
-  def length = 0;
+  var nodes = new java.util.ArrayList[PathNode];
 
-  def pop: PathNode = null;
+  def length = nodes.size;
+
+  def pop: PathNode = {
+    if (nodes.isEmpty)
+      return null;
+    return nodes.remove(nodes.size - 1)
+  };
+
+  def push(node: PathNode): Unit = {
+    nodes.add(node);
+  }
+
+  def top: PathNode = {
+    if (nodes.isEmpty)
+      return null;
+    return nodes.get(nodes.size - 1)
+  }
+
+  def isEmpty: Boolean = nodes.isEmpty
+
+  /**
+   * Join two paths together
+   */
+  def join(another: Path): Unit = {
+    if (another.length == 0)
+      return ;
+    if (length == 0) {
+      this.nodes.addAll(another.nodes);
+      return ;
+    }
+    if (another.nodes.get(0).node.id == nodes.get(length - 1).node.id) {
+      another.nodes.remove(0);
+      this.nodes.addAll(another.nodes);
+    }
+  }
+}
+
+class InfPath extends Path {
+  override def length = Integer.MAX_VALUE;
 }

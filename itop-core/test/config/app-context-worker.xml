@@ -51,11 +51,44 @@
 		<property name="template" ref="redisTemplate" />
 		<property name="marshaller">
 			<bean class="edu.clarkson.cs.itop.core.store.marshall.JsonMarshaller">
-				<property name="gson">
-					<bean class="edu.clarkson.cs.itop.core.store.marshall.GsonFactoryBean" />
-				</property>
+				<property name="gson" ref="gson" />
 			</bean>
 		</property>
 	</bean>
 
+
+	<bean id="gson"
+		class="edu.clarkson.cs.itop.core.store.marshall.GsonFactoryBean">
+		<property name="parts">
+			<array>
+				<bean class="edu.clarkson.cs.itop.core.store.marshall.SDPart">
+					<property name="clazz"
+						value="edu.clarkson.cs.itop.core.task.impl.PathNode" />
+					<property name="part">
+						<bean class="edu.clarkson.cs.itop.core.task.impl.PathNodeSD">
+							<property name="partition" ref="partition" />
+						</bean>
+					</property>
+				</bean>
+				<bean class="edu.clarkson.cs.itop.core.store.marshall.SDPart">
+					<property name="clazz" value="edu.clarkson.cs.itop.core.task.impl.Path" />
+					<property name="part">
+						<bean class="edu.clarkson.cs.itop.core.task.impl.PathSD" />
+					</property>
+				</bean>
+				<bean class="edu.clarkson.cs.itop.core.store.marshall.SDPart">
+					<property name="clazz" value="edu.clarkson.cs.itop.core.model.Index" />
+					<property name="part">
+						<bean class="edu.clarkson.cs.itop.core.task.impl.IndexSerializer" />
+					</property>
+				</bean>
+				<bean class="edu.clarkson.cs.itop.core.store.marshall.SDPart">
+					<property name="clazz" value="edu.clarkson.cs.itop.core.model.Index" />
+					<property name="part">
+						<bean class="edu.clarkson.cs.itop.core.task.impl.IndexDeserializer" />
+					</property>
+				</bean>
+			</array>
+		</property>
+	</bean>
 </beans>

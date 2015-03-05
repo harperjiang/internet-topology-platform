@@ -18,8 +18,28 @@ import scala.collection.JavaConversions._
  * This file contains json serializer and deserializer that is used by system-provided workers such as DFS workers
  */
 
-class IndexSerializer extends BeanSerializer[Index];
-class IndexDeserializer extends BeanDeserializer[Index];
+class IndexSD extends JsonSerializer[Index] with JsonDeserializer[Index] {
+  override def serialize(src: Index, typeOfSrc: Type, context: JsonSerializationContext): JsonElement = {
+    var elem = new JsonObject;
+
+    elem.addProperty("anonymousIndex", src.anonymousIndex);
+    elem.addProperty("nameKey", src.nameKey);
+    elem.addProperty("onNamedItems", src.onNamedItems);
+
+    return elem;
+  }
+
+  override def deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Index = {
+    var jsobj = json.asInstanceOf[JsonObject];
+
+    var index = new Index();
+    index.anonymousIndex = jsobj.get("anonymousIndex").getAsInt;
+    index.nameKey = jsobj.get("nameKey").getAsString;
+    index.onNamedItems = jsobj.get("onNamedItems").getAsBoolean;
+
+    return index;
+  }
+}
 
 class PathNodeSD extends JsonSerializer[PathNode] with JsonDeserializer[PathNode] {
 

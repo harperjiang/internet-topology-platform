@@ -79,13 +79,7 @@
 				<bean class="edu.clarkson.cs.itop.core.store.marshall.SDPart">
 					<property name="clazz" value="edu.clarkson.cs.itop.core.model.Index" />
 					<property name="part">
-						<bean class="edu.clarkson.cs.itop.core.task.impl.IndexSerializer" />
-					</property>
-				</bean>
-				<bean class="edu.clarkson.cs.itop.core.store.marshall.SDPart">
-					<property name="clazz" value="edu.clarkson.cs.itop.core.model.Index" />
-					<property name="part">
-						<bean class="edu.clarkson.cs.itop.core.task.impl.IndexDeserializer" />
+						<bean class="edu.clarkson.cs.itop.core.task.impl.IndexSD" />
 					</property>
 				</bean>
 			</array>

@@ -7,6 +7,7 @@ import edu.clarkson.cs.itop.core.task.TaskWorker
 import edu.clarkson.cs.scala.common.message.KVStore
 import edu.clarkson.cs.itop.core.model.Index
 import scala.util.control.Breaks._
+import edu.clarkson.cs.itop.core.task.TaskParam
 
 /**
  * This worker tries to find a shortest path between the start node and the destination node in the graph.
@@ -21,24 +22,24 @@ class ShortestPathWorker extends TaskWorker {
 
   override def start(t: Task) = {
     if (t.parent != null) { // Spawned Task, should load information from context
-      expectedDepth = t.context.get("%d-%d.depthRemain".format(t.context.partition.id, t.startNodeId)).toInt;
+      expectedDepth = TaskParam.getInt(t, "depthRemain")
     }
     currentPath.push(new PathNode(t.context.partition.nodeMap.get(t.startNodeId).get, null, null, null));
   }
 
   override def spawnTo(t: Task, nodeId: Int, partitionId: Int) = {
     // This is the remaining path length that will be passed to child task
-    t.context.set("%d-%d.depthRemain".format(partitionId, nodeId), (expectedDepth - currentPath.length).toString)
+    TaskParam.setInt(t, "depthRemain", expectedDepth - currentPath.length)((partitionId, nodeId));
     // This is the current path to the spawned node
-    t.context.setObject("%d-%d.path".format(partitionId, nodeId), currentPath)
+    TaskParam.setObject(t, "path", currentPath)((partitionId, nodeId));
   }
 
   override def collect(t: Task, fromPartition: Int, nodeId: Int) = {
     // Retrieve path info from subtask
-    var subtaskPath = t.context.getObject[Path]("%d-%d.result".format(fromPartition, nodeId), classOf[Path]);
+    var subtaskPath = TaskParam.getObject(t, "result", classOf[Path])((fromPartition, nodeId));
     if (subtaskPath != null) {
       // Retrieve stored path
-      var localPath = t.context.getObject[Path]("%d-%d.path".format(fromPartition, nodeId), classOf[Path]);
+      var localPath = TaskParam.getObject(t, "path", classOf[Path])((fromPartition, nodeId));
       // If subtask is not empty, connect two parts together and store a valid path
       localPath.join(subtaskPath);
 
@@ -51,8 +52,8 @@ class ShortestPathWorker extends TaskWorker {
   override def done(t: Task) = {
     // Child process should store its path in context
     if (existedPath != null) {
-      t.context.set("%d-%d.found".format(t.context.partition.id, t.startNodeId), "true");
-      t.context.setObject("%d-%d.result".format(t.context.partition.id, t.startNodeId), existedPath);
+      TaskParam.setBoolean(t, "found", true);
+      TaskParam.setObject(t, "result", existedPath);
     }
     // Nothing to do here cause the valid path should have been stored in collect process
   }

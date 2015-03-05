@@ -7,7 +7,9 @@ class MemoryStore extends KeyValueStore {
   override def get(key: String): String = {
     cache.get(key).getOrElse(null)
   }
+
   override def set(key: String, value: String) = {
     cache.put(key, value);
   }
+
 }

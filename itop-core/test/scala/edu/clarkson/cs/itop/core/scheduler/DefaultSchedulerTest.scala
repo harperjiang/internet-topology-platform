@@ -110,7 +110,7 @@ class DefaultSchedulerTest {
       }
 
       override def onResponseReceived(task: SubtaskResult) = {
-        scheduler.collect(task.parentId, task.sourcePartitionId, task.sourceFromNodeId, task.result);
+        scheduler.collect(task.parentId, task.sourcePartitionId, task.sourceFromNodeId);
         semaphore.release();
       }
     });
@@ -124,7 +124,7 @@ class DefaultSchedulerTest {
     assertEquals(7, targetNodeId);
     assertEquals(TaskStatus.WAIT_FOR_SUB, task.status);
 
-    var subresult = new SubtaskResult((1, "taskid"), targetPartition, 2, new KVStore());
+    var subresult = new SubtaskResult((1, "taskid"), targetPartition, 2);
 
     workerNode.onResponseReceived(subresult);
 

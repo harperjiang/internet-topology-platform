@@ -12,7 +12,7 @@ import edu.clarkson.cs.scala.common.message.KVStoreSD
 import edu.clarkson.cs.scala.common.message.KVStore
 import edu.clarkson.cs.httpjson.json.BeanSerializer
 
-class GsonFactoryBean extends FactoryBean[Gson] {
+class GsonMessageFactoryBean extends FactoryBean[Gson] {
 
   def getObject(): Gson = {
     var builder = new GsonBuilder();

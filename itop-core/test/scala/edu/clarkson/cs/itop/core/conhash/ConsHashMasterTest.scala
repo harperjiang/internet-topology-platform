@@ -6,9 +6,9 @@ import org.junit.Assert._
 import edu.clarkson.cs.common.test.message.DummyJmsTemplate
 import edu.clarkson.cs.itop.core.conhash.message.Heartbeat
 import edu.clarkson.cs.scala.common.message.JsonMessageConverter
-import edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean
 import com.google.gson.Gson
 import javax.jms.TextMessage
+import edu.clarkson.cs.itop.core.dist.message.GsonMessageFactoryBean
 
 class ConsHashMasterTest {
 
@@ -22,7 +22,7 @@ class ConsHashMasterTest {
     master.interval
     jmsTemplate = new DummyJmsTemplate
     var messageConverter = new JsonMessageConverter;
-    var gson = new GsonFactoryBean().getObject.asInstanceOf[Gson];
+    var gson = new GsonMessageFactoryBean().getObject.asInstanceOf[Gson];
     messageConverter.translator = gson;
     jmsTemplate.setMessageConverter(messageConverter);
     master.jmsTemplate = jmsTemplate

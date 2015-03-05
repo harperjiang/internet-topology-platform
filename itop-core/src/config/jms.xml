@@ -14,7 +14,7 @@
 		</property>
 	</bean>
 
-	<bean id="gsonTranslator" class="edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean" />
+	<bean id="gsonTranslator" class="edu.clarkson.cs.itop.core.dist.message.GsonMessageFactoryBean" />
 
 	<bean id="messageConverter"
 		class="edu.clarkson.cs.scala.common.message.JsonMessageConverter">

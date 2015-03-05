@@ -3,9 +3,7 @@ package edu.clarkson.cs.itop.core.conhash
 import scala.BigDecimal
 import scala.collection.JavaConversions.setAsJavaSet
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
+import org.junit.Assert._
 import org.junit.Before
 import org.junit.Test
 
@@ -21,7 +19,7 @@ import edu.clarkson.cs.itop.core.conhash.message.StoreAddMessage
 import edu.clarkson.cs.itop.core.conhash.message.StoreRemoveMessage
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleRequest
 import edu.clarkson.cs.itop.core.conhash.message.SyncCircleResponse
-import edu.clarkson.cs.itop.core.dist.message.GsonFactoryBean
+import edu.clarkson.cs.itop.core.dist.message.GsonMessageFactoryBean
 import edu.clarkson.cs.scala.common.message.JsonMessageConverter
 
 class ConsHashNodeTest {
@@ -40,7 +38,7 @@ class ConsHashNodeTest {
     node.circle = circle;
     jmsTemplate = new DummyJmsTemplate
     messageConverter = new JsonMessageConverter;
-    var gson = new GsonFactoryBean().getObject.asInstanceOf[Gson];
+    var gson = new GsonMessageFactoryBean().getObject.asInstanceOf[Gson];
     messageConverter.translator = gson;
     jmsTemplate.setMessageConverter(messageConverter);
     node.jmsTemplate = jmsTemplate;

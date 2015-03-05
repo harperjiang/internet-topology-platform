@@ -27,19 +27,9 @@ trait TaskWorker {
   def spawnTo(t: Task, nodeId: Int, partitionId: Int): Unit;
 
   /**
-   * Save data to be passed to spawned task into context
+   * Collect result from spawned processes. Data could be retrieved from TaskContext
    */
-  def saveContext(t: Task): Unit = {}
-
-  /**
-   * Read data from parent task
-   */
-  def loadContext(t: Task): Unit = {}
-
-  /**
-   * Collect result from spawned processes
-   */
-  def collect(t: Task, fromPartition: Int, nodeId: Int, result: KVStore);
+  def collect(t: Task, fromPartition: Int, nodeId: Int);
 
   /**
    * The output of this TaskWorker

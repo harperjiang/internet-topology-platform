@@ -53,6 +53,13 @@
 
 	<bean id="kvstore" class="edu.clarkson.cs.itop.core.store.RedisStore">
 		<property name="template" ref="redisTemplate" />
+		<property name="marshaller">
+			<bean class="edu.clarkson.cs.itop.core.store.marshall.JsonMarshaller">
+				<property name="gson">
+					<bean class="edu.clarkson.cs.itop.core.store.marshall.GsonFactoryBean" />
+				</property>
+			</bean>
+		</property>
 	</bean>
 
 	<jms:listener-container connection-factory="jmsFactory"

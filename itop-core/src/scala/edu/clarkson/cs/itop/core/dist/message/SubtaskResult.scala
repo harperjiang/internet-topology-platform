@@ -20,16 +20,12 @@ class SubtaskResult {
   @BeanProperty
   var sourceFromNodeId: Int = 0;
 
-  @BeanProperty
-  var result: KVStore = null;
-
-  def this(pid: (Int, String), spid: Int, snid: Int, res: KVStore) = {
+  def this(pid: (Int, String), spid: Int, snid: Int) = {
     this();
     this.parentMachine = pid._1;
     this.parentTaskId = pid._2;
     this.sourcePartitionId = spid;
     this.sourceFromNodeId = snid;
-    this.result = res;
   }
   def parentId = (parentMachine, parentTaskId);
 

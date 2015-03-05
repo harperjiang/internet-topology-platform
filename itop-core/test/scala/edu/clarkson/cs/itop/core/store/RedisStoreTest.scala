@@ -17,11 +17,17 @@ class RedisStoreTest {
   var kvstore: RedisStore = null;
 
   @Test
-  def testStoreAccess = {
+  def testStoreAccess: Unit = {
     var value = UUID.randomUUID().toString();
     kvstore.set("TestKey", value);
 
     assertEquals(value, kvstore.get("TestKey"));
+
+  }
+
+  @Test
+  def testBooleanValue: Unit = {
+    assertEquals(null, kvstore.get("NotExist"))
   }
 
 }

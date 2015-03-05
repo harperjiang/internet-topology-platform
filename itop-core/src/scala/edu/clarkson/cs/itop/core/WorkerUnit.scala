@@ -77,7 +77,7 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
 
   override def onResponseReceived(subtask: SubtaskResult) = {
     // Send the result to scheduler
-    scheduler.collect(subtask.parentId, subtask.sourcePartitionId, subtask.sourceFromNodeId, subtask.result);
+    scheduler.collect(subtask.parentId, subtask.sourcePartitionId, subtask.sourceFromNodeId);
   }
 
   override def onTaskSubmitted(task: TaskSubmit) = {
@@ -94,7 +94,7 @@ class WorkerUnit extends WorkerListener with SchedulerListener with Initializing
     e.task.parent match {
       case pid if (pid != null) => {
         // Non-empty parent, subtask, should be returned to original partition
-        var resp = new SubtaskResult(pid, partition.id, e.task.startNodeId, e.task.getWorker.summary(e.task));
+        var resp = new SubtaskResult(pid, partition.id, e.task.startNodeId);
         node.sendSubtaskResponse(resp);
       }
       case _ => {

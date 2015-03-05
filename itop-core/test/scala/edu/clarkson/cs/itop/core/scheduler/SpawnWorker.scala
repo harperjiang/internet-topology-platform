@@ -18,7 +18,7 @@ class SpawnWorker extends TaskWorker {
     return None;
   }
 
-  def collect(t: Task, fromPartition: Int, nodeId: Int, result: KVStore) = {
+  def collect(t: Task, fromPartition: Int, nodeId: Int) = {
 
   }
 

@@ -14,7 +14,7 @@ import edu.clarkson.cs.scala.common.message.KVStore
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(locations = Array("classpath:app-context-worker.xml"))
-class GsonFactoryBeanTest {
+class GsonMessageFactoryBeanTest {
 
   @Resource(name = "gsonTranslator")
   var gson: Gson = null;
@@ -54,13 +54,10 @@ class GsonFactoryBeanTest {
     sr.parentMachine = 4;
     sr.parentTaskId = "2423234wfa";
     sr.sourcePartitionId = 3;
-    sr.result = new KVStore;
-    sr.result.map.put("5", "3");
 
     var sr2 = gson.fromJson(gson.toJson(sr), classOf[SubtaskResult]);
 
     assertEquals(sr.parentId, sr2.parentId);
     assertEquals(sr.sourcePartitionId, sr2.sourcePartitionId);
-    assertEquals(sr.result.map.get("5"), sr2.result.map.get("5"));
   }
 }

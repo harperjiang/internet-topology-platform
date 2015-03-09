@@ -10,7 +10,7 @@ trait KeyValueStore {
     throw new UnsupportedOperationException();
   }
 
-  def setObject[T](key: String, value: T): Unit = {
+  def setObject[T <: AnyRef](key: String, value: T): Unit = {
     throw new UnsupportedOperationException();
   }
 }

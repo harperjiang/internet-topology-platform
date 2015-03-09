@@ -14,8 +14,8 @@ class LocalWorker extends TaskWorker {
    * Work on the current node.
    * Return The next node(s) it wants to execute on
    */
-  def workon(t: Task, node: Node): Option[Node] = {
-    return None;
+  override def workon(t: Task, node: Node): (Boolean, Option[Node]) = {
+    return (true, None);
   }
 
   def collect(t: Task, fromPartition: Int, nodeId: Int) = {

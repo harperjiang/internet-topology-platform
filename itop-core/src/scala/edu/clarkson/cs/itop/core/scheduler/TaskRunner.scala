@@ -27,14 +27,19 @@ class TaskRunner(t: Task, cb: (Task, Exception) => Unit) extends Runnable {
       var currentNode: Option[Node] = Some(partition.nodeMap.get(task.startNodeId)
         .getOrElse(throw new IllegalArgumentException("No such node:%d".format(task.startNodeId))));
       while (currentNode != None) {
-        if (task.parent == null || task.startNodeId != currentNode.get.id) {
-          // For subtasks that just started, don't spawn to avoid infinite loop on the spawn point
-          var tospawn = partition.queryPartition(currentNode.get);
-          if (!tospawn.isEmpty) {
-            spawn(task, currentNode.get.id, tospawn)
+        var nextInfo = worker.workon(task, currentNode.get);
+        var processThis = nextInfo._1;
+        var nextNode = nextInfo._2;
+        if (processThis) {
+          if (task.parent == null || task.startNodeId != currentNode.get.id) {
+            // For subtasks that just started, don't spawn to avoid infinite loop on the spawn point
+            var tospawn = partition.queryPartition(currentNode.get);
+            if (!tospawn.isEmpty) {
+              spawn(task, currentNode.get.id, tospawn)
+            }
           }
         }
-        currentNode = worker.workon(task, currentNode.get)
+        currentNode = nextNode;
       }
     } catch {
       case e: Exception => {

@@ -17,16 +17,16 @@ class TaskContext(rootTaskId: (Int, String), wNode: WorkerNode, ptn: Partition, 
     kvstore.set(transform(key), value)
   }
 
-  def getObject[T](key: String, clazz: Class[T]): T = {
+  def getObject[T <: AnyRef](key: String, clazz: Class[T]): T = {
     return kvstore.getObject[T](transform(key), clazz);
   }
 
-  def setObject[T](key: String, value: T) = {
+  def setObject[T <: AnyRef](key: String, value: T) = {
     kvstore.setObject(transform(key), value);
   }
 
   private def transform(key: String): String = {
-    "%d-%s-%s".format(rootTaskId._1, rootTaskId._2, key)
+    "%d-%s.%s".format(rootTaskId._1, rootTaskId._2, key)
   }
 
 }
@@ -60,17 +60,17 @@ object TaskParam {
     t.context.set(makekey(t, id, key), value.toString);
   }
 
-  def getObject[T](t: Task, key: String, clazz: Class[T])(implicit id: (Int, Int) = null): T = {
+  def getObject[T <: AnyRef](t: Task, key: String, clazz: Class[T])(implicit id: (Int, Int) = null): T = {
     t.context.getObject(makekey(t, id, key), clazz)
   }
 
-  def setObject[T](t: Task, key: String, value: T)(implicit id: (Int, Int) = null): Unit = {
+  def setObject[T <: AnyRef](t: Task, key: String, value: T)(implicit id: (Int, Int) = null): Unit = {
     t.context.setObject(makekey(t, id, key), value);
   }
 
   def makekey(t: Task, id: (Int, Int), key: String): String = {
     var realkey: String = null;
-    if (id != null) {
+    if (id == null) {
       realkey = makekey(t, key);
     } else {
       realkey = makekey(id, key);

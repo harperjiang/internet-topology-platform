@@ -22,7 +22,7 @@ class ShortestPathWorker extends TaskWorker {
 
   override def start(t: Task) = {
     if (t.parent != null) { // Spawned Task, should load information from context
-      expectedDepth = TaskParam.getInt(t, "depthRemain")
+      expectedDepth = TaskParam.getInt(t, "depthRemain");
     }
     currentPath.push(new PathNode(t.context.partition.nodeMap.get(t.startNodeId).get, null, null, null));
   }
@@ -58,10 +58,11 @@ class ShortestPathWorker extends TaskWorker {
     // Nothing to do here cause the valid path should have been stored in collect process
   }
 
-  override def workon(t: Task, node: Node): Option[Node] = {
+  override def workon(t: Task, node: Node): (Boolean, Option[Node]) = {
     var context = t.context;
 
-    if (!isVisited(t, node.id)) {
+    var onThis = isVisited(t, node.id);
+    if (!onThis) {
       setVisited(t, node.id);
 
       if (node.id == destId) {
@@ -75,12 +76,12 @@ class ShortestPathWorker extends TaskWorker {
 
         if (currentPath.length <= 2) {
           // The parent has no sibling
-          return None;
+          return (onThis, None);
         }
         currentPath.pop
         var parent = currentPath.pop
         var parentSibling = nextSibling(parent)
-        return Some(parentSibling.node);
+        return (onThis, Some(parentSibling.node));
       }
 
       if (expectedDepth > currentPath.length && currentPath.length < existedPath.length) {
@@ -97,7 +98,7 @@ class ShortestPathWorker extends TaskWorker {
             if (!isVisited(t, nextChildNode.id)) {
               var newPathNode = new PathNode(nextChildNode, link, nodes.index, links.index);
               currentPath.push(newPathNode);
-              return Some(nextChildNode);
+              return (onThis, Some(nextChildNode));
             }
           }
         }
@@ -110,14 +111,14 @@ class ShortestPathWorker extends TaskWorker {
     if (next == null) {
       if (currentPath.isEmpty)
         // Nothing had been found
-        return None;
-      return Some(currentPath.top.node);
+        return (onThis, None);
+      return (onThis, Some(currentPath.top.node));
     } else {
       currentPath.push(next);
-      return Some(next.node);
+      return (onThis, Some(next.node));
     }
 
-    return None;
+    return (onThis, None);
   }
 
   private def nextSibling(current: PathNode): PathNode = {

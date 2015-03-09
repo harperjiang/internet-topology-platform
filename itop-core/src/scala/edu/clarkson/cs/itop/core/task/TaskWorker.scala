@@ -19,7 +19,7 @@ trait TaskWorker {
    * Return The next node it wants to execute on.
    * If no more node to work on, return None
    */
-  def workon(t: Task, node: Node): Option[Node];
+  def workon(t: Task, node: Node): (Boolean, Option[Node]);
 
   /**
    * Notify the worker that a spawned task has been generated

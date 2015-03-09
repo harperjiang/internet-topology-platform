@@ -71,4 +71,8 @@ class Task {
   def getWorker: TaskWorker = {
     worker.getOrElse({ worker = Some(workerClass.newInstance()); worker.get; });
   }
+
+  def isRoot: Boolean = {
+    return this.id.equals(this.root);
+  }
 }

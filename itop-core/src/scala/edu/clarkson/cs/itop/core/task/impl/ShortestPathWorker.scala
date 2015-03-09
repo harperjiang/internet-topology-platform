@@ -27,7 +27,7 @@ class ShortestPathWorker extends TaskWorker {
     currentPath.push(new PathNode(t.context.partition.nodeMap.get(t.startNodeId).get, null, null, null));
   }
 
-  override def spawnTo(t: Task, nodeId: Int, partitionId: Int) = {
+  override def spawnTo(t: Task, partitionId: Int, nodeId: Int) = {
     // This is the remaining path length that will be passed to child task
     TaskParam.setInt(t, "depthRemain", expectedDepth - currentPath.length)((partitionId, nodeId));
     // This is the current path to the spawned node
@@ -52,7 +52,9 @@ class ShortestPathWorker extends TaskWorker {
   override def done(t: Task) = {
     // Child process should store its path in context
     if (existedPath != null) {
-      TaskParam.setBoolean(t, "found", true);
+      // Root task should record a found message
+      if (t.isRoot)
+        TaskParam.setBoolean(t, "found", true);
       TaskParam.setObject(t, "result", existedPath);
     }
     // Nothing to do here cause the valid path should have been stored in collect process
@@ -150,65 +152,3 @@ class ShortestPathWorker extends TaskWorker {
 
 }
 
-class PathNode {
-  // Latest node
-  var node: Node = null;
-  // The link connecting this node and its parent
-  var link: Link = null;
-  // The link's index in parent node
-  var linkIndex: Index = null;
-  // The node's index in link
-  var nodeIndex: Index = null;
-  def this(n: Node, l: Link, ni: Index, li: Index) = {
-    this();
-    node = n;
-    link = l;
-    nodeIndex = ni;
-    linkIndex = li;
-  }
-}
-
-class Path {
-
-  var nodes = new java.util.ArrayList[PathNode];
-
-  def length = nodes.size;
-
-  def pop: PathNode = {
-    if (nodes.isEmpty)
-      return null;
-    return nodes.remove(nodes.size - 1)
-  };
-
-  def push(node: PathNode): Unit = {
-    nodes.add(node);
-  }
-
-  def top: PathNode = {
-    if (nodes.isEmpty)
-      return null;
-    return nodes.get(nodes.size - 1)
-  }
-
-  def isEmpty: Boolean = nodes.isEmpty
-
-  /**
-   * Join two paths together
-   */
-  def join(another: Path): Unit = {
-    if (another.length == 0)
-      return ;
-    if (length == 0) {
-      this.nodes.addAll(another.nodes);
-      return ;
-    }
-    if (another.nodes.get(0).node.id == nodes.get(length - 1).node.id) {
-      another.nodes.remove(0);
-      this.nodes.addAll(another.nodes);
-    }
-  }
-}
-
-class InfPath extends Path {
-  override def length = Integer.MAX_VALUE;
-}

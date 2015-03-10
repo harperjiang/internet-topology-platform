@@ -6,7 +6,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.test.context.ContextConfiguration
-import com.google.gson.Gson
+import edu.clarkson.cs.itop.core.model.Link
+import edu.clarkson.cs.itop.core.model.Node
 import edu.clarkson.cs.itop.core.model.Partition
 import edu.clarkson.cs.itop.core.store.MemoryStore
 import edu.clarkson.cs.itop.core.task.Task
@@ -82,9 +83,9 @@ class ShortestPathWorkerTest {
 
     worker.spawnTo(task, 2, 3);
 
-    assertEquals("9", kvstore.get("1-Test-Task-Id.3-2.depthRemain"));
+    assertEquals("9", kvstore.get("1-Test-Task-Id.2-3.depthRemain"));
 
-    var path = kvstore.getObject("1-Test-Task-Id.3-2.path", classOf[Path]);
+    var path = kvstore.getObject("1-Test-Task-Id.2-3.path", classOf[Path]);
     assertEquals(1, path.length);
     var node = path.pop;
     assertEquals(1, node.node.id);
@@ -95,12 +96,25 @@ class ShortestPathWorkerTest {
 
   @Test
   def testCollect: Unit = {
-//    kvstore.setObject(key, value)
+    var subpath = new Path();
+    subpath.push(new PathNode(new Node(5), new Link(3), null, null));
+    subpath.push(new PathNode(new Node(4), new Link(2), null, null));
+    kvstore.setObject("1-Test-Task-Id.2-3.result", subpath);
+
+    var path = new Path();
+    path.push(new PathNode(new Node(1), null, null, null));
+    path.push(new PathNode(new Node(3), new Link(9), null, null));
+    kvstore.setObject("1-Test-Task-Id.2-3.path", path);
+
+    var worker = new ShortestPathWorker();
+    worker.collect(task, 2, 3);
+
+    assertEquals(4, worker.existedPath.length);
   }
 
   @Test
   def testDone: Unit = {
-
+	var worker = new ShortestPathWorker();
   }
 
   @Test

@@ -115,6 +115,25 @@ class ShortestPathWorkerTest {
   @Test
   def testDone: Unit = {
     var worker = new ShortestPathWorker();
+    worker.expectedDepth = 10;
+    worker.destId = 5;
+
+    worker.start(task);
+    var result = worker.workon(task, partition.nodeMap.get(1).get);
+    while (result._2 != None) {
+      result = worker.workon(task, result._2.get);
+    }
+    worker.done(task);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.1-1.found"));
+
+    var foundPath = kvstore.getObject("1-Test-Task-Id.1-1.result", classOf[Path]);
+    assertEquals(5, foundPath.length);
+
+    assertEquals(1, foundPath.nodes(0).node.id);
+    assertEquals(7, foundPath.nodes(1).node.id);
+    assertEquals(8, foundPath.nodes(2).node.id);
+    assertEquals(10, foundPath.nodes(3).node.id);
+    assertEquals(5, foundPath.nodes(4).node.id);
   }
 
   @Test
@@ -314,7 +333,7 @@ class ShortestPathWorkerTest {
 
     assertTrue(result._1);
     assertEquals(1, result._2.get.id);
-    
+
     result = worker.workon(task, result._2.get);
 
     assertFalse(result._1);

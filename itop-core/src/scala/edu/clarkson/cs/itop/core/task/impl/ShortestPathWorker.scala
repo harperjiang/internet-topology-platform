@@ -13,7 +13,7 @@ import edu.clarkson.cs.itop.core.task.TaskParam
  * This worker tries to find a shortest path between the start node and the destination node in the graph.
  * The worker uses DFS to search for possible paths.
  */
-class ShortestPathWorker extends TaskWorker {
+class ShortestPathWorker extends AbstractTaskWorker {
 
   var destId = -1;
   var expectedDepth = -1;
@@ -146,22 +146,6 @@ class ShortestPathWorker extends TaskWorker {
         link = null;
     }
     return null;
-  }
-
-  private def isNodeVisited(t: Task, nodeId: Int): Boolean = {
-    return "true".equals(t.context.get("nodeVisited.%d".format(nodeId)));
-  }
-
-  private def setNodeVisited(t: Task, nodeId: Int) = {
-    t.context.set("nodeVisited.%d".format(nodeId), "true")
-  }
-
-  private def isLinkVisited(t: Task, linkId: Int): Boolean = {
-    return "true".equals(t.context.get("linkVisited.%d".format(linkId)));
-  }
-
-  private def setLinkVisited(t: Task, linkId: Int, visited: Boolean) = {
-    t.context.set("linkVisited.%d".format(linkId), visited.toString);
   }
 
   private def pushNode(t: Task, pn: PathNode) = {

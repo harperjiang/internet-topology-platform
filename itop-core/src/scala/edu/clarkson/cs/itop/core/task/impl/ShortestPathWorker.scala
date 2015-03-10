@@ -70,7 +70,7 @@ class ShortestPathWorker extends TaskWorker {
       if (node.id == destId) {
         // Is this path shorter than existing path?
         if (existedPath == null || currentPath.length < existedPath.length) {
-          existedPath = currentPath;
+          existedPath = currentPath.clonePath();
         }
         // This path is done. Which node should we look at next? 
         // We should go to parent's sibling. It doesn't make sense to check 
@@ -81,9 +81,9 @@ class ShortestPathWorker extends TaskWorker {
           return (!visited, None);
         }
         popNode(t);
-        var parent = popNode(t);
-        var parentSibling = nextSibling(parent);
-        return (!visited, Some(parentSibling.node));
+        popNode(t);
+        var grandparent = currentPath.top;
+        return (!visited, Some(grandparent.node));
       }
 
       if (expectedDepth > currentPath.length && currentPath.length < existedPath.length) {
@@ -111,7 +111,7 @@ class ShortestPathWorker extends TaskWorker {
     // No unvisited child, return next sibling. 
     var currentPathNode = popNode(t);
 
-    var next = nextSibling(currentPathNode);
+    var next = nextSibling(t, currentPathNode);
     if (next == null) {
       if (currentPath.isEmpty)
         // Nothing had been found
@@ -125,23 +125,25 @@ class ShortestPathWorker extends TaskWorker {
     return (!visited, None);
   }
 
-  private def nextSibling(current: PathNode): PathNode = {
+  private def nextSibling(t: Task, current: PathNode): PathNode = {
     if (currentPath.isEmpty)
       return null;
     var links = currentPath.top.node.links;
-    links.to(current.linkIndex);
+    var link = links.to(current.linkIndex);
     var nodes = current.link.nodes;
     nodes.to(current.nodeIndex);
 
-    if (nodes.hasNext()) {
-      return new PathNode(nodes.next, current.link, nodes.index, current.linkIndex);
-    } else if (links.hasNext) {
-      var link = links.next;
-      var newnodes = link.nodes;
-      if (newnodes.hasNext) {
-        var node = newnodes.next;
-        return new PathNode(node, link, newnodes.index, links.index);
+    while (link != null) {
+      while (nodes.hasNext()) {
+        var node = nodes.next();
+        if (!isNodeVisited(t, node.id)) {
+          return new PathNode(node, link, nodes.index, links.index);
+        }
       }
+      if (links.hasNext())
+        link = links.next;
+      else
+        link = null;
     }
     return null;
   }

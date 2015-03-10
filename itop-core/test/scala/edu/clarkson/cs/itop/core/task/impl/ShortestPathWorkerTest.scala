@@ -114,12 +114,12 @@ class ShortestPathWorkerTest {
 
   @Test
   def testDone: Unit = {
-	var worker = new ShortestPathWorker();
+    var worker = new ShortestPathWorker();
   }
 
   @Test
   def testWorkOn: Unit = {
-var worker = new ShortestPathWorker();
+    var worker = new ShortestPathWorker();
     worker.expectedDepth = 10;
     worker.destId = 5;
     worker.start(task);
@@ -206,5 +206,118 @@ var worker = new ShortestPathWorker();
     assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.3"));
     assertEquals(4, worker.currentPath.nodes(3).node.id);
     assertEquals("false", kvstore.get("1-Test-Task-Id.linkVisited.4"));
+
+    result = worker.workon(task, result._2.get);
+
+    assertFalse(result._1);
+    assertEquals(3, result._2.get.id);
+
+    assertEquals(3, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(7, worker.currentPath.nodes(1).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.2"));
+    assertEquals(3, worker.currentPath.nodes(2).node.id);
+    assertEquals("false", kvstore.get("1-Test-Task-Id.linkVisited.3"));
+    assertEquals("false", kvstore.get("1-Test-Task-Id.linkVisited.4"));
+
+    result = worker.workon(task, result._2.get);
+
+    assertFalse(result._1);
+    assertEquals(8, result._2.get.id);
+
+    assertEquals(3, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(7, worker.currentPath.nodes(1).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.2"));
+    assertEquals(8, worker.currentPath.nodes(2).node.id);
+
+    result = worker.workon(task, result._2.get);
+
+    assertTrue(result._1);
+    assertEquals(10, result._2.get.id);
+
+    assertEquals(4, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(7, worker.currentPath.nodes(1).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.2"));
+    assertEquals(8, worker.currentPath.nodes(2).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.5"));
+    assertEquals(10, worker.currentPath.nodes(3).node.id);
+
+    result = worker.workon(task, result._2.get);
+
+    assertTrue(result._1);
+    assertEquals(5, result._2.get.id);
+
+    assertEquals(5, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(7, worker.currentPath.nodes(1).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.2"));
+    assertEquals(8, worker.currentPath.nodes(2).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.5"));
+    assertEquals(10, worker.currentPath.nodes(3).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.6"));
+    assertEquals(5, worker.currentPath.nodes(4).node.id);
+
+    result = worker.workon(task, result._2.get);
+
+    assertTrue(result._1);
+    assertEquals(8, result._2.get.id);
+
+    assertEquals(3, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(7, worker.currentPath.nodes(1).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.2"));
+    assertEquals(8, worker.currentPath.nodes(2).node.id);
+    assertEquals("false", kvstore.get("1-Test-Task-Id.linkVisited.5"));
+    assertEquals("false", kvstore.get("1-Test-Task-Id.linkVisited.6"));
+
+    assertEquals(5, worker.existedPath.length);
+
+    result = worker.workon(task, result._2.get);
+
+    assertFalse(result._1);
+    assertEquals(7, result._2.get.id);
+
+    assertEquals(2, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(7, worker.currentPath.nodes(1).node.id);
+    assertEquals("false", kvstore.get("1-Test-Task-Id.linkVisited.2"));
+
+    result = worker.workon(task, result._2.get);
+
+    assertFalse(result._1);
+    assertEquals(2, result._2.get.id);
+
+    assertEquals(2, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(2, worker.currentPath.nodes(1).node.id);
+
+    result = worker.workon(task, result._2.get);
+
+    assertTrue(result._1);
+    assertEquals(6, result._2.get.id);
+
+    assertEquals(2, worker.currentPath.length);
+    assertEquals(1, worker.currentPath.nodes(0).node.id);
+    assertEquals("true", kvstore.get("1-Test-Task-Id.linkVisited.1"));
+    assertEquals(6, worker.currentPath.nodes(1).node.id);
+
+    result = worker.workon(task, result._2.get);
+
+    assertTrue(result._1);
+    assertEquals(1, result._2.get.id);
+    
+    result = worker.workon(task, result._2.get);
+
+    assertFalse(result._1);
+    assertEquals(None, result._2);
   }
 }

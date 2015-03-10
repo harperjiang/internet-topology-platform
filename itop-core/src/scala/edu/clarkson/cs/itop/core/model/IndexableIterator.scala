@@ -76,8 +76,9 @@ class IndexableIterator[T](namedItems: SortedMap[String, T], anonymousItems: Lis
   }
 
   // Move the iterator to the element just after the given index
-  def to(index: Index): Unit = {
+  def to(index: Index): T = {
     currentIndex = index;
+    at(currentIndex);
   }
 
   private def at(index: Index): T = {

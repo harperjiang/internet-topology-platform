@@ -60,7 +60,12 @@ class Path {
       another.nodes.remove(0);
     }
     this.nodes.addAll(another.nodes);
+  }
 
+  def clonePath(): Path = {
+    var path = new Path();
+    path.nodes.addAll(this.nodes);
+    return path;
   }
 }
 

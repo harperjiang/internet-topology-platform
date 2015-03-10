@@ -61,9 +61,9 @@ class ShortestPathWorker extends TaskWorker {
   override def workon(t: Task, node: Node): (Boolean, Option[Node]) = {
     var context = t.context;
 
-    var onThis = isVisited(t, node.id);
-    if (!onThis) {
-      setVisited(t, node.id);
+    var visited = isNodeVisited(t, node.id);
+    if (!visited) {
+      setNodeVisited(t, node.id);
 
       if (node.id == destId) {
         // Is this path shorter than existing path?
@@ -76,12 +76,12 @@ class ShortestPathWorker extends TaskWorker {
 
         if (currentPath.length <= 2) {
           // The parent has no sibling
-          return (onThis, None);
+          return (!visited, None);
         }
-        currentPath.pop
-        var parent = currentPath.pop
-        var parentSibling = nextSibling(parent)
-        return (onThis, Some(parentSibling.node));
+        popNode(t);
+        var parent = popNode(t);
+        var parentSibling = nextSibling(parent);
+        return (!visited, Some(parentSibling.node));
       }
 
       if (expectedDepth > currentPath.length && currentPath.length < existedPath.length) {
@@ -92,36 +92,40 @@ class ShortestPathWorker extends TaskWorker {
 
         while (links.hasNext()) {
           var link = links.next();
-          var nodes = link.nodes;
-          while (nodes.hasNext()) {
-            var nextChildNode = nodes.next();
-            if (!isVisited(t, nextChildNode.id)) {
-              var newPathNode = new PathNode(nextChildNode, link, nodes.index, links.index);
-              currentPath.push(newPathNode);
-              return (onThis, Some(nextChildNode));
+          if (!isLinkVisited(t, link.id)) {
+            var nodes = link.nodes;
+            while (nodes.hasNext()) {
+              var nextChildNode = nodes.next();
+              if (!isNodeVisited(t, nextChildNode.id)) {
+                var newPathNode = new PathNode(nextChildNode, link, nodes.index, links.index);
+                pushNode(t, newPathNode);
+                return (!visited, Some(nextChildNode));
+              }
             }
           }
         }
       }
     }
     // No unvisited child, return next sibling. 
-    var currentPathNode = currentPath.pop
+    var currentPathNode = popNode(t);
 
     var next = nextSibling(currentPathNode);
     if (next == null) {
       if (currentPath.isEmpty)
         // Nothing had been found
-        return (onThis, None);
-      return (onThis, Some(currentPath.top.node));
+        return (!visited, None);
+      return (!visited, Some(currentPath.top.node));
     } else {
-      currentPath.push(next);
-      return (onThis, Some(next.node));
+      pushNode(t, next);
+      return (!visited, Some(next.node));
     }
 
-    return (onThis, None);
+    return (!visited, None);
   }
 
   private def nextSibling(current: PathNode): PathNode = {
+    if (currentPath.isEmpty)
+      return null;
     var links = currentPath.top.node.links;
     links.to(current.linkIndex);
     var nodes = current.link.nodes;
@@ -140,14 +144,38 @@ class ShortestPathWorker extends TaskWorker {
     return null;
   }
 
-  private def isVisited(t: Task, nodeId: Int): Boolean = {
-    return "true".equals(t.context.get("visited.%d".format(nodeId)));
+  private def isNodeVisited(t: Task, nodeId: Int): Boolean = {
+    return "true".equals(t.context.get("nodeVisited.%d".format(nodeId)));
   }
 
-  private def setVisited(t: Task, nodeId: Int) = {
-    t.context.set("visited.%d".format(nodeId), "true")
+  private def setNodeVisited(t: Task, nodeId: Int) = {
+    t.context.set("nodeVisited.%d".format(nodeId), "true")
   }
 
+  private def isLinkVisited(t: Task, linkId: Int): Boolean = {
+    return "true".equals(t.context.get("linkVisited.%d".format(linkId)));
+  }
+
+  private def setLinkVisited(t: Task, linkId: Int, visited: Boolean) = {
+    t.context.set("linkVisited.%d".format(linkId), visited.toString);
+  }
+
+  private def pushNode(t: Task, pn: PathNode) = {
+    currentPath.push(pn);
+    if (pn.link != null) {
+      setLinkVisited(t, pn.link.id, true);
+    }
+  }
+
+  private def popNode(t: Task): PathNode = {
+    if (currentPath.isEmpty)
+      return null;
+    var pn = currentPath.pop;
+    if (pn.link != null) {
+      setLinkVisited(t, pn.link.id, false);
+    }
+    return pn;
+  }
 }
 
 class PathNode {

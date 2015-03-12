@@ -88,7 +88,7 @@ class ConsHashNode extends Sender with InitializingBean {
         var candidate: String = null;
         var max = 0;
         results.foreach(s => {
-          var c = counterMap.getOrDefault(s._1, 0);
+          var c = counterMap.getOrElse(s._1, 0);
           c += 1;
           if (c > max) { max = c; candidate = s._1; }
           counterMap.put(s._1, c);

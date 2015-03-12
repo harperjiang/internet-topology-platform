@@ -70,6 +70,10 @@ class IndexableIterator[T](namedItems: SortedMap[String, T], anonymousItems: Lis
     return at(currentIndex);
   }
 
+  def remove: Unit = {
+    throw new UnsupportedOperationException();
+  }
+
   // Return Current Index
   def index(): Index = {
     currentIndex;

@@ -20,6 +20,10 @@ public class StringArrayWritable extends ArrayWritable implements
 		set(strs);
 	}
 
+	public int size() {
+		return super.get().length;
+	}
+
 	@Override
 	public int compareTo(StringArrayWritable o) {
 		Writable[] mine = get();

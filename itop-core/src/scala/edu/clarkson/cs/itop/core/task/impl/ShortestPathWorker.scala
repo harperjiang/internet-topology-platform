@@ -27,6 +27,17 @@ class ShortestPathWorker extends AbstractTaskWorker {
     currentPath.push(new PathNode(t.context.partition.nodeMap.get(t.startNodeId).get, null, null, null));
   }
 
+  override def done(t: Task) = {
+    // Child process should store its path in context
+    if (existedPath != null) {
+      // Root task should record a found message
+      if (t.isRoot)
+        TaskParam.setBoolean(t, "found", true);
+      TaskParam.setObject(t, "result", existedPath);
+    }
+    // Nothing to do here cause the valid path should have been stored in collect process
+  }
+
   override def spawnTo(t: Task, partitionId: Int, nodeId: Int) = {
     // This is the remaining path length that will be passed to child task
     TaskParam.setInt(t, "depthRemain", expectedDepth - currentPath.length)((partitionId, nodeId));
@@ -47,17 +58,6 @@ class ShortestPathWorker extends AbstractTaskWorker {
         existedPath = localPath;
       }
     }
-  }
-
-  override def done(t: Task) = {
-    // Child process should store its path in context
-    if (existedPath != null) {
-      // Root task should record a found message
-      if (t.isRoot)
-        TaskParam.setBoolean(t, "found", true);
-      TaskParam.setObject(t, "result", existedPath);
-    }
-    // Nothing to do here cause the valid path should have been stored in collect process
   }
 
   override def workon(t: Task, node: Node): (Boolean, Option[Node]) = {

@@ -39,7 +39,7 @@ class GsonMessageFactoryBeanTest {
     se.targetNodeId = 434;
     se.workerClass = "DemoClass";
 
-    assertEquals("{\"parent_machine\":4,\"worker_class\":\"DemoClass\",\"parent_task_id\":\"32-32-32\",\"target_node_id\":434,\"target_partition\":4}", gson.toJson(se));
+    assertEquals("{\"parent_machine\":4,\"worker_class\":\"DemoClass\",\"parent_task_id\":\"32-32-32\",\"root_machine\":0,\"root_task_id\":\"\",\"target_node_id\":434,\"target_partition\":4}", gson.toJson(se));
 
     var se2 = gson.fromJson(gson.toJson(se), classOf[SubtaskExecute]);
     assertEquals(se.parentId, se2.parentId);

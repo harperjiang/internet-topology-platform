@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partcomp
+package edu.clarkson.cs.itop.tool.partcomp.avgbc
 
 import edu.clarkson.cs.itop.tool.common.RightOuterJoinReducer
 import edu.clarkson.cs.itop.tool.common.SingleKeyJoinMapper

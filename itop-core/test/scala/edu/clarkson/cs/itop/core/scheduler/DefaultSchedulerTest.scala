@@ -93,7 +93,7 @@ class DefaultSchedulerTest {
     };
     scheduler.addListener(slistener)
 
-    var task = new Task(null, null);
+    var task = new Task(null, (1, "taskid"));
     task.id = (1, "taskid");
     task.startNodeId = 7;
     task.workerClass = classOf[LocalWorker];

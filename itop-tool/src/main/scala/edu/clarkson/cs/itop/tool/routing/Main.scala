@@ -95,28 +95,28 @@ object Main extends App {
   FileOutputFormat.setOutputPath(job, new Path(Config.file("routing/node_partition_degree1")))
   job.waitForCompletion(true);
 
-  job = Job.getInstance(conf, "Node Partition Join - Degree n");
-  job.setMapperClass(classOf[NodePartitionJoinMapper]);
-  job.setReducerClass(classOf[NodePartitionJoinReducer]);
-  job.setMapOutputKeyClass(classOf[StringArrayWritable]);
-  job.setMapOutputValueClass(classOf[StringArrayWritable]);
-  job.setOutputKeyClass(classOf[Text]);
-  job.setOutputValueClass(classOf[Text]);
-  job.setPartitionerClass(classOf[KeyPartitioner]);
-  job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-  FileInputFormat.addInputPath(job, new Path(Config.file("degreen/link_partition")))
-  FileInputFormat.addInputPath(job, new Path(Config.file("common/node_link")))
-  FileOutputFormat.setOutputPath(job, new Path(Config.file("routing/node_partition_raw_degreen")))
-  job.waitForCompletion(true);
-
-  job = Job.getInstance(conf, "Node Partition Filter - Degree n")
-  job.setMapperClass(classOf[NodePartitionFilterMapper])
-  job.setReducerClass(classOf[NodePartitionFilterReducer])
-  job.setMapOutputKeyClass(classOf[IntWritable])
-  job.setMapOutputValueClass(classOf[IntWritable])
-  job.setOutputKeyClass(classOf[IntWritable])
-  job.setOutputValueClass(classOf[Text])
-  FileInputFormat.addInputPath(job, new Path(Config.file("routing/node_partition_raw_degreen")))
-  FileOutputFormat.setOutputPath(job, new Path(Config.file("routing/node_partition_degreen")))
-  job.waitForCompletion(true);
+//  job = Job.getInstance(conf, "Node Partition Join - Degree n");
+//  job.setMapperClass(classOf[NodePartitionJoinMapper]);
+//  job.setReducerClass(classOf[NodePartitionJoinReducer]);
+//  job.setMapOutputKeyClass(classOf[StringArrayWritable]);
+//  job.setMapOutputValueClass(classOf[StringArrayWritable]);
+//  job.setOutputKeyClass(classOf[Text]);
+//  job.setOutputValueClass(classOf[Text]);
+//  job.setPartitionerClass(classOf[KeyPartitioner]);
+//  job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+//  FileInputFormat.addInputPath(job, new Path(Config.file("degreen/link_partition")))
+//  FileInputFormat.addInputPath(job, new Path(Config.file("common/node_link")))
+//  FileOutputFormat.setOutputPath(job, new Path(Config.file("routing/node_partition_raw_degreen")))
+//  job.waitForCompletion(true);
+//
+//  job = Job.getInstance(conf, "Node Partition Filter - Degree n")
+//  job.setMapperClass(classOf[NodePartitionFilterMapper])
+//  job.setReducerClass(classOf[NodePartitionFilterReducer])
+//  job.setMapOutputKeyClass(classOf[IntWritable])
+//  job.setMapOutputValueClass(classOf[IntWritable])
+//  job.setOutputKeyClass(classOf[IntWritable])
+//  job.setOutputValueClass(classOf[Text])
+//  FileInputFormat.addInputPath(job, new Path(Config.file("routing/node_partition_raw_degreen")))
+//  FileOutputFormat.setOutputPath(job, new Path(Config.file("routing/node_partition_degreen")))
+//  job.waitForCompletion(true);
 }

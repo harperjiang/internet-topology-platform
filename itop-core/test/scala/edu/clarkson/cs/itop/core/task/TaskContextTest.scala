@@ -14,8 +14,8 @@ class TaskContextTest {
     taskContext.set("key", "value");
 
     assertFalse(kvstore.cache.contains("key"));
-    assertTrue(kvstore.cache.contains("1-SID-key"))
-    assertEquals("value", kvstore.cache.get("1-SID-key").get)
+    assertTrue(kvstore.cache.contains("1-SID.key"))
+    assertEquals("value", kvstore.cache.get("1-SID.key").get)
     assertEquals("value", taskContext.get("key"))
   }
 }

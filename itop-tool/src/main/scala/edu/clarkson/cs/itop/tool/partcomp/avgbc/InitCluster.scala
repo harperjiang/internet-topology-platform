@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partcomp
+package edu.clarkson.cs.itop.tool.partcomp.avgbc
 
 import org.apache.hadoop.io.IntWritable
 import scala.collection.JavaConversions._

@@ -15,10 +15,16 @@ object CounterParam {
 }
 
 class CounterMapper extends Mapper[Object, Text, Text, IntWritable] {
-  var one = new IntWritable(1);
+  val one = new IntWritable(1);
+  val statickey = new Text("1");
   override def map(key: Object, value: Text, context: Mapper[Object, Text, Text, IntWritable]#Context): Unit = {
     var keyIndex = context.getConfiguration.get(CounterParam.KEY_INDEX).toInt;
-    context.write(new Text(value.toString().split("\\s+")(keyIndex)), one)
+    if (keyIndex == -1) {
+      // No Key Index, global counting
+      context.write(statickey, one);
+    } else {
+      context.write(new Text(value.toString().split("\\s+")(keyIndex)), one)
+    }
   }
 }
 

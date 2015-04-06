@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition.degreen
+package edu.clarkson.cs.itop.tool.partition.exp
 
 import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.io.Text

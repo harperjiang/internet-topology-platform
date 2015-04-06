@@ -1,8 +1,10 @@
-package edu.clarkson.cs.itop.tool.partition.degreen
+package edu.clarkson.cs.itop.tool.partition.exp
 
 import org.junit.Test
 import org.junit.Assert._
+
 import edu.clarkson.cs.itop.tool.FileCompare
+
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
@@ -10,6 +12,8 @@ import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.io.Text
+
+import edu.clarkson.cs.itop.tool.partition.exp.Mainn;
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable

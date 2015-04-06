@@ -7,8 +7,8 @@ import org.apache.hadoop.io.IntWritable
 import edu.clarkson.cs.itop.tool.Param
 
 /**
- * Input:   line_id node_id degree
- * Output:  line_id partition_id
+ * Input:   link_id node_id degree
+ * Output:  link_id partition_id
  */
 
 class PartitionLinkMapper extends Mapper[Object, Text, IntWritable, IntWritable] {

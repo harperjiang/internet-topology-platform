@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition.degreen
+package edu.clarkson.cs.itop.tool.partition.exp
 
 import org.junit.Test
 import org.junit.Assert._
@@ -6,10 +6,15 @@ import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
+
 import edu.clarkson.cs.itop.tool.Config
+
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.io.IntWritable
+
 import edu.clarkson.cs.itop.tool.FileCompare
+import edu.clarkson.cs.itop.tool.partition.exp.Mainn;
+
 import org.apache.hadoop.fs.FileSystem
 
 class PrepareClusterNodeTest {

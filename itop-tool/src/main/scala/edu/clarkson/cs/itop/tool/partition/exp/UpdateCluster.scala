@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition.degreen
+package edu.clarkson.cs.itop.tool.partition.exp
 
 import org.apache.hadoop.mapreduce.Mapper
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable

@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition.degreen
+package edu.clarkson.cs.itop.tool.partition.exp
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
@@ -45,7 +45,7 @@ object Mainn extends App {
   prepareData(conf)
 
   // Process Clusters
-  for (i <- 0 to Param.degree_n - 1) {
+  for (i <- 0 to Param.exp_n - 1) {
     rawMergeDecision(conf)
     refineMergeDecision(conf, i)
     updateClusters(conf, i)

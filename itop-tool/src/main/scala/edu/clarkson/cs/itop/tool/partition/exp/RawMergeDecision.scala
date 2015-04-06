@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partition.degreen
+package edu.clarkson.cs.itop.tool.partition.exp
 
 import edu.clarkson.cs.itop.tool.common.SingleKeyJoinMapper
 import edu.clarkson.cs.itop.tool.common.JoinReducer

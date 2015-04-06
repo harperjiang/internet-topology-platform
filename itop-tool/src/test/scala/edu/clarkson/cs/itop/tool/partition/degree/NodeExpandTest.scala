@@ -13,7 +13,6 @@ import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import org.apache.hadoop.io.IntWritable
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import edu.clarkson.cs.itop.tool.partition.degreen.Mainn
 
 class NodeExpandTest {
 
@@ -26,7 +25,7 @@ class NodeExpandTest {
     fs.delete(new Path("testdata/degree/node_expand/output"), true);
 
     var epjob = Job.getInstance(conf, "Degree n - Expand Node");
-    epjob.setJarByClass(Mainn.getClass);
+    epjob.setJarByClass(classOf[NodeExpandTest]);
     epjob.setMapperClass(classOf[NodeExpandMapper]);
     epjob.setReducerClass(classOf[NodeExpandReducer]);
     epjob.setMapOutputKeyClass(classOf[StringArrayWritable]);

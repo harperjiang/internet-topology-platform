@@ -10,6 +10,10 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import edu.clarkson.cs.itop.tool.Config
 import org.apache.hadoop.fs.FileSystem
 import edu.clarkson.cs.itop.tool.Param
+import edu.clarkson.cs.itop.tool.types.KeyPartitioner
+import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
+import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import org.apache.hadoop.io.IntWritable
 
 object Main extends App {
 
@@ -18,7 +22,7 @@ object Main extends App {
 
   initTriple();
   for (i <- 0 to Param.degree_n - 1) {
-    adjustTriple();
+    adjustTriple(i);
   }
   assignTriplePartition();
 
@@ -35,11 +39,78 @@ object Main extends App {
     job.waitForCompletion(true);
   }
 
-  def adjustTriple() = {
+  def adjustTriple(round: Int) = {
 
+    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_node_dup")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_node_join")), true);
+
+    var job = Job.getInstance(conf, "Degree - Duplicate Adj Node");
+    job.setJarByClass(Main.getClass);
+    job.setMapperClass(classOf[AdjDuplicateMapper]);
+    job.setMapOutputKeyClass(classOf[Text]);
+    job.setMapOutputValueClass(classOf[Text]);
+    job.setOutputKeyClass(classOf[Text]);
+    job.setOutputValueClass(classOf[Text]);
+    FileInputFormat.addInputPath(job, new Path(Config.file("common/adj_node")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_node_dup")));
+    job.waitForCompletion(true);
+
+    job = Job.getInstance(conf, "Degree - Adj Tripple Join");
+    job.setJarByClass(Main.getClass);
+    job.setMapperClass(classOf[AdjTripleJoinMapper]);
+    job.setReducerClass(classOf[AdjTripleJoinReducer]);
+    job.setMapOutputKeyClass(classOf[StringArrayWritable]);
+    job.setMapOutputValueClass(classOf[StringArrayWritable]);
+    job.setOutputKeyClass(classOf[Text]);
+    job.setOutputValueClass(classOf[Text]);
+    job.setPartitionerClass(classOf[KeyPartitioner]);
+    job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_node_dup")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_node_join")));
+    job.waitForCompletion(true);
+
+    FileSystem.get(conf).rename(new Path(Config.file("degreen/triple")), new Path(Config.file("degreen/triple_%d".format(round))));
+
+    job = Job.getInstance(conf, "Degree - Adj Tripple Update");
+    job.setJarByClass(Main.getClass);
+    job.setMapperClass(classOf[AdjTripleUpdateMapper]);
+    job.setReducerClass(classOf[AdjTripleUpdateReducer]);
+    job.setMapOutputKeyClass(classOf[Text]);
+    job.setMapOutputValueClass(classOf[StringArrayWritable]);
+    job.setOutputKeyClass(classOf[Text]);
+    job.setOutputValueClass(classOf[Text]);
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_node_join")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/triple")));
+    job.waitForCompletion(true);
   }
 
   def assignTriplePartition() = {
+    var job = Job.getInstance(conf, "Degree - Join Triple Link");
+    job.setJarByClass(Main.getClass);
+    job.setMapperClass(classOf[JoinTripleLinkMapper]);
+    job.setReducerClass(classOf[JoinTripleLinkReducer]);
+    job.setMapOutputKeyClass(classOf[StringArrayWritable]);
+    job.setMapOutputValueClass(classOf[StringArrayWritable]);
+    job.setOutputKeyClass(classOf[Text]);
+    job.setOutputValueClass(classOf[Text]);
+    job.setPartitionerClass(classOf[KeyPartitioner]);
+    job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/node_link")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/triple_link_join")));
+    job.waitForCompletion(true);
 
+    job = Job.getInstance(conf, "Degree - Assign Link to Partition");
+    job.setJarByClass(Main.getClass);
+    job.setMapperClass(classOf[AssignLinkToPartitionMapper]);
+    job.setReducerClass(classOf[AssignLinkToPartitionReducer]);
+    job.setMapOutputKeyClass(classOf[IntWritable]);
+    job.setMapOutputValueClass(classOf[Text]);
+    job.setOutputKeyClass(classOf[IntWritable]);
+    job.setOutputValueClass(classOf[IntWritable]);
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_link_join")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/link_partition")));
+    job.waitForCompletion(true);
   }
 }

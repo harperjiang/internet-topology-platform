@@ -12,7 +12,7 @@ import edu.clarkson.cs.itop.tool.Param
 /**
  * Input: triple (node_id, core_id, core_degree, core_length)
  * Input: node_link (link_id, node_id)
- * Output: triple_join (link_id, core_id, core_degree)
+ * Output: triple_link_join (link_id, core_id, core_degree)
  */
 class JoinTripleLinkMapper extends SingleKeyJoinMapper("triple", "node_link", 0, 1);
 

@@ -26,7 +26,7 @@ class UpdateClusterTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/update_cluster/output"), true);
+    fs.delete(new Path("testdata/exp/update_cluster/output"), true);
 
     var job = Job.getInstance(conf, "Test Update Cluster");
     job.setJarByClass(Mainn.getClass);
@@ -38,13 +38,13 @@ class UpdateClusterTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_cluster/cluster"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_cluster/merge_decision"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/update_cluster/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_cluster/cluster"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_cluster/merge_decision"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/update_cluster/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/update_cluster/result",
-      "testdata/degreen/update_cluster/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/update_cluster/result",
+      "testdata/exp/update_cluster/output/part-r-00000"))
   }
 
   @Test
@@ -53,9 +53,9 @@ class UpdateClusterTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/update_adj_cluster/output"), true);
-    fs.delete(new Path("testdata/degreen/update_adj_cluster/adj_cluster_updated_left"), true);
-    fs.delete(new Path("testdata/degreen/update_adj_cluster/adj_cluster_updated_dup"), true);
+    fs.delete(new Path("testdata/exp/update_adj_cluster/output"), true);
+    fs.delete(new Path("testdata/exp/update_adj_cluster/adj_cluster_updated_left"), true);
+    fs.delete(new Path("testdata/exp/update_adj_cluster/adj_cluster_updated_dup"), true);
 
     var job = Job.getInstance(conf, "Test Left Update Adj Cluster");
     job.setJarByClass(Mainn.getClass);
@@ -67,9 +67,9 @@ class UpdateClusterTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_adj_cluster/adj_cluster"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_adj_cluster/merge_decision"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/update_adj_cluster/adj_cluster_updated_left"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_adj_cluster/adj_cluster"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_adj_cluster/merge_decision"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/update_adj_cluster/adj_cluster_updated_left"));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Test Right Update Adj Cluster");
@@ -82,9 +82,9 @@ class UpdateClusterTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_adj_cluster/adj_cluster_updated_left"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_adj_cluster/merge_decision"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/update_adj_cluster/adj_cluster_updated_dup"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_adj_cluster/adj_cluster_updated_left"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_adj_cluster/merge_decision"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/update_adj_cluster/adj_cluster_updated_dup"));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Distinct Data");
@@ -96,12 +96,12 @@ class UpdateClusterTest {
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_adj_cluster/adj_cluster_updated_dup"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/update_adj_cluster/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_adj_cluster/adj_cluster_updated_dup"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/update_adj_cluster/output"));
     job.waitForCompletion(false);
 
-    assertTrue(FileCompare.compare("testdata/degreen/update_adj_cluster/result",
-      "testdata/degreen/update_adj_cluster/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/update_adj_cluster/result",
+      "testdata/exp/update_adj_cluster/output/part-r-00000"))
       
   }
 
@@ -111,7 +111,7 @@ class UpdateClusterTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/update_cluster_node/output"), true);
+    fs.delete(new Path("testdata/exp/update_cluster_node/output"), true);
 
     var job = Job.getInstance(conf, "Test Update Cluster Node");
     job.setJarByClass(Mainn.getClass);
@@ -123,12 +123,12 @@ class UpdateClusterTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_cluster_node/cluster_node"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/update_cluster_node/merge_decision"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/update_cluster_node/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_cluster_node/cluster_node"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/update_cluster_node/merge_decision"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/update_cluster_node/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/update_cluster_node/result",
-      "testdata/degreen/update_cluster_node/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/update_cluster_node/result",
+      "testdata/exp/update_cluster_node/output/part-r-00000"))
   }
 }

@@ -25,7 +25,7 @@ class PrepareClusterNodeTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/prepare_cluster_node/output"), true);
+    fs.delete(new Path("testdata/exp/prepare_cluster_node/output"), true);
 
     var job = Job.getInstance(conf, "Degree n - Prepare Cluster Node Mapping");
     job.setJarByClass(Mainn.getClass);
@@ -33,11 +33,11 @@ class PrepareClusterNodeTest {
     job.setNumReduceTasks(1);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/prepare_cluster_node/input"))
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/prepare_cluster_node/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/prepare_cluster_node/input"))
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/prepare_cluster_node/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/prepare_cluster_node/result", "testdata/degreen/prepare_cluster_node/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/prepare_cluster_node/result", "testdata/exp/prepare_cluster_node/output/part-r-00000"))
 
   }
 }

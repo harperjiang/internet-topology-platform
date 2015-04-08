@@ -29,7 +29,7 @@ class RawMergeDecisionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/md_leftdegree/output"), true);
+    fs.delete(new Path("testdata/exp/md_leftdegree/output"), true);
 
     var job = Job.getInstance(conf, "Test Merge Decision Left Degree");
     job.setJarByClass(Mainn.getClass);
@@ -41,13 +41,13 @@ class RawMergeDecisionTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/md_leftdegree/cluster"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/md_leftdegree/adj_cluster"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/md_leftdegree/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/md_leftdegree/cluster"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/md_leftdegree/adj_cluster"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/md_leftdegree/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/md_leftdegree/result",
-      "testdata/degreen/md_leftdegree/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/md_leftdegree/result",
+      "testdata/exp/md_leftdegree/output/part-r-00000"))
   }
 
   @Test
@@ -56,7 +56,7 @@ class RawMergeDecisionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/md_rightdegree/output"), true);
+    fs.delete(new Path("testdata/exp/md_rightdegree/output"), true);
 
     var job = Job.getInstance(conf, "Test Merge Decision Right Degree");
     job.setJarByClass(Mainn.getClass);
@@ -68,13 +68,13 @@ class RawMergeDecisionTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/md_rightdegree/cluster"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/md_rightdegree/adj_cluster_left"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/md_rightdegree/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/md_rightdegree/cluster"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/md_rightdegree/adj_cluster_left"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/md_rightdegree/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/md_rightdegree/result",
-      "testdata/degreen/md_rightdegree/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/md_rightdegree/result",
+      "testdata/exp/md_rightdegree/output/part-r-00000"))
 
   }
 
@@ -84,18 +84,18 @@ class RawMergeDecisionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/merge_decision/output"), true);
+    fs.delete(new Path("testdata/exp/merge_decision/output"), true);
 
     var job = Job.getInstance(conf, "Test Merge Decision");
     job.setJarByClass(Mainn.getClass);
     job.setMapperClass(classOf[MergeDecisionMapper]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/merge_decision/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/merge_decision/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/merge_decision/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/merge_decision/output"));
     job.waitForCompletion(true);
     
-    assertTrue(FileCompare.compare("testdata/degreen/merge_decision/result",
-      "testdata/degreen/merge_decision/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/merge_decision/result",
+      "testdata/exp/merge_decision/output/part-r-00000"))
   }
 }

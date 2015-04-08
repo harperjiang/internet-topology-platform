@@ -26,7 +26,7 @@ class RefineMergeDecisionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/refine_two_header/output"), true);
+    fs.delete(new Path("testdata/exp/refine_two_header/output"), true);
 
     var job = Job.getInstance(conf, "Test Refine Two Head");
     job.setJarByClass(Mainn.getClass);
@@ -36,12 +36,12 @@ class RefineMergeDecisionTest {
     job.setMapOutputValueClass(classOf[Text]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/refine_two_header/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/refine_two_header/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/refine_two_header/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/refine_two_header/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/refine_two_header/result",
-      "testdata/degreen/refine_two_header/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/refine_two_header/result",
+      "testdata/exp/refine_two_header/output/part-r-00000"))
   }
 
   @Test
@@ -50,7 +50,7 @@ class RefineMergeDecisionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/refine_header_link/output"), true);
+    fs.delete(new Path("testdata/exp/refine_header_link/output"), true);
 
     var job = Job.getInstance(conf, "Test Refine Header Link");
     job.setJarByClass(Mainn.getClass);
@@ -63,11 +63,11 @@ class RefineMergeDecisionTest {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
 
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/refine_header_link/input"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/refine_header_link/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/refine_header_link/input"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/refine_header_link/output"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/refine_header_link/result",
-      "testdata/degreen/refine_header_link/output/part-r-00000"))
+    assertTrue(FileCompare.compare("testdata/exp/refine_header_link/result",
+      "testdata/exp/refine_header_link/output/part-r-00000"))
   }
 }

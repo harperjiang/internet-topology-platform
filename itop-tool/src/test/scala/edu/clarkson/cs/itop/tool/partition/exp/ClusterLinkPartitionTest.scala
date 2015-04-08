@@ -28,9 +28,9 @@ class ClusterLinkPartitionTest {
 
     var fs = FileSystem.get(conf);
     // true stands for recursively deleting the folder you gave
-    fs.delete(new Path("testdata/degreen/cluster_link_partition/cluster_node_degree"), true);
-    fs.delete(new Path("testdata/degreen/cluster_link_partition/cluster_link"), true);
-    fs.delete(new Path("testdata/degreen/cluster_link_partition/output"), true);
+    fs.delete(new Path("testdata/exp/cluster_link_partition/cluster_node_degree"), true);
+    fs.delete(new Path("testdata/exp/cluster_link_partition/cluster_link"), true);
+    fs.delete(new Path("testdata/exp/cluster_link_partition/output"), true);
 
     var job = Job.getInstance(conf, "Test Cluster Degree");
     job.setJarByClass(Mainn.getClass);
@@ -42,13 +42,13 @@ class ClusterLinkPartitionTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/cluster_link_partition/cluster"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/cluster_link_partition/cluster_node"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/cluster_link_partition/cluster_node_degree"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/cluster_link_partition/cluster"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/cluster_link_partition/cluster_node"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/cluster_link_partition/cluster_node_degree"));
     job.waitForCompletion(true);
 
-    assertTrue(FileCompare.compare("testdata/degreen/cluster_link_partition/cluster_node_degree_result",
-      "testdata/degreen/cluster_link_partition/cluster_node_degree/part-r-00000"));
+    assertTrue(FileCompare.compare("testdata/exp/cluster_link_partition/cluster_node_degree_result",
+      "testdata/exp/cluster_link_partition/cluster_node_degree/part-r-00000"));
 
     job = Job.getInstance(conf, "Test Cluster Link");
     job.setJarByClass(Mainn.getClass);
@@ -60,13 +60,13 @@ class ClusterLinkPartitionTest {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/cluster_link_partition/node_link"));
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/cluster_link_partition/cluster_node_degree"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/cluster_link_partition/cluster_link"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/cluster_link_partition/node_link"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/cluster_link_partition/cluster_node_degree"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/cluster_link_partition/cluster_link"));
     job.waitForCompletion(true);
     
-    assertTrue(FileCompare.compare("testdata/degreen/cluster_link_partition/cluster_link_result",
-      "testdata/degreen/cluster_link_partition/cluster_link/part-r-00000"));
+    assertTrue(FileCompare.compare("testdata/exp/cluster_link_partition/cluster_link_result",
+      "testdata/exp/cluster_link_partition/cluster_link/part-r-00000"));
     
     job = Job.getInstance(conf, "Test Cluster Partition");
     job.setJarByClass(Mainn.getClass);
@@ -76,12 +76,12 @@ class ClusterLinkPartitionTest {
     job.setMapOutputValueClass(classOf[StringArrayWritable]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
-    FileInputFormat.addInputPath(job, new Path("testdata/degreen/cluster_link_partition/cluster_link"));
-    FileOutputFormat.setOutputPath(job, new Path("testdata/degreen/cluster_link_partition/output"));
+    FileInputFormat.addInputPath(job, new Path("testdata/exp/cluster_link_partition/cluster_link"));
+    FileOutputFormat.setOutputPath(job, new Path("testdata/exp/cluster_link_partition/output"));
     job.waitForCompletion(true);
     
-    assertTrue(FileCompare.compare("testdata/degreen/cluster_link_partition/result",
-      "testdata/degreen/cluster_link_partition/output/part-r-00000"));
+    assertTrue(FileCompare.compare("testdata/exp/cluster_link_partition/result",
+      "testdata/exp/cluster_link_partition/output/part-r-00000"));
   }
 
 }

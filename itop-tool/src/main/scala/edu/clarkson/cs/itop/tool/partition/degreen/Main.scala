@@ -4,13 +4,14 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io.IntWritable
+import org.apache.hadoop.io.NullWritable
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 
 import edu.clarkson.cs.itop.tool.Config
-import edu.clarkson.cs.itop.tool.Param
+import edu.clarkson.cs.itop.tool.common.ConcatMapper
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
@@ -18,13 +19,14 @@ import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 object Main extends App {
 
   var conf = new Configuration();
-  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
-
-  initTriple();
-  for (i <- 0 to Param.degree_n - 1) {
-    adjustTriple(i);
-  }
-  assignTriplePartition();
+  //  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
+  //
+  //  initTriple();
+  //  for (i <- 0 to Param.degree_n - 1) {
+  //    adjustTriple(i);
+  //  }
+  adjustTriple(6);
+  //  assignTriplePartition();
 
   def initTriple() = {
     var job = Job.getInstance(conf, "Degree - Init Triple");
@@ -62,10 +64,10 @@ object Main extends App {
   }
 
   def adjustTriple(round: Int) = {
-
+    var fs = FileSystem.get(conf);
     generateNewTriple();
 
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/triple")), new Path(Config.file("degreen/triple_old")));
+    fs.rename(new Path(Config.file("degreen/triple")), new Path(Config.file("degreen/triple_old")));
 
     var job = Job.getInstance(conf, "Degree - Triple Diff");
     job.setJarByClass(Main.getClass);
@@ -77,19 +79,24 @@ object Main extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(5);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_new")));
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_old")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/triple")));
     job.waitForCompletion(true);
 
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/triple")), new Path(Config.file("degreen/triple_%d".format(round))));
-
     generateNewTriple();
+
+    fs.rename(new Path(Config.file("degreen/triple_old")), new Path(Config.file("degreen/triple_%d".format(round))));
+    fs.delete(new Path(Config.file("degreen/triple")), true);
+    fs.rename(new Path(Config.file("degreen/triple_new")), new Path(Config.file("degreen/triple")));
   }
 
   def generateNewTriple() = {
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_node_join")), true);
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_node_join_diff")), true);
+    var fs = FileSystem.get(conf);
+    fs.delete(new Path(Config.file("degreen/adj_node_join")), true);
+    fs.delete(new Path(Config.file("degreen/adj_node_join_diff")), true);
+    fs.delete(new Path(Config.file("degreen/triple_new")), true);
 
     var job = Job.getInstance(conf, "Degree - Adj Tripple Join");
     job.setJarByClass(Main.getClass);
@@ -99,6 +106,7 @@ object Main extends App {
     job.setMapOutputValueClass(classOf[StringArrayWritable]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
+    job.setNumReduceTasks(5);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_node_dup")));
@@ -106,8 +114,18 @@ object Main extends App {
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_node_join_diff")));
     job.waitForCompletion(true);
 
-    FileSystem.get(conf).concat(new Path(Config.file("degreen/adj_node_join")),
-      Array(new Path(Config.file("degreen/adj_node_join_diff")), new Path(Config.file("degreen/triple_retain"))));
+    job = Job.getInstance(conf, "Degree-Concat");
+    job.setJarByClass(Main.getClass);
+    job.setMapperClass(classOf[ConcatMapper]);
+    job.setMapOutputKeyClass(classOf[Text]);
+    job.setMapOutputValueClass(classOf[NullWritable]);
+    job.setOutputKeyClass(classOf[Text]);
+    job.setOutputValueClass(classOf[NullWritable]);
+    job.setNumReduceTasks(0);
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_node_join_diff")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_retain")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_node_join")));
+    job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Degree - Triple Update");
     job.setJarByClass(Main.getClass);
@@ -117,6 +135,7 @@ object Main extends App {
     job.setMapOutputValueClass(classOf[StringArrayWritable]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);
+    job.setNumReduceTasks(5);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_node_join")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/triple_new")));
     job.waitForCompletion(true);

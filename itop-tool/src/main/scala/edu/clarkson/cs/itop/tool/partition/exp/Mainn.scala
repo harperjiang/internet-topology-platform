@@ -40,7 +40,7 @@ object Mainn extends App {
 
   var conf = new Configuration();
 
-  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
+  FileSystem.get(conf).delete(new Path(Config.file("exp")), true);
 
   prepareData(conf)
 
@@ -55,9 +55,9 @@ object Mainn extends App {
   def prepareData(conf: Configuration): Unit = {
     // Prepare Data
     FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/adj_node")), FileSystem.get(conf),
-      new Path(Config.file("degreen/adj_cluster")), false, true, conf);
+      new Path(Config.file("exp/adj_cluster")), false, true, conf);
     FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/node_degree")), FileSystem.get(conf),
-      new Path(Config.file("degreen/cluster")), false, true, conf);
+      new Path(Config.file("exp/cluster")), false, true, conf);
 
     var job = Job.getInstance(conf, "Degree n - Prepare Cluster Node Mapping");
     job.setJarByClass(Mainn.getClass);
@@ -66,14 +66,14 @@ object Mainn extends App {
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
     FileInputFormat.addInputPath(job, new Path(Config.file("common/node_degree")))
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_node")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/cluster_node")));
     job.waitForCompletion(true);
   }
 
   def rawMergeDecision(conf: Configuration): Unit = {
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_cluster_left")), true);
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/merge_decision_dup")), true);
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/merge_decision_raw")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("exp/adj_cluster_left")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("exp/merge_decision_dup")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("exp/merge_decision_raw")), true);
 
     var job = Job.getInstance(conf, "Raw Merge Decision Left Degree");
     job.setJarByClass(Mainn.getClass);
@@ -86,9 +86,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_left")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/adj_cluster")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/adj_cluster_left")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Raw Merge Decision Right Degree");
@@ -102,9 +102,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_left")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision_dup")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/adj_cluster_left")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/merge_decision_dup")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Raw Merge Decision");
@@ -113,18 +113,18 @@ object Mainn extends App {
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision_dup")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision_raw")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/merge_decision_dup")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/merge_decision_raw")));
     job.waitForCompletion(true);
   }
 
   def refineMergeDecision(conf: Configuration, round: Int): Unit = {
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/merge_decision_refine_th")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("exp/merge_decision_refine_th")), true);
     if (round > 0) {
-      FileSystem.get(conf).rename(new Path(Config.file("degreen/merge_decision")),
-        new Path(Config.file("degreen/merge_decision_%d".format(round))))
+      FileSystem.get(conf).rename(new Path(Config.file("exp/merge_decision")),
+        new Path(Config.file("exp/merge_decision_%d".format(round))))
     } else {
-      FileSystem.get(conf).delete(new Path(Config.file("degreen/merge_decision")), true);
+      FileSystem.get(conf).delete(new Path(Config.file("exp/merge_decision")), true);
     }
 
     var job = Job.getInstance(conf, "Refine Two Head");
@@ -136,8 +136,8 @@ object Mainn extends App {
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision_raw")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision_refine_th")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/merge_decision_raw")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/merge_decision_refine_th")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Refine Header Link");
@@ -151,14 +151,14 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision_refine_th")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/merge_decision")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/merge_decision_refine_th")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/merge_decision")));
     job.waitForCompletion(true);
   }
 
   def updateClusters(conf: Configuration, round: Int): Unit = {
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_cluster_updated_left")), true);
-    FileSystem.get(conf).delete(new Path(Config.file("degreen/adj_cluster_updated_dup")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("exp/adj_cluster_updated_left")), true);
+    FileSystem.get(conf).delete(new Path(Config.file("exp/adj_cluster_updated_dup")), true);
 
     var job = Job.getInstance(conf, "Update Cluster");
     job.setJarByClass(Mainn.getClass);
@@ -171,9 +171,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_updated")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/merge_decision")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/cluster_updated")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Update Cluster Node");
@@ -187,9 +187,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_node")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_node_updated")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster_node")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/merge_decision")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/cluster_node_updated")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Left Update Adj Cluster");
@@ -203,9 +203,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_updated_left")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/adj_cluster")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/merge_decision")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/adj_cluster_updated_left")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Right Update Adj Cluster");
@@ -219,9 +219,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_updated_left")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/merge_decision")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_updated_dup")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/adj_cluster_updated_left")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/merge_decision")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/adj_cluster_updated_dup")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Adj Cluster Distinct Data");
@@ -233,17 +233,17 @@ object Mainn extends App {
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/adj_cluster_updated_dup")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/adj_cluster_updated")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/adj_cluster_updated_dup")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/adj_cluster_updated")));
     job.waitForCompletion(false);
 
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/adj_cluster")), new Path(Config.file("degreen/adj_cluster_%d".format(round))))
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster")), new Path(Config.file("degreen/cluster_%d".format(round))))
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster_node")), new Path(Config.file("degreen/cluster_node_%d".format(round))))
+    FileSystem.get(conf).rename(new Path(Config.file("exp/adj_cluster")), new Path(Config.file("exp/adj_cluster_%d".format(round))))
+    FileSystem.get(conf).rename(new Path(Config.file("exp/cluster")), new Path(Config.file("exp/cluster_%d".format(round))))
+    FileSystem.get(conf).rename(new Path(Config.file("exp/cluster_node")), new Path(Config.file("exp/cluster_node_%d".format(round))))
 
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/adj_cluster_updated")), new Path(Config.file("degreen/adj_cluster")))
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster_updated")), new Path(Config.file("degreen/cluster")))
-    FileSystem.get(conf).rename(new Path(Config.file("degreen/cluster_node_updated")), new Path(Config.file("degreen/cluster_node")))
+    FileSystem.get(conf).rename(new Path(Config.file("exp/adj_cluster_updated")), new Path(Config.file("exp/adj_cluster")))
+    FileSystem.get(conf).rename(new Path(Config.file("exp/cluster_updated")), new Path(Config.file("exp/cluster")))
+    FileSystem.get(conf).rename(new Path(Config.file("exp/cluster_node_updated")), new Path(Config.file("exp/cluster_node")))
   }
 
   def generateLinkPartition(conf: Configuration): Unit = {
@@ -258,9 +258,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_node")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_node_degree")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster_node")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/cluster_node_degree")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Cluster Link");
@@ -274,9 +274,9 @@ object Mainn extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/common/node_link")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_node_degree")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/cluster_link")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/common/node_link")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster_node_degree")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/cluster_link")));
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Cluster Partition");
@@ -288,8 +288,8 @@ object Mainn extends App {
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[IntWritable]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/cluster_link")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/link_partition")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster_link")));
+    FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/link_partition")));
     job.waitForCompletion(true);
   }
 }

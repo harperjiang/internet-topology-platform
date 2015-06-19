@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partcomp.avgbc
+package edu.clarkson.cs.itop.tool.compare.avgbc
 
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.io.Writable

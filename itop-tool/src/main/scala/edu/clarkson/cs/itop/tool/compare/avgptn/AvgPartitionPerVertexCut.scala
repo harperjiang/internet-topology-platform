@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partcomp.avgptn
+package edu.clarkson.cs.itop.tool.compare.avgptn
 
 import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.io.IntWritable

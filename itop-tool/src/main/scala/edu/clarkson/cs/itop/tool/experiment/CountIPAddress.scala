@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.stat
+package edu.clarkson.cs.itop.tool.experiment
 
 import edu.clarkson.cs.itop.core.parser.Parser
 import scala.io.Source

@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partcomp.rtnsize
+package edu.clarkson.cs.itop.tool.compare.rtnsize
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path

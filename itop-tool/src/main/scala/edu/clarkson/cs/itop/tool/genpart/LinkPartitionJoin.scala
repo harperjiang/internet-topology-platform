@@ -11,7 +11,7 @@ import edu.clarkson.cs.itop.core.model.Link
 import scala.collection.JavaConversions._
 
 /**
- * Input: link_id partition_id (link_partition)
+ * Input: link_partition (link_id partition_id)
  * Input: kapar-midar-iff.links
  * Output: partition_id link_info
  */

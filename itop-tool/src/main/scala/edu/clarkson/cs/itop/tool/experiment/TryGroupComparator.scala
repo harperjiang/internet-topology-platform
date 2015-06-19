@@ -1,6 +1,4 @@
-package edu.clarkson.cs.itop.tool.perf
-
-import scala.collection.JavaConversions.iterableAsScalaIterable
+package edu.clarkson.cs.itop.tool.experiment
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
@@ -11,12 +9,17 @@ import org.apache.hadoop.mapreduce.Reducer
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.input.FileSplit
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.Utils
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
+import edu.clarkson.cs.itop.tool.types.KeyPartitioner
+import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import org.apache.hadoop.io.Text
+import scala.collection.JavaConversions._
+
 object TryGroupComparator extends App {
 
   var conf = new Configuration();

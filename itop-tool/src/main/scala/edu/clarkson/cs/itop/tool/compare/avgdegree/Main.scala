@@ -1,4 +1,4 @@
-package edu.clarkson.cs.itop.tool.partcomp.avgdegree
+package edu.clarkson.cs.itop.tool.compare.avgdegree
 
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration

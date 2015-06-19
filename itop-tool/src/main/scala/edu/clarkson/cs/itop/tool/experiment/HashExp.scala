@@ -1,9 +1,12 @@
-package edu.clarkson.cs.itop.tool.exp
+package edu.clarkson.cs.itop.tool.experiment
 
 import scala.io.Source
 import edu.clarkson.cs.itop.core.model.Link
 import edu.clarkson.cs.itop.core.parser.Parser
 
+/**
+ * This Application generates a histogram for hashed result to show Java hash function is an iid.
+ */
 object HashExp extends App {
 
   var value = new Array[Array[Int]](12);

@@ -13,7 +13,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.io.IntWritable
 
 import edu.clarkson.cs.itop.tool.FileCompare
-import edu.clarkson.cs.itop.tool.partition.exp.Mainn;
 
 import org.apache.hadoop.fs.FileSystem
 
@@ -28,7 +27,7 @@ class PrepareClusterNodeTest {
     fs.delete(new Path("testdata/exp/prepare_cluster_node/output"), true);
 
     var job = Job.getInstance(conf, "Degree n - Prepare Cluster Node Mapping");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[PrepareClusterNodeMapper]);
     job.setNumReduceTasks(1);
     job.setOutputKeyClass(classOf[IntWritable]);

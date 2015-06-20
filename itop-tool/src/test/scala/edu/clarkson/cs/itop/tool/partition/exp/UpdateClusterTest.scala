@@ -11,7 +11,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 import edu.clarkson.cs.itop.tool.FileCompare
-import edu.clarkson.cs.itop.tool.partition.exp.Mainn;
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
@@ -29,7 +28,7 @@ class UpdateClusterTest {
     fs.delete(new Path("testdata/exp/update_cluster/output"), true);
 
     var job = Job.getInstance(conf, "Test Update Cluster");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateClusterMapper]);
     job.setReducerClass(classOf[UpdateClusterReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -58,7 +57,7 @@ class UpdateClusterTest {
     fs.delete(new Path("testdata/exp/update_adj_cluster/adj_cluster_updated_dup"), true);
 
     var job = Job.getInstance(conf, "Test Left Update Adj Cluster");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateLeftAdjClusterMapper]);
     job.setReducerClass(classOf[UpdateLeftAdjClusterReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -73,7 +72,7 @@ class UpdateClusterTest {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Test Right Update Adj Cluster");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateRightAdjClusterMapper]);
     job.setReducerClass(classOf[UpdateRightAdjClusterReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -88,7 +87,7 @@ class UpdateClusterTest {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Distinct Data");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[DistinctMapper]);
     job.setReducerClass(classOf[DistinctReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -114,7 +113,7 @@ class UpdateClusterTest {
     fs.delete(new Path("testdata/exp/update_cluster_node/output"), true);
 
     var job = Job.getInstance(conf, "Test Update Cluster Node");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateClusterNodeMapper]);
     job.setReducerClass(classOf[UpdateClusterNodeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);

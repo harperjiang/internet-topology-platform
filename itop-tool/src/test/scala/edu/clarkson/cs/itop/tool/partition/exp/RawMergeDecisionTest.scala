@@ -2,24 +2,19 @@ package edu.clarkson.cs.itop.tool.partition.exp
 
 import org.junit.Test
 import org.junit.Assert._
-
 import edu.clarkson.cs.itop.tool.FileCompare
-
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
-import edu.clarkson.cs.itop.tool.partition.exp.Mainn;
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
-
-import org.apache.hadoop.io.Text
 import org.apache.hadoop.io.IntWritable
+import org.apache.hadoop.io.Text
+
 
 class RawMergeDecisionTest {
 
@@ -32,7 +27,7 @@ class RawMergeDecisionTest {
     fs.delete(new Path("testdata/exp/md_leftdegree/output"), true);
 
     var job = Job.getInstance(conf, "Test Merge Decision Left Degree");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[MergeDecisionLeftDegreeMapper]);
     job.setReducerClass(classOf[MergeDecisionLeftDegreeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -59,7 +54,7 @@ class RawMergeDecisionTest {
     fs.delete(new Path("testdata/exp/md_rightdegree/output"), true);
 
     var job = Job.getInstance(conf, "Test Merge Decision Right Degree");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[MergeDecisionRightDegreeMapper]);
     job.setReducerClass(classOf[MergeDecisionRightDegreeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -87,7 +82,7 @@ class RawMergeDecisionTest {
     fs.delete(new Path("testdata/exp/merge_decision/output"), true);
 
     var job = Job.getInstance(conf, "Test Merge Decision");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[MergeDecisionMapper]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);

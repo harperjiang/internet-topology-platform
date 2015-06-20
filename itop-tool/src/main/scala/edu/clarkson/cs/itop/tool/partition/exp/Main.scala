@@ -36,7 +36,7 @@ import org.apache.hadoop.io.IntWritable
 import org.apache.hadoop.io.NullWritable
 import org.apache.hadoop.io.Text
 
-object Mainn extends App {
+object Main extends App {
 
   var conf = new Configuration();
 
@@ -59,8 +59,8 @@ object Mainn extends App {
     FileUtil.copy(FileSystem.get(conf), new Path(Config.file("common/node_degree")), FileSystem.get(conf),
       new Path(Config.file("exp/cluster")), false, true, conf);
 
-    var job = Job.getInstance(conf, "Degree n - Prepare Cluster Node Mapping");
-    job.setJarByClass(Mainn.getClass);
+    var job = Job.getInstance(conf, "Fold n - Prepare Cluster Node Mapping");
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[PrepareClusterNodeMapper]);
     job.setNumReduceTasks(0);
     job.setOutputKeyClass(classOf[IntWritable]);
@@ -76,7 +76,7 @@ object Mainn extends App {
     FileSystem.get(conf).delete(new Path(Config.file("exp/merge_decision_raw")), true);
 
     var job = Job.getInstance(conf, "Raw Merge Decision Left Degree");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[MergeDecisionLeftDegreeMapper]);
     job.setReducerClass(classOf[MergeDecisionLeftDegreeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -92,7 +92,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Raw Merge Decision Right Degree");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[MergeDecisionRightDegreeMapper]);
     job.setReducerClass(classOf[MergeDecisionRightDegreeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -108,7 +108,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Raw Merge Decision");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[MergeDecisionMapper]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);
@@ -128,7 +128,7 @@ object Mainn extends App {
     }
 
     var job = Job.getInstance(conf, "Refine Two Head");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[RemoveTwoHeadMergeDecisionMapper]);
     job.setReducerClass(classOf[RemoveTwoHeadMergeDecisionReducer]);
     job.setMapOutputKeyClass(classOf[Text]);
@@ -141,7 +141,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Refine Header Link");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[ExtractHeaderMergeDecisionMapper]);
     job.setReducerClass(classOf[ExtractHeaderMergeDecisionReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -161,7 +161,7 @@ object Mainn extends App {
     FileSystem.get(conf).delete(new Path(Config.file("exp/adj_cluster_updated_dup")), true);
 
     var job = Job.getInstance(conf, "Update Cluster");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateClusterMapper]);
     job.setReducerClass(classOf[UpdateClusterReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -177,7 +177,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Update Cluster Node");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateClusterNodeMapper]);
     job.setReducerClass(classOf[UpdateClusterNodeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -193,7 +193,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Left Update Adj Cluster");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateLeftAdjClusterMapper]);
     job.setReducerClass(classOf[UpdateLeftAdjClusterReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -209,7 +209,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Right Update Adj Cluster");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[UpdateRightAdjClusterMapper]);
     job.setReducerClass(classOf[UpdateRightAdjClusterReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -225,7 +225,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Adj Cluster Distinct Data");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[DistinctMapper]);
     job.setReducerClass(classOf[DistinctReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -248,7 +248,7 @@ object Mainn extends App {
 
   def generateLinkPartition(conf: Configuration): Unit = {
     var job = Job.getInstance(conf, "Cluster Degree");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[ClusterDegreeMapper]);
     job.setReducerClass(classOf[ClusterDegreeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -264,7 +264,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Cluster Link");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[ClusterLinkMapper]);
     job.setReducerClass(classOf[ClusterLinkReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -280,7 +280,7 @@ object Mainn extends App {
     job.waitForCompletion(true);
 
     job = Job.getInstance(conf, "Cluster Partition");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[LinkPartitionMapper]);
     job.setReducerClass(classOf[LinkPartitionReducer]);
     job.setMapOutputKeyClass(classOf[IntWritable]);

@@ -9,24 +9,23 @@ import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.common.ConcatMapper
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
+import edu.clarkson.cs.itop.tool.Param
 
 object Main extends App {
 
   var conf = new Configuration();
-  //  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
-  //
-  //  initTriple();
-  //  for (i <- 0 to Param.degree_n - 1) {
-  //    adjustTriple(i);
-  //  }
-  adjustTriple(6);
-  //  assignTriplePartition();
+  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
+
+  initTriple();
+  for (i <- 0 to Param.degree_n - 1) {
+    adjustTriple(i);
+  }
+  assignTriplePartition();
 
   def initTriple() = {
     var job = Job.getInstance(conf, "Degree - Init Triple");
@@ -65,6 +64,7 @@ object Main extends App {
 
   def adjustTriple(round: Int) = {
     var fs = FileSystem.get(conf);
+    
     generateNewTriple();
 
     fs.rename(new Path(Config.file("degreen/triple")), new Path(Config.file("degreen/triple_old")));

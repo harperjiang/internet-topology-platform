@@ -12,7 +12,6 @@ import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 
-import edu.clarkson.cs.itop.tool.partition.exp.Mainn;
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
@@ -33,7 +32,7 @@ class ClusterLinkPartitionTest {
     fs.delete(new Path("testdata/exp/cluster_link_partition/output"), true);
 
     var job = Job.getInstance(conf, "Test Cluster Degree");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[ClusterDegreeMapper]);
     job.setReducerClass(classOf[ClusterDegreeReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -51,7 +50,7 @@ class ClusterLinkPartitionTest {
       "testdata/exp/cluster_link_partition/cluster_node_degree/part-r-00000"));
 
     job = Job.getInstance(conf, "Test Cluster Link");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[ClusterLinkMapper]);
     job.setReducerClass(classOf[ClusterLinkReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -69,7 +68,7 @@ class ClusterLinkPartitionTest {
       "testdata/exp/cluster_link_partition/cluster_link/part-r-00000"));
     
     job = Job.getInstance(conf, "Test Cluster Partition");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[LinkPartitionMapper]);
     job.setReducerClass(classOf[LinkPartitionReducer]);
     job.setMapOutputKeyClass(classOf[IntWritable]);

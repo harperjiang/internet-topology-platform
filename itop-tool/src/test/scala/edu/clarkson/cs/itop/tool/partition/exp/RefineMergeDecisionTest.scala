@@ -13,7 +13,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import org.apache.hadoop.io.Text
 
-import edu.clarkson.cs.itop.tool.partition.exp.Mainn;
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
@@ -29,7 +28,7 @@ class RefineMergeDecisionTest {
     fs.delete(new Path("testdata/exp/refine_two_header/output"), true);
 
     var job = Job.getInstance(conf, "Test Refine Two Head");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[RemoveTwoHeadMergeDecisionMapper]);
     job.setReducerClass(classOf[RemoveTwoHeadMergeDecisionReducer]);
     job.setMapOutputKeyClass(classOf[Text]);
@@ -53,7 +52,7 @@ class RefineMergeDecisionTest {
     fs.delete(new Path("testdata/exp/refine_header_link/output"), true);
 
     var job = Job.getInstance(conf, "Test Refine Header Link");
-    job.setJarByClass(Mainn.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[ExtractHeaderMergeDecisionMapper]);
     job.setReducerClass(classOf[ExtractHeaderMergeDecisionReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);

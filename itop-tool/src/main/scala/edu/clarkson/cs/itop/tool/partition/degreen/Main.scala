@@ -19,12 +19,12 @@ import edu.clarkson.cs.itop.tool.Param
 object Main extends App {
 
   var conf = new Configuration();
-  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
+//  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
 
-  initTriple();
-  for (i <- 0 to Param.degree_n - 1) {
-    adjustTriple(i);
-  }
+//  initTriple();
+//  for (i <- 0 to Param.degree_n - 1) {
+//    adjustTriple(i);
+//  }
   assignTriplePartition();
 
   def initTriple() = {
@@ -153,7 +153,7 @@ object Main extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/node_link")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("common/node_link")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/triple_link_join")));
     job.waitForCompletion(true);
 

@@ -12,7 +12,6 @@ import edu.clarkson.cs.itop.tool.partition.degree.JoinLinkDegreeReducer
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import org.apache.hadoop.io.IntWritable
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import org.apache.hadoop.io.Text
 
@@ -27,7 +26,7 @@ object Main extends App {
 
   def call(prefix: String) = {
     var job = Job.getInstance(conf, "Average Partition Per Vertex Cut - %s".format(prefix));
-    job.setJarByClass(Main1.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[AvgPartitionPerVertexCutMapper]);
     job.setReducerClass(classOf[AvgPartitionPerVertexCutReducer]);
     job.setMapOutputKeyClass(classOf[IntWritable]);

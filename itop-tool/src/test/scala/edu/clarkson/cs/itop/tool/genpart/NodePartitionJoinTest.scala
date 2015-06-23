@@ -11,7 +11,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import org.apache.hadoop.io.Text
 
@@ -25,7 +24,7 @@ class NodePartitionJoinTest {
     fs.delete(new Path("testdata/genpart/node_partition_join/output"), true);
 
     var job = Job.getInstance(conf, "Node Partition Join");
-    job.setJarByClass(Main1.getClass);
+    job.setJarByClass(classOf[NodePartitionJoinTest]);
     job.setMapperClass(classOf[NodePartitionJoinMapper]);
     job.setReducerClass(classOf[NodePartitionJoinReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -51,7 +50,7 @@ class NodePartitionJoinTest {
     fs.delete(new Path("testdata/genpart/node_partition_info_join/output"), true);
 
     var job = Job.getInstance(conf, "Node Partition Info Join");
-    job.setJarByClass(Main1.getClass);
+    job.setJarByClass(classOf[NodePartitionJoinTest]);
     job.setMapperClass(classOf[NodePartitionInfoJoinMapper]);
     job.setReducerClass(classOf[NodePartitionInfoJoinReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);

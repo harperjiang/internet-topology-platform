@@ -23,7 +23,7 @@ class MaxDegreeTest {
     fs.delete(new Path("testdata/degree/max_degree/output"), true);
 
     var icjob2 = Job.getInstance(conf, "Degree I1 - Max Degree");
-    icjob2.setJarByClass(Main1.getClass);
+    icjob2.setJarByClass(classOf[MaxDegreeTest]);
     icjob2.setMapperClass(classOf[MaxDegreeMapper]);
     icjob2.setReducerClass(classOf[MaxDegreeReducer]);
     icjob2.setOutputKeyClass(classOf[IntWritable]);

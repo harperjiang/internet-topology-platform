@@ -13,7 +13,6 @@ import edu.clarkson.cs.itop.tool.partition.degree.JoinLinkDegreeReducer
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import org.apache.hadoop.io.IntWritable
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import org.apache.hadoop.io.Text
 import org.junit.Assert._
@@ -29,7 +28,7 @@ class LinkPartitionJoinTest {
     fs.delete(new Path("testdata/genpart/link_partition_join/output"), true);
 
     var job = Job.getInstance(conf, "Link Partition Join");
-    job.setJarByClass(Main1.getClass);
+    job.setJarByClass(classOf[LinkPartitionJoinTest]);
     job.setMapperClass(classOf[LinkPartitionJoinMapper]);
     job.setReducerClass(classOf[LinkPartitionJoinReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);

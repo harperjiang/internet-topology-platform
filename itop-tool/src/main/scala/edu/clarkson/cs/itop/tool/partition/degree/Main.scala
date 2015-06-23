@@ -13,7 +13,7 @@ import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 import org.apache.hadoop.fs.FileSystem
 
-object Main1 extends App {
+object Main extends App {
 
   runJob;
 
@@ -23,7 +23,7 @@ object Main1 extends App {
     FileSystem.get(conf).delete(new Path(Config.file("degree")), true);
 
     var icjob1 = Job.getInstance(conf, "Degree 1 - Join Link Degree");
-    icjob1.setJarByClass(Main1.getClass);
+    icjob1.setJarByClass(Main.getClass);
     icjob1.setMapperClass(classOf[JoinLinkDegreeMapper]);
     icjob1.setReducerClass(classOf[JoinLinkDegreeReducer]);
     icjob1.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -38,7 +38,7 @@ object Main1 extends App {
     icjob1.waitForCompletion(true);
 
     var icjob2 = Job.getInstance(conf, "Degree 1 - Max Degree");
-    icjob2.setJarByClass(Main1.getClass);
+    icjob2.setJarByClass(Main.getClass);
     icjob2.setMapperClass(classOf[MaxDegreeMapper]);
     icjob2.setReducerClass(classOf[MaxDegreeReducer]);
     icjob2.setOutputKeyClass(classOf[IntWritable]);
@@ -48,7 +48,7 @@ object Main1 extends App {
     icjob2.waitForCompletion(true);
 
     var pljob = Job.getInstance(conf, "Degree 1 - Partition");
-    pljob.setJarByClass(Main1.getClass);
+    pljob.setJarByClass(Main.getClass);
     pljob.setMapperClass(classOf[PartitionLinkMapper]);
     pljob.setOutputKeyClass(classOf[IntWritable]);
     pljob.setOutputValueClass(classOf[IntWritable]);

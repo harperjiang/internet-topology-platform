@@ -9,7 +9,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
 
 import edu.clarkson.cs.itop.tool.Config
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.types.IntArrayWritable
 
 object Prepare extends App {
@@ -43,7 +42,7 @@ object Prepare extends App {
   job.submit();
 
   var nlmjob = Job.getInstance(conf, "Node Link Mapping");
-  nlmjob.setJarByClass(Main1.getClass);
+  nlmjob.setJarByClass(Prepare.getClass);
   nlmjob.setMapperClass(classOf[NodeToLinkMapper]);
   nlmjob.setOutputKeyClass(classOf[IntWritable]);
   nlmjob.setOutputValueClass(classOf[IntWritable]);

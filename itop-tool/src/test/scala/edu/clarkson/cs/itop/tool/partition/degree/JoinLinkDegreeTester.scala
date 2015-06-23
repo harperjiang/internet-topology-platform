@@ -27,7 +27,7 @@ class JoinLinkDegreeTester {
     fs.delete(new Path("testdata/degree/join_link/output"), true);
 
     var icjob1 = Job.getInstance(conf, "Join Link Degree");
-    icjob1.setJarByClass(Main1.getClass);
+    icjob1.setJarByClass(classOf[JoinLinkDegreeTester]);
     icjob1.setMapperClass(classOf[JoinLinkDegreeMapper]);
     icjob1.setReducerClass(classOf[JoinLinkDegreeReducer]);
     icjob1.setMapOutputKeyClass(classOf[StringArrayWritable]);

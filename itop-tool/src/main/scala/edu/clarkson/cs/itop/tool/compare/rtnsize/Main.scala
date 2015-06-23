@@ -12,7 +12,6 @@ import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.common.CounterMapper
 import edu.clarkson.cs.itop.tool.common.CounterParam
 import edu.clarkson.cs.itop.tool.common.CounterReducer
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
 
 /**
  * Calculate the size of routing table
@@ -29,7 +28,7 @@ object Main extends App {
     conf.set(CounterParam.KEY_INDEX, "-1");
 
     var job = Job.getInstance(conf, "Size of Routing Table - %s".format(prefix));
-    job.setJarByClass(Main1.getClass);
+    job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[CounterMapper]);
     job.setReducerClass(classOf[CounterReducer]);
     job.setMapOutputKeyClass(classOf[Text]);

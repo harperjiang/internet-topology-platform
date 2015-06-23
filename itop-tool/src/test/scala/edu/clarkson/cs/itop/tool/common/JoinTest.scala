@@ -13,7 +13,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 import edu.clarkson.cs.itop.tool.FileCompare
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.types.KeyGroupComparator
 import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
@@ -29,7 +28,7 @@ class JoinTest {
     fs.delete(new Path("testdata/common/join/inner_output"), true);
 
     var icjob1 = Job.getInstance(conf, "Inner Join");
-    icjob1.setJarByClass(Main1.getClass);
+    icjob1.setJarByClass(classOf[JoinTest]);
     icjob1.setMapperClass(classOf[JoinTestMapper]);
     icjob1.setReducerClass(classOf[InnerJoinTestReducer]);
     icjob1.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -56,7 +55,7 @@ class JoinTest {
     fs.delete(new Path("testdata/common/join/left_output"), true);
 
     var icjob1 = Job.getInstance(conf, "left Join");
-    icjob1.setJarByClass(Main1.getClass);
+    icjob1.setJarByClass(classOf[JoinTest]);
     icjob1.setMapperClass(classOf[JoinTestMapper]);
     icjob1.setReducerClass(classOf[LeftJoinTestReducer]);
     icjob1.setMapOutputKeyClass(classOf[StringArrayWritable]);
@@ -83,7 +82,7 @@ class JoinTest {
     fs.delete(new Path("testdata/common/join/right_output"), true);
 
     var icjob1 = Job.getInstance(conf, "Right Join");
-    icjob1.setJarByClass(Main1.getClass);
+    icjob1.setJarByClass(classOf[JoinTest]);
     icjob1.setMapperClass(classOf[JoinTestMapper]);
     icjob1.setReducerClass(classOf[RightJoinTestReducer]);
     icjob1.setMapOutputKeyClass(classOf[StringArrayWritable]);

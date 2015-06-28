@@ -70,7 +70,7 @@ object Main extends App {
   job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
   FileInputFormat.addInputPath(job, new Path(Config.file("geo/geo_partition")));
   FileInputFormat.addInputPath(job, new Path(Config.file("geo/node_geo")));
-  FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/node_partition")));
+  FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/gnode_partition")));
   job.waitForCompletion(true);
 
   job = Job.getInstance(conf, "Link Partition Join");
@@ -85,7 +85,7 @@ object Main extends App {
   job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
   job.setNumReduceTasks(5)
   FileInputFormat.addInputPath(job, new Path(Config.file("common/node_link")))
-  FileInputFormat.addInputPath(job, new Path(Config.file("geo/node_partition")))
+  FileInputFormat.addInputPath(job, new Path(Config.file("geo/gnode_partition")))
   FileOutputFormat.setOutputPath(job, new Path(Config.file("geo/link_partition_join")))
   job.waitForCompletion(true);
   

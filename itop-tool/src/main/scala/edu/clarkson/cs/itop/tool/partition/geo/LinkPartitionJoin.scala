@@ -10,12 +10,12 @@ import java.util.Arrays
 import edu.clarkson.cs.itop.tool.common.RightOuterJoinReducer
 
 /**
- * Input: node_partition (node_id,partition_id)
+ * Input: gnode_partition (node_id,partition_id)
  * Input: node_link (link_id, node_id)
  * Output: link_id partition_id
  */
 
-class LinkPartitionJoinMapper extends SingleKeyJoinMapper("node_partition", "node_link", 0, 1) {
+class LinkPartitionJoinMapper extends SingleKeyJoinMapper("gnode_partition", "node_link", 0, 1) {
 
 }
 

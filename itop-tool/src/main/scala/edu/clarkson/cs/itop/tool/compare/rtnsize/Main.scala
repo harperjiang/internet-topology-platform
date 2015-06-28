@@ -21,7 +21,8 @@ object Main extends App {
   var conf = new Configuration();
   call("geo");
   call("random");
-  call("degree");
+  call("degreen");
+  call("exp");
 
   def call(prefix: String) = {
 

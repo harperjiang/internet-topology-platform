@@ -20,9 +20,13 @@ object Main extends App {
 
   call("geo");
   call("random");
-  call("degree");
+  call("degreen");
+  call("exp");
 
   def call(prefix: String) = {
+    FileSystem.get(conf).delete(new Path(Config.file("%s/node_partition_raw".format(prefix))), true);
+    FileSystem.get(conf).delete(new Path(Config.file("%s/node_partition".format(prefix))), true);
+    
     var job = Job.getInstance(conf, "Node Partition Join - %s".format(prefix));
     job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[NodePartitionJoinMapper]);

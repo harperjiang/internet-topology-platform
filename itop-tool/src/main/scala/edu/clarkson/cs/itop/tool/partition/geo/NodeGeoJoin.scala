@@ -7,7 +7,7 @@ import org.apache.hadoop.io.Text
 /**
  * Input: node_geo (node_id, geo_code)
  * Input: geo_partition (geo_code, partition)
- * Output: node_partition (node_id, partition_id)
+ * Output: gnode_partition (node_id, partition_id)
  */
 
 class NodeGeoJoinMapper extends SingleKeyJoinMapper("geo_partition", "node_geo", 0, 1) {

@@ -21,7 +21,8 @@ object Main extends App {
   fs.delete(new Path(Config.file("compare/avgdegree")), true);
   call("geo");
   call("random");
-  call("degree");
+  call("degreen");
+  call("exp");
 
   def call(prefix: String) = {
     var job = Job.getInstance(conf, "Avg Degree Node Join - %s".format(prefix));

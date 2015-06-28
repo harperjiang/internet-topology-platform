@@ -22,7 +22,8 @@ object Main extends App {
 
   call("geo");
   call("random");
-  call("degree");
+  call("degreen");
+  call("exp");
 
   def call(prefix: String) = {
     var job = Job.getInstance(conf, "Average Partition Per Vertex Cut - %s".format(prefix));

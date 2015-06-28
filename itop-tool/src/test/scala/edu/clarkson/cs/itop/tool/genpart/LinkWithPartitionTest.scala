@@ -29,8 +29,8 @@ class LinkPartitionJoinTest {
 
     var job = Job.getInstance(conf, "Link Partition Join");
     job.setJarByClass(classOf[LinkPartitionJoinTest]);
-    job.setMapperClass(classOf[LinkPartitionJoinMapper]);
-    job.setReducerClass(classOf[LinkPartitionJoinReducer]);
+    job.setMapperClass(classOf[LinkWithPartitionMapper]);
+    job.setReducerClass(classOf[LinkWithPartitionReducer]);
     job.setMapOutputKeyClass(classOf[StringArrayWritable]);
     job.setMapOutputValueClass(classOf[StringArrayWritable]);
     job.setOutputKeyClass(classOf[Text]);

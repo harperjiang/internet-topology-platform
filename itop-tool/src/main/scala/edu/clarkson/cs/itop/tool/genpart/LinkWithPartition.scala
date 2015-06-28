@@ -15,7 +15,7 @@ import scala.collection.JavaConversions._
  * Input: kapar-midar-iff.links
  * Output: partition_id link_info
  */
-class LinkPartitionJoinMapper extends Mapper[Object, Text, StringArrayWritable, StringArrayWritable] {
+class LinkWithPartitionMapper extends Mapper[Object, Text, StringArrayWritable, StringArrayWritable] {
 
   var parser = new Parser();
 
@@ -37,7 +37,7 @@ class LinkPartitionJoinMapper extends Mapper[Object, Text, StringArrayWritable, 
   }
 }
 
-class LinkPartitionJoinReducer extends Reducer[StringArrayWritable, StringArrayWritable, Text, Text] {
+class LinkWithPartitionReducer extends Reducer[StringArrayWritable, StringArrayWritable, Text, Text] {
   override def reduce(key: StringArrayWritable, values: java.lang.Iterable[StringArrayWritable],
     context: Reducer[StringArrayWritable, StringArrayWritable, Text, Text]#Context) = {
 

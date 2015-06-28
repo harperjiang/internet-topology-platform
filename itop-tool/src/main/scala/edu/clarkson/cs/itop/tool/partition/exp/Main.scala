@@ -23,7 +23,6 @@ import edu.clarkson.cs.itop.tool.common.DistinctReducer
 import edu.clarkson.cs.itop.tool.common.MergeMapper
 import edu.clarkson.cs.itop.tool.partition.degree.JoinLinkDegreeMapper
 import edu.clarkson.cs.itop.tool.partition.degree.JoinLinkDegreeReducer
-import edu.clarkson.cs.itop.tool.partition.degree.Main1
 import edu.clarkson.cs.itop.tool.partition.degree.MaxDegreeMapper
 import edu.clarkson.cs.itop.tool.partition.degree.MaxDegreeReducer
 import edu.clarkson.cs.itop.tool.partition.degree.NodeExpandMapper
@@ -274,7 +273,7 @@ object Main extends App {
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
     job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("exp/common/node_link")));
+    FileInputFormat.addInputPath(job, new Path(Config.file("common/node_link")));
     FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster_node_degree")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("exp/cluster_link")));
     job.waitForCompletion(true);

@@ -20,6 +20,7 @@ import edu.clarkson.cs.itop.tool.common.SumParam
 import edu.clarkson.cs.itop.tool.common.CounterParam
 import edu.clarkson.cs.itop.tool.common.CounterReducer
 import edu.clarkson.cs.itop.tool.common.CounterMapper
+import org.apache.hadoop.fs.FileSystem
 
 object LinkDistribution extends App {
 
@@ -31,6 +32,8 @@ object LinkDistribution extends App {
   call("geo");
 
   def call(prefix: String) = {
+    FileSystem.get(conf).delete(new Path(Config.file("report/link_distribution_%s".format(prefix))), true);
+
     var job = Job.getInstance(conf, "Link Distribution - %s".format(prefix));
     job.setJarByClass(LinkDistribution.getClass);
     job.setMapperClass(classOf[CounterMapper]);
@@ -39,10 +42,10 @@ object LinkDistribution extends App {
     job.setMapOutputValueClass(classOf[IntWritable]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
-    conf.set(CounterParam.KEY_INDEX, "0");
+    job.getConfiguration.set(CounterParam.KEY_INDEX, "0");
     FileInputFormat.addInputPath(job, new Path(Config.file("%s/link_partition".format(prefix))))
     FileOutputFormat.setOutputPath(job, new Path(Config.file("report/link_distribution_%s".format(prefix))))
-    job.waitForCompletion(true);
+    job.submit();
   }
 
 }

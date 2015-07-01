@@ -29,6 +29,6 @@ class RandomPartitionMapper extends Mapper[Object, Text, IntWritable, IntWritabl
   }
 
   def hash(input: Int): Int = {
-    new String(digest.digest(input.toString().getBytes)).hashCode() % Param.partition_count;
+    input.hashCode().abs.toInt % Param.partition_count;
   }
 }

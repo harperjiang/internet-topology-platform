@@ -44,7 +44,7 @@ class AssignLinkToPartitionReducer extends Reducer[IntWritable, Text, IntWritabl
       }
     });
     var maxCoreId = maxData(0);
-    var partition = maxCoreId.hashCode() % Param.partition_count;
+    var partition = Math.abs(maxCoreId.hashCode()) % Param.partition_count;
 
     context.write(key, new IntWritable(partition));
   }

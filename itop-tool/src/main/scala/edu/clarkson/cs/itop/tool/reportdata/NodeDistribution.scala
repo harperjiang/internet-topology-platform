@@ -27,6 +27,7 @@ object NodeDistribution extends App {
 
   def call(prefix:String) = {
     callSingle(prefix);
+    callMulti(prefix);
   }
   
   def callSingle(prefix: String) = {

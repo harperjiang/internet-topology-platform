@@ -42,7 +42,7 @@ object LinkDistribution extends App {
     job.setMapOutputValueClass(classOf[IntWritable]);
     job.setOutputKeyClass(classOf[Text]);
     job.setOutputValueClass(classOf[Text]);
-    job.getConfiguration.set(CounterParam.KEY_INDEX, "0");
+    job.getConfiguration.set(CounterParam.KEY_INDEX, "1");
     FileInputFormat.addInputPath(job, new Path(Config.file("%s/link_partition".format(prefix))))
     FileOutputFormat.setOutputPath(job, new Path(Config.file("report/link_distribution_%s".format(prefix))))
     job.submit();

@@ -19,12 +19,12 @@ import edu.clarkson.cs.itop.tool.Param
 object Main extends App {
 
   var conf = new Configuration();
-//  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
+  FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
 
-//  initTriple();
-//  for (i <- 0 to Param.degree_n - 1) {
-//    adjustTriple(i);
-//  }
+  initTriple();
+  for (i <- 0 to Param.degree_n - 1) {
+    adjustTriple(i);
+  }
   assignTriplePartition();
 
   def initTriple() = {
@@ -64,7 +64,7 @@ object Main extends App {
 
   def adjustTriple(round: Int) = {
     var fs = FileSystem.get(conf);
-    
+
     generateNewTriple();
 
     fs.rename(new Path(Config.file("degreen/triple")), new Path(Config.file("degreen/triple_old")));

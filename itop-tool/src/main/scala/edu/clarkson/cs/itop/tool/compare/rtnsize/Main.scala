@@ -7,18 +7,18 @@ import org.apache.hadoop.io.Text
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
 import edu.clarkson.cs.itop.tool.common.CounterMapper
 import edu.clarkson.cs.itop.tool.common.CounterParam
 import edu.clarkson.cs.itop.tool.common.CounterReducer
+import org.apache.hadoop.fs.FileSystem
 
 /**
  * Calculate the size of routing table
  */
 object Main extends App {
-
   var conf = new Configuration();
+  FileSystem.get(conf).delete(new Path(Config.file("compare/rtnsize")), true);
   call("geo");
   call("random");
   call("degreen");

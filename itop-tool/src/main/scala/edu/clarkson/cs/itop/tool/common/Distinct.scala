@@ -8,7 +8,7 @@ import org.apache.hadoop.io.NullWritable
 
 /**
  *  Input: something
- *  Output:  (distinct)
+ *  Output:  (distinct of the entire record)
  */
 class DistinctMapper extends Mapper[Object, Text, StringArrayWritable, Text] {
 

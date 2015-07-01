@@ -12,8 +12,8 @@ import scala.collection.mutable.ArrayBuffer
  * Output: cluster_id, node_id
  */
 class InitClusterNodeMapper extends Mapper[Object, Text, IntWritable, IntWritable] {
-
-  override def map(key: Object, value: Text, context: Mapper[Object, Text, IntWritable, IntWritable]#Context) = {
+  override def map(key: Object, value: Text,
+    context: Mapper[Object, Text, IntWritable, IntWritable]#Context) = {
     var parts = value.toString().split("\\s+");
     var v = new IntWritable(parts(0).toInt);
     context.write(v, v);
@@ -22,10 +22,11 @@ class InitClusterNodeMapper extends Mapper[Object, Text, IntWritable, IntWritabl
 
 /**
  * Input:  node_id, partition_id
- * Output: cluster_id 1 partition_ids
+ * Output: cluster_id size(1) partition_ids
  */
 class InitClusterInfoMapper extends Mapper[Object, Text, IntWritable, IntWritable] {
-  override def map(key: Object, value: Text, context: Mapper[Object, Text, IntWritable, IntWritable]#Context) = {
+  override def map(key: Object, value: Text,
+    context: Mapper[Object, Text, IntWritable, IntWritable]#Context) = {
     var parts = value.toString.split("\\s+")
     context.write(new IntWritable(parts(0).toInt), new IntWritable(parts(1).toInt));
   }

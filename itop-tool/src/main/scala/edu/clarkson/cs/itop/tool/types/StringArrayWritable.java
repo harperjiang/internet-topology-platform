@@ -38,4 +38,14 @@ public class StringArrayWritable extends ArrayWritable implements
 		return 0;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (Writable data : get()) {
+			builder.append(data.toString());
+			builder.append("\t");
+		}
+		return builder.toString().trim();
+	}
+
 }

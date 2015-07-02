@@ -45,8 +45,8 @@ class AdjClusterRightJoinReducer extends JoinReducer(
     var aid = right(0).toString.toInt;
     var bid = key.toString.toInt;
     if (aid < bid) {
-      (new Text(bid.toString), new Text(Array(aid.toString, left(1).toString, right(2).toString).mkString("\t")));
+      (new Text(bid.toString), new Text(Array(aid.toString, left(1).toString).mkString("\t")));
     } else {
-      (new Text(aid.toString), new Text(Array(bid.toString, right(2).toString, left(1).toString).mkString("\t")));
+      (new Text(aid.toString), new Text(Array(bid.toString, right(2).toString).mkString("\t")));
     }
   });

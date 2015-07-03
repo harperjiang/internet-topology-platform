@@ -31,8 +31,10 @@ object FoldClusterSize extends App {
     job.setJarByClass(FoldClusterSize.getClass);
     job.setMapperClass(classOf[CounterMapper]);
     job.setReducerClass(classOf[CounterReducer]);
-    job.setOutputKeyClass(classOf[IntWritable]);
-    job.setOutputValueClass(classOf[Text]);
+    job.setMapOutputKeyClass(classOf[Text]);
+    job.setMapOutputValueClass(classOf[IntWritable]);
+    job.setOutputKeyClass(classOf[Text]);
+    job.setOutputValueClass(classOf[IntWritable]);
     FileInputFormat.addInputPath(job, new Path(Config.file("exp/cluster_node_%d".format(index))))
     FileOutputFormat.setOutputPath(job, new Path(Config.file("report/fold_clustersize_%d".format(index))))
     job.submit();

@@ -35,10 +35,14 @@ class AdjTripleJoinMapper extends SingleKeyJoinMapper("adj_node_dup", "triple", 
 
 class AdjTripleJoinReducer extends JoinReducer(null,
   (key, left, right) => {
-    System.out.println(left.length);
-    System.out.println(right.length);
     (key, new Text(Array(left(1).toString, right(1).toString, right(2).toString, (right(3).toString.toInt + 1).toString).mkString("\t")));
   });
+
+/**
+ * Do we need to include triple_retain and old_triple in this round?
+ * Original triple is already there
+ * Old triples are generated from the same process, thus it will also win in this round
+ */
 
 /**
  * Input: adj_node_join (node_a, node_b, node_a_core, node_a_degree, new_length)
@@ -85,5 +89,5 @@ class TripleDiffReducer extends JoinReducer(
     oldcore.equals(newcore)
   },
   (key, left, right) => {
-    (key,new Text(Array(left(1),left(2),left(3)).map { _.toString }.mkString("\t")))
+    (key, new Text(Array(left(1), left(2), left(3)).map { _.toString }.mkString("\t")))
   });

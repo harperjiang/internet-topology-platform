@@ -11,8 +11,8 @@ import org.apache.hadoop.mapreduce.Mapper
 import org.apache.hadoop.mapreduce.Reducer
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-
 import edu.clarkson.cs.itop.tool.Config
+import org.mortbay.util.IO.NullWrite
 
 object DegreenNumOfCluster extends App {
   var conf = new Configuration();
@@ -31,14 +31,14 @@ object DegreenNumOfCluster extends App {
     job.setJarByClass(DegreenNumOfCluster.getClass());
     job.setMapperClass(classOf[ClusterCounterMapper]);
     job.setReducerClass(classOf[ClusterCounterReducer]);
+    job.setMapOutputKeyClass(classOf[IntWritable]);
+    job.setMapOutputValueClass(classOf[NullWritable]);
     job.setOutputKeyClass(classOf[IntWritable]);
     job.setOutputValueClass(classOf[Text]);
     FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_%d".format(index))))
     FileOutputFormat.setOutputPath(job, new Path(Config.file("report/degreen_clustersize_%d".format(index))))
-    job.submit();
-
+    job.waitForCompletion(true);
   }
-
 }
 
 class ClusterCounterMapper extends Mapper[Object, Text, IntWritable, NullWritable] {

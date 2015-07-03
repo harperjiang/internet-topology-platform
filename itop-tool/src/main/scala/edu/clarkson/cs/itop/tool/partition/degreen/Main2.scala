@@ -14,6 +14,7 @@ import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import org.apache.hadoop.io.Text
 import org.apache.hadoop.yarn.webapp.Params
 import edu.clarkson.cs.itop.tool.Param
+import org.apache.hadoop.fs.FileUtil
 
 object Main2 extends App {
 
@@ -25,8 +26,10 @@ object Main2 extends App {
   }
 
   def assignTriplePartition(round: Int) = {
-  fs.delete(new Path(Config.file("degree%d".format(round))), true);
-    
+    fs.delete(new Path(Config.file("degree%d".format(round))), true);
+    FileUtil.copy(fs, new Path(Config.file("degreen/triple_%d".format(round))),
+      fs, new Path(Config.file("degree%d/triple".format(round))), false, conf);
+
     var job = Job.getInstance(conf, "Degree - Join Triple Link - %d".format(round));
     job.setJarByClass(Main.getClass);
     job.setMapperClass(classOf[JoinTripleLinkMapper]);
@@ -37,7 +40,7 @@ object Main2 extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_%d".format(round))));
+    FileInputFormat.addInputPath(job, new Path(Config.file("degree%d/triple".format(round))));
     FileInputFormat.addInputPath(job, new Path(Config.file("common/node_link")));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("degree%d/triple_link_join".format(round))));
     job.waitForCompletion(true);

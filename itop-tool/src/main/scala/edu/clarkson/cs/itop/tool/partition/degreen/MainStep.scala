@@ -16,7 +16,7 @@ import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 import edu.clarkson.cs.itop.tool.Param
 
-object Main extends App {
+object MainStep extends App {
 
   var conf = new Configuration();
   FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);

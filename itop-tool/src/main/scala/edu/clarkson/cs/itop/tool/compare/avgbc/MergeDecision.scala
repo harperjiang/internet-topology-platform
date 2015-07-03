@@ -12,16 +12,21 @@ import edu.clarkson.cs.itop.tool.common.JoinReducer
 import org.apache.hadoop.io.Writable
 
 /**
- * Input : adj_cluster (cluster_a cluster_b)
  * Input : cluster_info (cluster_id size partition_id)
+ * Input : adj_cluster (cluster_a cluster_b)
  * Output: cluster_a cluster_b a_size a_partition_id
  */
 
 class AdjClusterLeftJoinMapper extends SingleKeyJoinMapper("cluster_info", "adj_cluster", 0, 0);
 
-class AdjClusterLeftJoinReducer extends JoinReducer(null, (key: Text, left: Array[Writable], right: Array[Writable]) => {
-  (key, new Text(Array(right(1).toString(), left(1).toString(), left(2).toString()).mkString("\t")))
-});
+class AdjClusterLeftJoinReducer extends JoinReducer(
+  (key: Text, left: Array[Writable], right: Array[Writable]) => {
+    var leftpart = left(2).toString();
+    !leftpart.equals("M")
+  },
+  (key: Text, left: Array[Writable], right: Array[Writable]) => {
+    (key, new Text(Array(right(1).toString(), left(1).toString(), left(2).toString()).mkString("\t")))
+  });
 
 /**
  * Input:  cluster_info (cluster_id size partition_id)
@@ -35,7 +40,7 @@ class AdjClusterRightJoinReducer extends JoinReducer(
   (key, left, right) => {
     var leftpart = right(3).toString;
     var rightpart = left(2).toString;
-    if (leftpart.contains(",") || rightpart.contains(",")) { // Ignore nodes with multiple partitions
+    if (leftpart.equals("M") || rightpart.equals("M")) { // Ignore nodes with multiple partitions
       false;
     } else {
       leftpart.equals(rightpart);

@@ -35,12 +35,12 @@ class InitClusterInfoMapper extends Mapper[Object, Text, IntWritable, IntWritabl
 class InitClusterInfoReducer extends Reducer[IntWritable, IntWritable, IntWritable, Text] {
   override def reduce(key: IntWritable, values: java.lang.Iterable[IntWritable],
     context: Reducer[IntWritable, IntWritable, IntWritable, Text]#Context) = {
-    var buffer = new ArrayBuffer[Int]();
-    values.foreach { value =>
-      {
-        buffer += value.get
-      }
-    };
-    context.write(key, new Text(Array("1", buffer.mkString(",")).mkString("\t")));
+    var iterator = values.iterator();
+    var first = iterator.next();
+    if (iterator.hasNext()) {
+      context.write(key, new Text(Array("1", "M").mkString("\t")));
+    } else {
+      context.write(key, new Text(Array("1", first.toString()).mkString("\t")));
+    }
   }
 }

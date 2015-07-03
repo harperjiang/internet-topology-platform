@@ -21,11 +21,23 @@ object Main extends App {
 
   var conf = new Configuration();
   var fs = FileSystem.get(conf);
+  run("geo");
 
   def run(prefix: String) = {
     var baseFolder = "compare/avgbc/%s".format(prefix);
 
     fs.delete(new Path(Config.file(baseFolder)), true);
+
+    initCluster(prefix, baseFolder);
+    var emd = false;
+    while (!emd) {
+      rawMergeDecision(prefix, baseFolder);
+      emd = emptyMergeDecision(baseFolder);
+      if (!emd) {
+        refineMergeDecision(prefix, baseFolder);
+        updateClusters(prefix, baseFolder);
+      }
+    }
   }
 
   def initCluster(prefix: String, base: String) = {
@@ -71,6 +83,7 @@ object Main extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("%s/cluster_info".format(base))));
     FileInputFormat.addInputPath(job, new Path(Config.file("%s/adj_cluster".format(base))));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("%s/adj_cluster_left".format(base))));
@@ -86,23 +99,24 @@ object Main extends App {
     job.setOutputValueClass(classOf[Text]);
     job.setPartitionerClass(classOf[KeyPartitioner]);
     job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
+    job.setNumReduceTasks(6);
     FileInputFormat.addInputPath(job, new Path(Config.file("%s/adj_cluster_left".format(base))));
     FileInputFormat.addInputPath(job, new Path(Config.file("%s/cluster_info".format(base))));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("%s/merge_decision_raw".format(base))))
     job.waitForCompletion(true);
-    
-//     job = Job.getInstance(conf, "Raw Merge Distinct - %s".format(prefix));
-//    job.setJarByClass(Main.getClass);
-//    job.setMapperClass(classOf[DistinctMapper]);
-//    job.setReducerClass(classOf[DistinctReducer]);
-//    job.setMapOutputKeyClass(classOf[StringArrayWritable]);
-//    job.setMapOutputValueClass(classOf[Text]);
-//    job.setOutputKeyClass(classOf[Text]);
-//    job.setOutputValueClass(classOf[NullWritable]);
-//    job.setNumReduceTasks(6);
-//    FileInputFormat.addInputPath(job, new Path(Config.file("%s/merge_decision_dup".format(base))));
-//    FileOutputFormat.setOutputPath(job, new Path(Config.file("%s/merge_decision_raw".format(base))));
-//    job.waitForCompletion(true);
+
+    //     job = Job.getInstance(conf, "Raw Merge Distinct - %s".format(prefix));
+    //    job.setJarByClass(Main.getClass);
+    //    job.setMapperClass(classOf[DistinctMapper]);
+    //    job.setReducerClass(classOf[DistinctReducer]);
+    //    job.setMapOutputKeyClass(classOf[StringArrayWritable]);
+    //    job.setMapOutputValueClass(classOf[Text]);
+    //    job.setOutputKeyClass(classOf[Text]);
+    //    job.setOutputValueClass(classOf[NullWritable]);
+    //    job.setNumReduceTasks(6);
+    //    FileInputFormat.addInputPath(job, new Path(Config.file("%s/merge_decision_dup".format(base))));
+    //    FileOutputFormat.setOutputPath(job, new Path(Config.file("%s/merge_decision_raw".format(base))));
+    //    job.waitForCompletion(true);
   }
 
   def refineMergeDecision(prefix: String, base: String) = {
@@ -258,5 +272,9 @@ object Main extends App {
     FileInputFormat.addInputPath(job, new Path(Config.file("%s/merge_decision".format(base))));
     FileOutputFormat.setOutputPath(job, new Path(Config.file("%s/cluster_node_updated".format(base))));
     job.waitForCompletion(true);
+  }
+  def emptyMergeDecision(base: String): Boolean = {
+    var contentSummary = fs.getContentSummary(new Path(Config.file("%s/merge_decision_raw".format(base))));
+    return 0 == contentSummary.getLength;
   }
 }

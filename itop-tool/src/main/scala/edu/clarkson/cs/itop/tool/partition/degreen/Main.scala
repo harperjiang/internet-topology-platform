@@ -141,6 +141,7 @@ object Main extends App {
     job.waitForCompletion(true);
   }
 
+  
   def assignTriplePartition() = {
     var job = Job.getInstance(conf, "Degree - Join Triple Link");
     job.setJarByClass(Main.getClass);

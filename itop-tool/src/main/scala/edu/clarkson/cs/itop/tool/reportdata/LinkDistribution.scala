@@ -21,15 +21,21 @@ import edu.clarkson.cs.itop.tool.common.CounterParam
 import edu.clarkson.cs.itop.tool.common.CounterReducer
 import edu.clarkson.cs.itop.tool.common.CounterMapper
 import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.yarn.webapp.Params
+import edu.clarkson.cs.itop.tool.Param
 
 object LinkDistribution extends App {
 
   var conf = new Configuration();
 
-  call("random");
-  call("degreen");
-  call("exp");
-  call("geo");
+  //  call("random");
+  //  call("degreen");
+  //  call("exp");
+  //  call("geo");
+
+  for (i <- 1 to Param.degree_n - 1) {
+    call("degree%d".format(i));
+  }
 
   def call(prefix: String) = {
     FileSystem.get(conf).delete(new Path(Config.file("report/link_distribution_%s".format(prefix))), true);

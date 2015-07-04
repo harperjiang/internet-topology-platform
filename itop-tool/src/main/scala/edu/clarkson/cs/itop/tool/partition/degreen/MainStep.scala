@@ -16,7 +16,7 @@ import edu.clarkson.cs.itop.tool.types.KeyPartitioner
 import edu.clarkson.cs.itop.tool.types.StringArrayWritable
 import edu.clarkson.cs.itop.tool.Param
 
-object Main extends App {
+object MainStep extends App {
 
   var conf = new Configuration();
   FileSystem.get(conf).delete(new Path(Config.file("degreen")), true);
@@ -89,25 +89,10 @@ object Main extends App {
     job.waitForCompletion(true);
 
     generateNewTriple();
-    
-    // Merge new triples with existed triples
-    job = Job.getInstance(conf,"Degree - Triple Join With Old");
-    job.setJarByClass(Main.getClass);
-    job.setMapperClass(classOf[MergeTripleMapper]);
-    job.setReducerClass(classOf[MergeTripleReducer]);
-    job.setMapOutputKeyClass(classOf[StringArrayWritable]);
-    job.setMapOutputValueClass(classOf[StringArrayWritable]);
-    job.setOutputKeyClass(classOf[Text]);
-    job.setOutputValueClass(classOf[Text]);
-    job.setPartitionerClass(classOf[KeyPartitioner]);
-    job.setGroupingComparatorClass(classOf[KeyGroupComparator]);
-    job.setNumReduceTasks(6);
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_new")));
-    FileInputFormat.addInputPath(job, new Path(Config.file("degreen/triple_old")));
-    FileOutputFormat.setOutputPath(job, new Path(Config.file("degreen/triple")));
-    job.waitForCompletion(true);
 
     fs.rename(new Path(Config.file("degreen/triple_old")), new Path(Config.file("degreen/triple_%d".format(round))));
+    fs.delete(new Path(Config.file("degreen/triple")), true);
+    fs.rename(new Path(Config.file("degreen/triple_new")), new Path(Config.file("degreen/triple")));
   }
 
   def generateNewTriple() = {
